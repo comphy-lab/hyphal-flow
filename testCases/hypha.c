@@ -15,10 +15,10 @@
 // #include "axi.h"
 #include "navier-stokes/centered.h"
 #define FILTERED
-#include "src-local/three-phase-nonCoalescing-viscoelastic.h"
-#include "src-local/log-conform-viscoelastic.h"
+#include "three-phase-nonCoalescing-viscoelastic.h"
+#include "log-conform-viscoelastic.h"
 #include "tension.h"
-#include "src-local/reduced-three-phase-nonCoalescing.h"
+#include "reduced-three-phase-nonCoalescing.h"
 
 // Error tolerances
 #define fErr (1e-3) // error tolerance in VOF
@@ -141,7 +141,7 @@ event writingFiles (t = 0, t += tsnap; t <= tmax+tsnap) {
 
 event logWriting (t = 0, t += tsnap2; t <= tmax+tsnap) {
   double ke = 0., vcm = 0., wt = 0.;
-  foreach (reduction(+:ke), reduction(+:vcm), reduction(+:wt)){
+  foreach (reduction(+:ke) reduction(+:vcm) reduction(+:wt)){
     ke += (0.5*rho(f1[], f2[])*(sq(u.x[]) + sq(u.y[])))*sq(Delta);
     vcm += (f1[]*u.x[])*sq(Delta);
     wt += f1[]*sq(Delta);

@@ -190,7 +190,6 @@ event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
     fprintf(fp,"%d %g %g %g %g\n", i, dt, t, ke, Ud_global);
     fflush(fp);
   }
-  }
 }
 
 

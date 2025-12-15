@@ -185,10 +185,10 @@ event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
     if (!fp) {
       fp = fopen("log","w");
       fprintf(fp,"i dt t ke U_d\n");
-    } else fp = fopen("log","a");
+    }
 
     fprintf(fp,"%d %g %g %g %g\n", i, dt, t, ke, Ud_global);
-    fclose(fp);
+    fflush(fp);
   }
 }
 

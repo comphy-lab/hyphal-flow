@@ -1,4 +1,4 @@
-* Title: Flow of a drop through a single hypha branch
+/* Title: Flow of a drop through a single hypha branch
    Author: Vatsal Sanjay, Peter Croxford
 */
 
@@ -49,6 +49,7 @@ static inline double local_gap(double x) {
 double Ud_global = 0.0;   // droplet velocity
 double Uf_global = 0.0;   // carrier fluid velocity
 
+double Pmax = 1.0;
 
 // ===========================================================================
 // MAIN
@@ -58,7 +59,7 @@ int main(int argc, char const *argv[]) {
   system("mkdir -p intermediate");
 
   MAXlevel = 9;
-  tmax = 1e2;
+  tmax = 2e2;
 
   // Drop
   Ohd = 1e0;
@@ -70,7 +71,7 @@ int main(int argc, char const *argv[]) {
   Ohf = 1e0;
   hf = 0.90;
   Ec_h = 1e0;
-  De_h = 1e12;
+  De_h = 1e10;
   RhoR_hc = 1e0;
 
   // cytoplasm
@@ -89,45 +90,34 @@ int main(int argc, char const *argv[]) {
   Y0 = 0.0;
 
   init_grid(1 << MINlevel);
-  periodic(right);
 
   // Fluid properties
   rho1 = RhoR_dc; mu1 = Ohd; G1 = Ec_d; lambda1 = De_d;
   rho2 = RhoR_hc; mu2 = Ohf; G2 = Ec_h; lambda2 = De_h;
   rho3 = 1.0;     mu3 = Ohc; G3 = Ec_c; lambda3 = De_c;
 
- // -------------------------------
-// Linear pressure profile: P(x) = Pmax - (Pmax/L)*x
-// -------------------------------
-double Pmax = 1.0;
-
-// Domain goes from x = X0 to x = X0 + L0
-double xL = X0;
-double xR = X0 + L0;
-
-// Pressure values at the boundaries from the desired linear law
-double PL = Pmax - (Pmax/L0)*xL;
-double PR = Pmax - (Pmax/L0)*xR;
-
-// Apply Dirichlet pressure at left/right so the solver enforces that gradient
-pf[left]  = dirichlet(PL);
-p[left]   = dirichlet(PL);
-
-pf[right] = dirichlet(PR);
-p[right]  = dirichlet(PR);
-
-// Keep velocity as zero-normal-gradient at inlet/outlet (typical for pressure-driven)
-u.n[left]  = neumann(0);
-u.t[left]  = neumann(0);
-u.n[right] = neumann(0);
-u.t[right] = neumann(0);
-
-
-  // Surface tension
+    // Surface tension
   f1.sigma = 1.0;
   f2.sigma = 1.0;
 
   run();
+  }
+
+ // -------------------------------
+// Linear pressure profile: P(x) = Pmax - (Pmax/L)*x
+// -------------------------------
+event pressure_bc(i = 0) {
+
+  p[left]   = dirichlet(Pmax - (Pmax/L0)*X0);
+  pf[right] = dirichlet(Pmax - (Pmax/L0)*(X0 + L0));
+  p[right]  = dirichlet(Pmax - (Pmax/L0)*(X0 + L0));
+
+  // Keep velocity as zero-normal-gradient at inlet/outlet 
+  u.n[left]  = neumann(0);
+  u.t[left]  = neumann(0);
+  u.n[right] = neumann(0);
+  u.t[right] = neumann(0);
+
 }
 
 

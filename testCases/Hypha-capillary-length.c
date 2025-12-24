@@ -1,7 +1,5 @@
-/*
-  Title: Flow of a drop through a single hypha branch
-   Author: Vatsal Sanjay, Peter Croxford
-*/
+//Title: Flow of a drop through a single hypha branch
+//Author: Vatsal Sanjay, Peter Croxford
 
 #include "navier-stokes/centered.h"
 #define FILTERED
@@ -21,6 +19,13 @@
 
 int MAXlevel;
 double tmax;
+double PL;
+double PR;
+double Pmax;
+double beta_bf;
+double mu_ref;
+double rho_ref;
+
 
 // Drop parameters
 double Ohd, RhoR_dc, Ec_d, De_d;
@@ -50,8 +55,114 @@ static inline double local_gap(double x) {
 double Ud_global = 0.0;   // droplet velocity
 double Uf_global = 0.0;   // carrier fluid velocity
 
-double Pmax = 1.0;
+// ===========================================================================
+#include <math.h>
 
+static inline int bad (double a) { return isnan(a) || isinf(a); }
+
+event first_nan_detector (i++) {
+
+  // Catch bad timestep too
+  if (!(dt > 0.) || bad(dt)) {
+    fprintf(stderr, "BAD dt: dt=%g t=%g i=%d\n", dt, t, i);
+    exit(10);
+  }
+foreach_face(x) {
+    if (isnan(u.x[]) || isinf(u.x[])) {
+      fprintf(stderr, "NaN/Inf in FACE u.x at xf=%g y=%g t=%g i=%d ux=%g\n", x, y, t, i, u.x[]);
+      exit(30);
+    }
+  }
+  foreach_face(y) {
+    if (isnan(u.y[]) || isinf(u.y[])) {
+      fprintf(stderr, "NaN/Inf in FACE u.y at x=%g yf=%g t=%g i=%d uy=%g\n", x, y, t, i, u.y[]);
+      exit(31);
+    }
+  }
+  // --- compute curvature fields (so we can check them too) ---
+  // NOTE: curvature() is reasonably cheap, but if you want it only occasionally,
+  // change (i++) to (i+=N).
+  scalar K1[], K2[];
+  curvature(f1, K1);
+  curvature(f2, K2);
+
+  // --- scan the domain for the first bad value ---
+  foreach() {
+
+    // Volume fractions
+    if (bad(f1[])) {
+      fprintf(stderr, "NaN/Inf in f1 at x=%g y=%g t=%g i=%d f1=%g\n", x, y, t, i, f1[]);
+      exit(11);
+    }
+    if (bad(f2[])) {
+      fprintf(stderr, "NaN/Inf in f2 at x=%g y=%g t=%g i=%d f2=%g\n", x, y, t, i, f2[]);
+      exit(12);
+    }
+
+    // Velocity and pressure
+    if (bad(u.x[])) {
+      fprintf(stderr, "NaN/Inf in u.x at x=%g y=%g t=%g i=%d u.x=%g\n", x, y, t, i, u.x[]);
+      // Helpful local context
+      fprintf(stderr, "  u.y=%g p=%g f1=%g f2=%g Delta=%g\n", u.y[], p[], f1[], f2[], Delta);
+      exit(13);
+    }
+    if (bad(u.y[])) {
+      fprintf(stderr, "NaN/Inf in u.y at x=%g y=%g t=%g i=%d u.y=%g\n", x, y, t, i, u.y[]);
+      fprintf(stderr, "  u.x=%g p=%g f1=%g f2=%g Delta=%g\n", u.x[], p[], f1[], f2[], Delta);
+      exit(14);
+    }
+    if (bad(p[])) {
+      fprintf(stderr, "NaN/Inf in p at x=%g y=%g t=%g i=%d p=%g\n", x, y, t, i, p[]);
+      fprintf(stderr, "  u.x=%g u.y=%g f1=%g f2=%g Delta=%g\n", u.x[], u.y[], f1[], f2[], Delta);
+      exit(15);
+    }
+
+    // Curvatures (often the first to blow up if interface gets underresolved)
+    if (bad(K1[])) {
+      fprintf(stderr, "NaN/Inf in curvature K1(f1) at x=%g y=%g t=%g i=%d K1=%g\n", x, y, t, i, K1[]);
+      fprintf(stderr, "  f1=%g f2=%g Delta=%g\n", f1[], f2[], Delta);
+      exit(16);
+    }
+    if (bad(K2[])) {
+      fprintf(stderr, "NaN/Inf in curvature K2(f2) at x=%g y=%g t=%g i=%d K2=%g\n", x, y, t, i, K2[]);
+      fprintf(stderr, "  f1=%g f2=%g Delta=%g\n", f1[], f2[], Delta);
+      exit(17);
+    }
+
+    // Viscoelastic fields (common NaN source in log-conformation if SPD violated)
+    if (bad(conform_p.x.x[])) {
+      fprintf(stderr, "NaN/Inf in conform_p.x.x at x=%g y=%g t=%g i=%d Cxx=%g\n", x, y, t, i, conform_p.x.x[]);
+      fprintf(stderr, "  Cyy=%g Cxy=%g f2=%g\n", conform_p.y.y[], conform_p.x.y[], f2[]);
+      exit(18);
+    }
+    if (bad(conform_p.y.y[])) {
+      fprintf(stderr, "NaN/Inf in conform_p.y.y at x=%g y=%g t=%g i=%d Cyy=%g\n", x, y, t, i, conform_p.y.y[]);
+      fprintf(stderr, "  Cxx=%g Cxy=%g f2=%g\n", conform_p.x.x[], conform_p.x.y[], f2[]);
+      exit(19);
+    }
+    if (bad(conform_p.x.y[]) || bad(conform_p.y.x[])) {
+      fprintf(stderr, "NaN/Inf in conform_p shear at x=%g y=%g t=%g i=%d Cxy=%g Cyx=%g\n",
+              x, y, t, i, conform_p.x.y[], conform_p.y.x[]);
+      fprintf(stderr, "  Cxx=%g Cyy=%g f2=%g\n", conform_p.x.x[], conform_p.y.y[], f2[]);
+      exit(20);
+    }
+
+    // Optional: check SPD condition (useful even before NaNs appear)
+    // Only meaningful where phase-2 is present.
+    if (f2[] > 0.5) {
+      double cxx = conform_p.x.x[];
+      double cyy = conform_p.y.y[];
+      double cxy = 0.5*(conform_p.x.y[] + conform_p.y.x[]);
+      double det = cxx*cyy - cxy*cxy;
+      if (!(cxx > 0.) || !(cyy > 0.) || !(det > 0.)) {
+        fprintf(stderr, "NON-SPD conformation at x=%g y=%g t=%g i=%d: Cxx=%g Cyy=%g Cxy=%g det=%g\n",
+                x, y, t, i, cxx, cyy, cxy, det);
+        fprintf(stderr, "  (This often causes log-conformation to NaN soon after)\n");
+        exit(21);
+      }
+    }
+  }
+}
 // ===========================================================================
 // MAIN
 // ===========================================================================
@@ -60,9 +171,10 @@ int main(int argc, char const *argv[]) {
   system("mkdir -p intermediate");
 
   MAXlevel = 9;
-  tmax = 2e2;
-
-  // Drop
+  tmax = 1e2;
+  
+  
+// Drop
   Ohd = 1e0;
   RhoR_dc = 1.2;
   Ec_d = 0.0;
@@ -72,7 +184,7 @@ int main(int argc, char const *argv[]) {
   Ohf = 1e0;
   hf = 0.90;
   Ec_h = 1e0;
-  De_h = 1e10;
+  De_h = 1e12;
   RhoR_hc = 1e0;
 
   // cytoplasm
@@ -91,34 +203,54 @@ int main(int argc, char const *argv[]) {
   Y0 = 0.0;
 
   init_grid(1 << MINlevel);
+  
 
   // Fluid properties
   rho1 = RhoR_dc; mu1 = Ohd; G1 = Ec_d; lambda1 = De_d;
   rho2 = RhoR_hc; mu2 = Ohf; G2 = Ec_h; lambda2 = De_h;
   rho3 = 1.0;     mu3 = Ohc; G3 = Ec_c; lambda3 = De_c;
 
-    // Surface tension
-  f1.sigma = 1.0;
-  f2.sigma = 1.0;
-
-  run();
-  }
+rho_ref = rho2;
+mu_ref  = mu2;
 
  // -------------------------------
 // Linear pressure profile: P(x) = Pmax - (Pmax/L)*x
 // -------------------------------
-event pressure_bc(i = 0) {
+Pmax = 1.0;
+beta_bf = 0.01;
 
-  p[left]   = dirichlet(Pmax - (Pmax/L0)*X0);
-  pf[right] = dirichlet(Pmax - (Pmax/L0)*(X0 + L0));
-  p[right]  = dirichlet(Pmax - (Pmax/L0)*(X0 + L0));
+// Helper: local coeff (beta*rho/mu) and backflow indicator (u·n)^-
+#define BF_COEFF_REF (beta_bf * rho_ref / (mu_ref + 1e-30))
+#define UN_MINUS (max(-u.n[], 0.0))
 
-  // Keep velocity as zero-normal-gradient at inlet/outlet 
-  u.n[left]  = neumann(0);
-  u.t[left]  = neumann(0);
-  u.n[right] = neumann(0);
-  u.t[right] = neumann(0);
 
+// Domain goes from x = X0 to x = X0 + L0
+double xL = X0;
+double xR = X0 + L0;
+
+// Pressure values at the boundaries from the linear law
+PL = Pmax - (Pmax/L0)*xL;
+PR = Pmax - (Pmax/L0)*xR;
+
+// Apply Dirichlet pressure at left/right so the solver enforces that gradient
+pf[left]  = dirichlet(PL);
+p[left]   = dirichlet(PL);
+
+pf[right] = dirichlet(PR);
+p[right]  = dirichlet(PR);
+
+// Keep velocity as zero-normal-gradient at inlet/outlet 
+u.n[left]  = neumann( BF_COEFF_REF * UN_MINUS * u.n[] );
+u.n[right] = neumann( BF_COEFF_REF * UN_MINUS * u.n[] );
+u.t[left]  = neumann( BF_COEFF_REF * UN_MINUS * u.t[] );
+u.t[right] = neumann( BF_COEFF_REF * UN_MINUS * u.t[] );
+
+
+  // Surface tension
+  f1.sigma = 1.0;
+  f2.sigma = 1.0;
+
+  run();
 }
 
 
@@ -238,9 +370,11 @@ event relative_drag (i++) {
       double xloc = x;
       double hloc = fabs(local_gap(xloc));
       if (hloc < 1e-6) hloc = 1e-6;
+      double h0 = Delta;
+      double h_eff = hloc + h0;
 
       double mu_loc = mu2;
-      double drag = mu_loc * (Ud - Uf) / hloc;
+      double drag = mu_loc * (Ud - Uf) / h_eff;
 
       // Limit forcing to keep solver stable
       if (fabs(drag) > 10) 
@@ -248,6 +382,7 @@ event relative_drag (i++) {
 
       a.x[] += drag;
     }
+
   }
 }
 
@@ -272,4 +407,4 @@ event wall_shear (i++) {
       conform_p.y.x[] += shear * dt;
     }
   }
-}
+ }

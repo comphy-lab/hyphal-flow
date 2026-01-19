@@ -163,6 +163,7 @@ foreach_face(x) {
     }
   }
 }
+
 // ===========================================================================
 // MAIN
 // ===========================================================================
@@ -184,7 +185,7 @@ int main(int argc, char const *argv[]) {
   Ohf = 1e0;
   hf = 0.90;
   Ec_h = 1e0;
-  De_h = 1e12;
+  De_h = 0.1;
   RhoR_hc = 1e0;
 
   // cytoplasm
@@ -213,11 +214,20 @@ int main(int argc, char const *argv[]) {
 rho_ref = rho2;
 mu_ref  = mu2;
 
+
+
  // -------------------------------
 // Linear pressure profile: P(x) = Pmax - (Pmax/L)*x
 // -------------------------------
 Pmax = 1.0;
 beta_bf = 0.01;
+// Fluid properties
+  rho1 = RhoR_dc; mu1 = Ohd; G1 = Ec_d; lambda1 = De_d;
+  rho2 = RhoR_hc; mu2 = Ohf; G2 = Ec_h; lambda2 = De_h;
+  rho3 = 1.0;     mu3 = Ohc; G3 = Ec_c; lambda3 = De_c;
+
+rho_ref = rho2;
+mu_ref  = mu2;
 
 // Helper: local coeff (beta*rho/mu) and backflow indicator (u·n)^-
 #define BF_COEFF_REF (beta_bf * rho_ref / (mu_ref + 1e-30))
@@ -328,6 +338,56 @@ event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
     fclose(fp);
   }
 }
+
+// ===========================================================================
+// LOGGING HYPHA DEFORMATION: sub-cell estimate of interface y at f2=0.5
+// ===========================================================================
+event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
+
+  double y_if_max = -1e9;
+
+  foreach (reduction(max:y_if_max)) {
+    // interfacial band
+    if (f2[] > 1e-6 && f2[] < 1.0 - 1e-6) {
+
+      // Local gradient of f2 (central differences)
+      double dfdx = (f2[1,0] - f2[-1,0])/(2.*Delta);
+      double dfdy = (f2[0,1] - f2[0,-1])/(2.*Delta);
+
+      // If gradient is too small, fall back to cell center
+      double g = sqrt(dfdx*dfdx + dfdy*dfdy);
+      double y_if = y;
+
+      if (g > 1e-12 && fabs(dfdy) > 1e-12) {
+        // Linearize: f2(x,y) ~ f2[] + dfdx*(x-xc) + dfdy*(y-yc)
+        // Solve for y where f2 = 0.5 along vertical line through cell center:
+        y_if = y + (0.5 - f2[])/dfdy;
+        // Clamp to cell bounds (avoid crazy jumps)
+        if (y_if > y + 0.5*Delta) y_if = y + 0.5*Delta;
+        if (y_if < y - 0.5*Delta) y_if = y - 0.5*Delta;
+      }
+
+      if (y_if > y_if_max)
+        y_if_max = y_if;
+    }
+  }
+
+  if (y_if_max < -1e8)
+    y_if_max = NAN;
+
+  if (pid() == 0) {
+    static FILE *fh = NULL;
+    if (!fh) {
+      fh = fopen("hypha-def-log","w");
+      fprintf(fh, "t y_if_max\n");
+    } else
+      fh = fopen("hypha-def-log","a");
+
+    fprintf(fh, "%g %g\n", t, y_if_max);
+    fclose(fh);
+  }
+}
+
 
 
 // ===========================================================================

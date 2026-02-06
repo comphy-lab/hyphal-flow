@@ -3,6 +3,7 @@
 for f in `darcs changes --last=1 -v |        \
     grep -E '^    (add|rm)file ' | \
     sed -E 's/^    (add|rm)file //g'`; do
-    rm -f `darcs show repo | grep Root | awk '{print $2}'`/`dirname $f`/Makefile.tests
+    dir=`darcs show repo | grep Root | awk '{print $2}'`/`dirname $f`
+    rm -f $dir/Makefile.tests $dir/Makefile.deps $dir/*.d
 done
-# darcs push -a -q wiki@basilisk.fr:wiki
+darcs push -a -q wiki@shell.basilisk.fr:wiki

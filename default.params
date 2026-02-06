@@ -1,0 +1,5 @@
+# default.params
+# Minimal base parameter file for sweep runner
+
+CaseNo=0000
+Ec_h=0.01

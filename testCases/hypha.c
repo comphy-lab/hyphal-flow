@@ -13,6 +13,7 @@
 // 1 is drop, 2 is film and 3 is air
 
 // #include "axi.h"
+#include "params.h"
 #include "navier-stokes/centered.h"
 #define FILTERED
 #include "three-phase-nonCoalescing-viscoelastic.h"
@@ -54,8 +55,8 @@ int main(int argc, char const *argv[]) {
   sprintf (comm, "mkdir -p intermediate");
   system(comm);
 
-  MAXlevel = 9; //atoi(argv[1]);
-  tmax = 1e2; //atof(argv[2]);
+  MAXlevel = 16; //atoi(argv[1]);
+  tmax = 2e2; //atof(argv[2]);
 
   // Drop
   Ohd = 1e0; // <0.000816/sqrt(816*0.017*0.00075) = 0.008>
@@ -66,24 +67,25 @@ int main(int argc, char const *argv[]) {
   // Hypha
   Ohf = 1e0;
   hf = 0.90; //atof(argv[5]); // ratio of the gap thickness to the drop radius, far awaay from the drop.
-  Ec_h = 1e0; //atof(argv[6]); // Elasto-capillary number: 1e-4 (very soft) to 1e3 (very stiff)
+  Ec_h = param_double("Ec_h", 0.0); //atof(argv[6]); // Elasto-capillary number: 1e-4 (very soft), (0.1 is very similar to 0) to 1e1 (appears to be rigid)
   De_h = 1e30; //atof(argv[7]);
   RhoR_hc = 1e0; // density ratio of hypha to cytoplasm
 
   // cytoplasm
   Ohc = 1e-2;
-  Ec_c = 0.0; //atof(argv[8]);
+  Ec_c = 0.00
+   //atof(argv[8]);
   De_c = 0.0; //atof(argv[9]);
   
   Bond = 1e0; // Bond number: we keep the driving fixed
 
-  Ldomain = 16.0; // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
+  Ldomain =100.0; // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
 
   fprintf(ferr, "Level %d tmax %g. Ohd %3.2f, Ec_d %3.2f, De_d %3.2e, Ohc %3.2f, Ec_c %3.2f, De_c %3.2e, Ohf %3.2f, Ec_h %3.2f, De_h %4.3e, hf %3.2f, Bo %3.2f\n", MAXlevel, tmax, Ohd, Ec_d, De_d, Ohc, Ec_c, De_c, Ohf, Ec_h, De_h, hf, Bond);
 
   L0=Ldomain;
   X0=-4.0; Y0=0.0;
-  init_grid (1 << (MINlevel));
+  init_grid (1 << (14));
   periodic(right);
 
   // drop
@@ -130,6 +132,42 @@ event adapt(i++){
 
   unrefine(x > L0-1e0);
 }
+// ===========================================================================
+// STOP SIMULATION WHEN THE *LEADING EDGE* OF THE DROP REACHES DOMAIN END (x)
+// ===========================================================================
+event stop_when_drop_exits (t += tsnap2) {
+
+  double xmax = -HUGE;
+
+  foreach (reduction(max:xmax)) {
+    if (f1[] > 1e-6) {
+      // cell's right edge as a conservative "front" estimate
+      double xr = x + 0.5*Delta;
+      if (xr > xmax) xmax = xr;
+    }
+  }
+
+  // buffer 
+  double finest = L0/(1 << MAXlevel);
+  double buffer = 2.*finest;
+
+  double x_end = X0 + L0;
+
+  if (pid() == 0)
+    fprintf(ferr, "drop front xmax = %.6f, x_end = %.6f\n", xmax, x_end);
+
+  if (xmax > x_end - buffer) {
+    if (pid() == 0) {
+      fprintf(ferr,
+        "\n*** Drop leading edge reached end of domain ***\n"
+        "xmax = %.6f, domain end = %.6f\n"
+        "Stopping simulation at t = %.6g\n\n",
+        xmax, x_end, t);
+    }
+    dump (file = "final");
+    exit(0);
+  }
+}
 
 // Outputs
 event writingFiles (t = 0, t += tsnap; t <= tmax+tsnap) {
@@ -162,7 +200,57 @@ event logWriting (t = 0, t += tsnap2; t <= tmax+tsnap) {
     fclose(fp);
     fprintf (ferr, "%d %g %g %g %5.4e\n", i, dt, t, ke, vcm);
   }
-  assert(ke > -1e-10);
+    assert(ke > -1e-10);
   // assert(ke < 1e2);
   // dump(file = "dumpTest");
+}
+
+
+// ===========================================================================
+// LOGGING HYPHA DEFORMATION: sub-cell estimate of interface y at f2=0.5
+// ===========================================================================
+event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
+
+  double y_if_max = -1e9;
+
+  foreach (reduction(max:y_if_max)) {
+    // interfacial band
+    if (f2[] > 1e-6 && f2[] < 1.0 - 1e-6) {
+
+      // Local gradient of f2 (central differences)
+      double dfdx = (f2[1,0] - f2[-1,0])/(2.*Delta);
+      double dfdy = (f2[0,1] - f2[0,-1])/(2.*Delta);
+
+      // If gradient is too small, fall back to cell center
+      double g = sqrt(dfdx*dfdx + dfdy*dfdy);
+      double y_if = y;
+
+      if (g > 1e-12 && fabs(dfdy) > 1e-12) {
+        // Linearize: f2(x,y) ~ f2[] + dfdx*(x-xc) + dfdy*(y-yc)
+        // Solve for y where f2 = 0.5 along vertical line through cell center:
+        y_if = y + (0.5 - f2[])/dfdy;
+        // Clamp to cell bounds (avoid crazy jumps)
+        if (y_if > y + 0.5*Delta) y_if = y + 0.5*Delta;
+        if (y_if < y - 0.5*Delta) y_if = y - 0.5*Delta;
+      }
+
+      if (y_if > y_if_max)
+        y_if_max = y_if;
+    }
+  }
+
+  if (y_if_max < -1e8)
+    y_if_max = NAN;
+
+  if (pid() == 0) {
+    static FILE *fh = NULL;
+    if (!fh) {
+      fh = fopen("hypha-def-log","w");
+      fprintf(fh, "t y_if_max\n");
+    } else
+      fh = fopen("hypha-def-log","a");
+
+    fprintf(fh, "%g %g\n", t, y_if_max);
+    fclose(fh);
+  }
 }

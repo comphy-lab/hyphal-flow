@@ -1,0 +1,6 @@
+ref=v2026-01-13
+os=darwin
+created_utc=2026-01-23T13:50:54Z
+local_bview=false
+patches_applied=2025-11-03-macos-mman-compatibility.patch 2026-01-13-mpi-tree-dump-header-fix.patch
+patches_skipped=

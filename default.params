@@ -5,7 +5,7 @@ CaseNo=1000
 
 # Numerical controls
 MAXlevel=13
-tmax=20.0
+tmax=200.0
 
 # Drop phase
 Ohd=1.0
@@ -16,7 +16,7 @@ De_d=0.0
 # Hypha phase
 Ohf=1.0
 hr=0.90
-Ec_h=0.01
+Ec_h=0.00
 De_h=1e30
 
 # Cytoplasm phase

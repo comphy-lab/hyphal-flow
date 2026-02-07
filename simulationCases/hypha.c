@@ -30,7 +30,7 @@ Vatsal Sanjay
 #define AErr (1e-3) // error tolerance in Conformation tensor
 #define MINlevel 4 // minimum level
 #define tsnap (1e-1)
-#define tsnap2 (1e-3)
+#define tsnap2 (1e-2)
 
 
 int MAXlevel;
@@ -91,7 +91,7 @@ int main(int argc, char const *argv[]) {
 
   Bond = param_double("Bond", 1e0); // Bond number: we keep the driving fixed
 
-  Ldomain = param_double("Ldomain", 100.0); // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
+  Ldomain = param_double("Ldomain", 80.0); // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
 
   fprintf(ferr, "Level %d tmax %g. Ohd %3.2f, Ec_d %3.2f, De_d %3.2e, Ohc %3.2f, Ec_c %3.2f, De_c %3.2e, Ohf %3.2f, Ec_h %3.2f, De_h %4.3e, hf %3.2f, Bo %3.2f\n", MAXlevel, tmax, Ohd, Ec_d, De_d, Ohc, Ec_c, De_c, Ohf, Ec_h, De_h, hf, Bond);
 

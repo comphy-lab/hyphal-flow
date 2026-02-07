@@ -17,18 +17,87 @@
 # Reads sweep values from a config file (default: sweep-128.params).
 # Compiles without MPI, then launches all compiled cases in parallel.
 # Usage:
+#   sbatch runSweepHamilton-serial-128.sbatch [sweep_config] [--exec SOURCE]
+# Examples:
 #   sbatch runSweepHamilton-serial-128.sbatch
 #   sbatch runSweepHamilton-serial-128.sbatch sweep-128.params
-#   sbatch runSweepHamilton-serial-128.sbatch custom_sweep.params
+#   sbatch runSweepHamilton-serial-128.sbatch custom_sweep.params --exec hypha-capillary.c
 # ============================================================
 
 set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage: sbatch runSweepHamilton-serial-128.sbatch [sweep_config] [--exec SOURCE]
+
+Arguments:
+  sweep_config   Sweep config file (default: sweep-128.params)
+
+Options:
+  --exec SOURCE  Source file in simulationCases/ (default: hypha.c)
+  -h, --help     Show this help message
+EOF
+}
 
 # ============================================================
 # Configuration
 # ============================================================
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
-SWEEP_CONFIG_ARG="${1:-sweep-128.params}"
+SWEEP_CONFIG_ARG="sweep-128.params"
+EXEC_SOURCE_NAME="hypha.c"
+SWEEP_CONFIG_SET=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --exec)
+      if [[ -z "${2:-}" ]]; then
+        echo "ERROR: --exec requires a source filename." >&2
+        usage
+        exit 1
+      fi
+      EXEC_SOURCE_NAME="$2"
+      shift 2
+      ;;
+    --exec=*)
+      EXEC_SOURCE_NAME="${1#*=}"
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "ERROR: Unknown option: $1" >&2
+      usage
+      exit 1
+      ;;
+    *)
+      if [[ $SWEEP_CONFIG_SET -eq 0 ]]; then
+        SWEEP_CONFIG_ARG="$1"
+        SWEEP_CONFIG_SET=1
+        shift
+      else
+        echo "ERROR: Unexpected argument: $1" >&2
+        usage
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+if [[ $# -gt 0 ]]; then
+  echo "ERROR: Unexpected trailing arguments: $*" >&2
+  usage
+  exit 1
+fi
+
+if [[ "$EXEC_SOURCE_NAME" != *.c ]]; then
+  EXEC_SOURCE_NAME="${EXEC_SOURCE_NAME}.c"
+fi
 
 if [[ "$SWEEP_CONFIG_ARG" = /* ]]; then
   SWEEP_CONFIG="$SWEEP_CONFIG_ARG"
@@ -38,7 +107,6 @@ fi
 
 if [ ! -f "$SWEEP_CONFIG" ]; then
   echo "ERROR: Sweep config not found: $SWEEP_CONFIG" >&2
-  echo "Usage: sbatch runSweepHamilton-serial-128.sbatch [sweep_config_file]" >&2
   exit 1
 fi
 
@@ -47,8 +115,8 @@ CONFIG_DIR="$(cd "$(dirname "$SWEEP_CONFIG")" && pwd)"
 # shellcheck disable=SC1090
 source "$SWEEP_CONFIG"
 
-SOURCE_FILE_NAME="${SOURCE_FILE_NAME:-hypha.c}"
-EXECUTABLE_NAME="${EXECUTABLE_NAME:-${SOURCE_FILE_NAME%.c}}"
+SOURCE_FILE_NAME="$EXEC_SOURCE_NAME"
+EXECUTABLE_NAME="${SOURCE_FILE_NAME%.c}"
 CASE_START="${CASE_START:-1506}"
 BASE_CONFIG="${BASE_CONFIG:-default.params}"
 SWEEP_EC_RAW="${SWEEP_Ec_h:-}"
@@ -101,6 +169,7 @@ echo "Node: $(hostname)"
 echo "Working dir: $(pwd)"
 echo "Job ID: ${SLURM_JOB_ID:-unknown}"
 echo "Sweep config: ${SWEEP_CONFIG}"
+echo "Source file: ${SOURCE_FILE_NAME}"
 echo "Cases: ${CASE_START}..${CASE_END} (${NCASES})"
 echo "Ec_h: ${EC_MIN} .. ${EC_MAX} (from SWEEP_Ec_h list)"
 echo "============================================="

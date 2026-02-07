@@ -1,0 +1,193 @@
+#!/bin/bash
+# runSimulation.sh
+#
+# Run a single hyphal-flow simulation from the repository root.
+# The script creates simulationCases/<CaseNo>/, copies the parameter file and
+# source file, compiles the selected case, and runs it.
+#
+# Usage:
+#   bash runSimulation.sh [params_file] [--exec exec_code]
+#
+# Examples:
+#   bash runSimulation.sh
+#   bash runSimulation.sh default.params
+#   bash runSimulation.sh default.params --exec hypha.c
+#   bash runSimulation.sh --exec hypha-capillary.c default.params
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+  cat <<'EOF'
+Usage: bash runSimulation.sh [params_file] [--exec exec_code]
+
+Arguments:
+  params_file Parameter file path (default: default.params)
+
+Options:
+  --exec FILE  C source file in simulationCases/ (default: hypha.c)
+  -h, --help   Show this help message
+EOF
+}
+
+get_param_value() {
+  local key="$1"
+  local file="$2"
+  awk -F '=' -v key="$key" '
+    /^[[:space:]]*#/ { next }
+    {
+      k = $1
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
+      if (k == key) {
+        v = $2
+        sub(/[[:space:]]*#.*/, "", v)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+        print v
+        exit
+      }
+    }
+  ' "$file"
+}
+
+# Defaults
+EXEC_CODE="hypha.c"
+PARAM_FILE="default.params"
+PARAM_FILE_SET=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --exec)
+      if [[ -z "${2:-}" ]]; then
+        echo "ERROR: --exec requires a file name." >&2
+        usage
+        exit 1
+      fi
+      EXEC_CODE="$2"
+      shift 2
+      ;;
+    --exec=*)
+      EXEC_CODE="${1#*=}"
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "ERROR: Unknown option: $1" >&2
+      usage
+      exit 1
+      ;;
+    *)
+      if [[ $PARAM_FILE_SET -eq 0 ]]; then
+        PARAM_FILE="$1"
+        PARAM_FILE_SET=1
+        shift
+      else
+        echo "ERROR: Unexpected argument: $1" >&2
+        usage
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+if [[ $# -gt 0 ]]; then
+  echo "ERROR: Unexpected trailing arguments: $*" >&2
+  usage
+  exit 1
+fi
+
+# Accept --exec names without .c extension
+if [[ "$EXEC_CODE" != *.c ]]; then
+  EXEC_CODE="${EXEC_CODE}.c"
+fi
+
+if [[ ! "$PARAM_FILE" = /* ]]; then
+  PARAM_FILE="${SCRIPT_DIR}/${PARAM_FILE}"
+fi
+
+# Source project configuration
+if [[ -f "${SCRIPT_DIR}/.project_config" ]]; then
+  # shellcheck disable=SC1091
+  source "${SCRIPT_DIR}/.project_config"
+else
+  echo "ERROR: .project_config not found at ${SCRIPT_DIR}/.project_config" >&2
+  exit 1
+fi
+
+if ! command -v qcc >/dev/null 2>&1; then
+  echo "ERROR: qcc not found in PATH after sourcing .project_config" >&2
+  exit 1
+fi
+
+if [[ ! -f "$PARAM_FILE" ]]; then
+  echo "ERROR: Parameter file not found: $PARAM_FILE" >&2
+  exit 1
+fi
+
+SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${EXEC_CODE}"
+if [[ ! -f "$SRC_FILE_ORIG" ]]; then
+  echo "ERROR: Source file not found: $SRC_FILE_ORIG" >&2
+  exit 1
+fi
+
+CASE_NO="$(get_param_value "CaseNo" "$PARAM_FILE")"
+if [[ -z "$CASE_NO" ]]; then
+  echo "ERROR: CaseNo not found in parameter file: $PARAM_FILE" >&2
+  exit 1
+fi
+
+if [[ ! "$CASE_NO" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: CaseNo must be numeric, got: $CASE_NO" >&2
+  exit 1
+fi
+
+CASE_DIR="${SCRIPT_DIR}/simulationCases/${CASE_NO}"
+SRC_FILE_LOCAL="${EXEC_CODE}"
+EXECUTABLE_NAME="${EXEC_CODE%.c}"
+
+echo "========================================="
+echo "Hyphal Flow - Single Case Runner"
+echo "========================================="
+echo "Source file: ${EXEC_CODE}"
+echo "Parameter file: ${PARAM_FILE}"
+echo "CaseNo: ${CASE_NO}"
+echo "Case directory: ${CASE_DIR}"
+echo "========================================="
+echo ""
+
+mkdir -p "$CASE_DIR"
+cp "$PARAM_FILE" "$CASE_DIR/case.params"
+cp "$SRC_FILE_ORIG" "$CASE_DIR/$SRC_FILE_LOCAL"
+
+cd "$CASE_DIR"
+
+echo "Compiling ${SRC_FILE_LOCAL} ..."
+qcc -I../../src-local -Wall -O2 -disable-dimensions \
+  "$SRC_FILE_LOCAL" -o "$EXECUTABLE_NAME" -lm
+echo "Compilation successful: $EXECUTABLE_NAME"
+echo ""
+
+if [[ -f "restart" ]]; then
+  echo "Restart file found - simulation will resume from checkpoint."
+fi
+
+echo "Running: ./${EXECUTABLE_NAME} case.params"
+./"$EXECUTABLE_NAME" case.params
+EXIT_CODE=$?
+
+echo ""
+if [[ $EXIT_CODE -eq 0 ]]; then
+  echo "Simulation completed successfully."
+  echo "Output location: simulationCases/${CASE_NO}/"
+else
+  echo "Simulation failed with exit code: $EXIT_CODE"
+fi
+
+exit "$EXIT_CODE"

@@ -8,7 +8,7 @@ viscoelastic coupling and body-force driven transport.
 Vatsal Sanjay
 
 ## Version
-- `1.0` (August 11, 2024): allow stress relaxation in both drop and
+- August 11, 2024: allow stress relaxation in both drop and
   cytoplasm.
 */
 
@@ -41,8 +41,8 @@ double tmax;
 
 Drop (`d`), hypha film/wall (`h`), and cytoplasm (`c`) parameter sets.
 */
-double Ohd, RhoR_dc, Ec_d, De_d; 
-double RhoR_hc, Ohf, hf, Ec_h, De_h; 
+double Ohd, RhoR_dc, Ec_d, De_d;
+double RhoR_hc, Ohf, hf, Ec_h, De_h;
 double Ohc, Ec_c, De_c;
 
 /**
@@ -86,7 +86,7 @@ int main(int argc, char const *argv[]) {
   Ec_c = 0.00
    //atof(argv[8]);
   De_c = 0.0; //atof(argv[9]);
-  
+
   Bond = 1e0; // Bond number: we keep the driving fixed
 
   Ldomain =100.0; // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
@@ -100,7 +100,7 @@ int main(int argc, char const *argv[]) {
 
   // drop
   rho1 = RhoR_dc; mu1 = Ohd; G1 = Ec_d; lambda1 = De_d;
-  
+
   // Hypha
   rho2 = RhoR_hc; mu2 = Ohf; G2 = Ec_h; lambda2 = De_h;
 
@@ -129,7 +129,7 @@ event init(t = 0){
     double x0tanh = 0.0; // midpoint of the tanh function
 
     refine (y < 1.2 && level < MAXlevel);
-    
+
     fraction(f1, sq(1e0) - sq(y) - sq(x/1.5));
     fraction(f2, gap(x,y,hf,width,x0tanh,clearance));
 
@@ -148,7 +148,7 @@ event adapt(i++){
   curvature(f2, KAPPA2);
 
   adapt_wavelet ((scalar *){f1, f2, KAPPA1, KAPPA2, u.x, u.y, conform_p.x.x, conform_p.x.y, conform_p.y.y},
-  (double[]){fErr, fErr, KErr, KErr, VelErr, VelErr, AErr, AErr, AErr}, 
+  (double[]){fErr, fErr, KErr, KErr, VelErr, VelErr, AErr, AErr, AErr},
   MAXlevel, MINlevel);
 
   unrefine(x > L0-1e0);
@@ -160,17 +160,15 @@ Stop the run when the leading drop edge approaches the domain outlet.
 */
 event stop_when_drop_exits (t += tsnap2) {
 
-  double xmax = -HUGE;
+  scalar xpos[];
+  coord ex = {1., 0.};
+  coord z0 = {0., 0.};
+  position (f1, xpos, ex, z0, add = false);
 
-  foreach (reduction(max:xmax)) {
-    if (f1[] > 1e-6) {
-      // cell's right edge as a conservative "front" estimate
-      double xr = x + 0.5*Delta;
-      if (xr > xmax) xmax = xr;
-    }
-  }
+  stats sx = statsf (xpos);
+  double xmax = sx.volume > 0. ? sx.max : -HUGE;
 
-  // buffer 
+  // buffer
   double finest = L0/(1 << MAXlevel);
   double buffer = 2.*finest;
 

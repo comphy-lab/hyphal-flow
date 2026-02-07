@@ -1,15 +1,14 @@
-/** Title: log-conform-viscoelastic.h
-# Version: 10.0
-# Main feature: A exists in across the domain and relaxes according to \lambda. The stress only acts according to G.
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
-# Updated: Jul 23, 2024
+/**
+# log-conform-viscoelastic.h
+
+Log-conformation formulation with relaxation for viscoelastic phases in
+the hyphal-flow simulations.
+
+## Notes
+- Adapted from `http://basilisk.fr/src/log-conform.h`.
+- `conform_p` and `conform_qq` store conformation tensor components.
+- Relaxation is controlled through the local `lambda` field.
 */
-
-// The code is same as http://basilisk.fr/src/log-conform.h but written for purely elastic limit (lambda \to \infty)
-
-// In this code, conform_p, conform_qq are in fact the Conformation tensor.  
 
 #include "bcg.h"
 
@@ -363,4 +362,3 @@ event acceleration (i++)
       av.y[] -= (tau_qq[] + tau_qq[0,-1])*alpha.y[]/sq(y)/2.;
 #endif
 }
-

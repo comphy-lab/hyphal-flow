@@ -1,15 +1,17 @@
 /**
-# Three-phase interfacial flows: two phases (f1, f2) are non-coalescing and the third (f1 = f2 = 0) is always air
+# three-phase-nonCoalescing-viscoelastic.h
 
-# Version 0.2
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
-# Last Updated: Jul 23, 2024
+Three-phase interfacial model where two liquid phases (`f1`, `f2`) are
+kept non-coalescing and the third phase (`f1 = f2 = 0`) is ambient
+fluid.
 
-The interface between the fluids is tracked with a Volume-Of-Fluid
-method. The volume fraction in drop is $f1=1$ and $f2=0$. In the thin film, it is $f2=1$ and $f1=0$. Air (fluid 3) is $f1 = f2 = 0$. The densities and dynamic viscosities for fluid 1 and 2 are *rho1*, *mu1*, *rho3*, *mu2*, respectively.
-**Note:** The drop and the film are defined by different VoF fields, but have same properties (density and viscosity).
+## Physical Interpretation
+- Drop phase: `f1 = 1`, `f2 = 0`
+- Film/wall phase: `f2 = 1`, `f1 = 0`
+- Ambient phase: `f1 = f2 = 0`
+
+The drop and film are represented by separate VoF fields but may share
+material properties when required.
 */
 
 #include "vof.h"

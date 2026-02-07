@@ -1,5 +1,13 @@
-//Title: Flow of a drop through a single hypha branch
-//Author: Vatsal Sanjay, Peter Croxford
+/**
+# Hypha-capillary-length.c
+
+Pressure-driven drop transport through a hypha branch with additional
+runtime stability diagnostics and deformation tracking.
+
+## Authors
+- Vatsal Sanjay
+- Peter Croxford
+*/
 
 #include "navier-stokes/centered.h"
 #define FILTERED
@@ -8,7 +16,9 @@
 #include "tension.h"
 #include "reduced-three-phase-nonCoalescing.h"
 
-// Error tolerances
+/**
+## Numerical Tolerances
+*/
 #define fErr   (1e-3)
 #define KErr   (1e-4)
 #define VelErr (1e-2)
@@ -27,39 +37,46 @@ double mu_ref;
 double rho_ref;
 
 
-// Drop parameters
+/**
+## Material Parameters
+
+Drop (`d`), hypha film/wall (`h`), and cytoplasm (`c`) parameter sets.
+*/
 double Ohd, RhoR_dc, Ec_d, De_d;
-
-// Hypha wall + film parameters
 double RhoR_hc, Ohf, hf, Ec_h, De_h;
-
-// Cytoplasm parameters
 double Ohc, Ec_c, De_c;
 
 double Ldomain;
 
-// --- existing gap() from original code ---
-#define gap(x,y,hf,width,x0,c0) (y - ((c0+1e0) + 0.5 * (hf - (c0+1e0)) * (1 + tanh(sq(x-x0) / width))))
+/**
+## Geometry Helper
 
-// --- parameters used by local-gap helper ---
+`gap()` defines the wall profile and `local_gap()` is used by drag and
+wall-shear closures.
+*/
+#define gap(x,y,hf,width,x0,c0) (y - ((c0+1e0) + 0.5 * (hf - (c0+1e0)) * (1 + tanh(sq(x-x0) / width))))
 double width_gap  = 2.0;
 double clearance_gap = 0.20;
 double x0tanh_gap = 0.0;
-
-// local film-thickness helper
 static inline double local_gap(double x) {
     return gap(x, 0.0, hf, width_gap, x0tanh_gap, clearance_gap);
 }
-
-// globals to store velocities
 double Ud_global = 0.0;   // droplet velocity
 double Uf_global = 0.0;   // carrier fluid velocity
 
-// ===========================================================================
+/**
+## Diagnostics Utilities
+*/
 #include <math.h>
 
 static inline int bad (double a) { return isnan(a) || isinf(a); }
 
+/**
+## first_nan_detector()
+
+Abort early when invalid values appear in primary state variables,
+curvature fields, or conformation tensors.
+*/
 event first_nan_detector (i++) {
 
   // Catch bad timestep too
@@ -79,14 +96,16 @@ foreach_face(x) {
       exit(31);
     }
   }
-  // --- compute curvature fields (so we can check them too) ---
-  // NOTE: curvature() is reasonably cheap, but if you want it only occasionally,
-  // change (i++) to (i+=N).
+  /**
+  Compute curvatures so they can be included in stability checks.
+  */
   scalar K1[], K2[];
   curvature(f1, K1);
   curvature(f2, K2);
 
-  // --- scan the domain for the first bad value ---
+  /**
+  Scan the domain and terminate on the first invalid value.
+  */
   foreach() {
 
     // Volume fractions
@@ -147,8 +166,7 @@ foreach_face(x) {
       exit(20);
     }
 
-    // Optional: check SPD condition (useful even before NaNs appear)
-    // Only meaningful where phase-2 is present.
+    // Optional SPD check (only meaningful in phase-2 regions).
     if (f2[] > 0.5) {
       double cxx = conform_p.x.x[];
       double cyy = conform_p.y.y[];
@@ -164,9 +182,12 @@ foreach_face(x) {
   }
 }
 
-// ===========================================================================
-// MAIN
-// ===========================================================================
+/**
+## main()
+
+Initialize parameters, pressure boundary conditions, and run the
+simulation event loop.
+*/
 int main(int argc, char const *argv[]) {
 
   system("mkdir -p intermediate");
@@ -175,7 +196,7 @@ int main(int argc, char const *argv[]) {
   tmax = 1e2;
   
   
-// Drop
+  // Drop
   Ohd = 1e0;
   RhoR_dc = 1.2;
   Ec_d = 0.0;
@@ -216,12 +237,12 @@ mu_ref  = mu2;
 
 
 
- // -------------------------------
-// Linear pressure profile: P(x) = Pmax - (Pmax/L)*x
-// -------------------------------
+  /**
+  Linear pressure profile: `P(x) = Pmax - (Pmax/L0) x`.
+  */
 Pmax = 1.0;
 beta_bf = 0.01;
-// Fluid properties
+  // Re-assert fluid properties used for the boundary closure.
   rho1 = RhoR_dc; mu1 = Ohd; G1 = Ec_d; lambda1 = De_d;
   rho2 = RhoR_hc; mu2 = Ohf; G2 = Ec_h; lambda2 = De_h;
   rho3 = 1.0;     mu3 = Ohc; G3 = Ec_c; lambda3 = De_c;
@@ -234,22 +255,22 @@ mu_ref  = mu2;
 #define UN_MINUS (max(-u.n[], 0.0))
 
 
-// Domain goes from x = X0 to x = X0 + L0
+  // Domain goes from x = X0 to x = X0 + L0.
 double xL = X0;
 double xR = X0 + L0;
 
-// Pressure values at the boundaries from the linear law
+  // Pressure values at the boundaries from the linear law.
 PL = Pmax - (Pmax/L0)*xL;
 PR = Pmax - (Pmax/L0)*xR;
 
-// Apply Dirichlet pressure at left/right so the solver enforces that gradient
+  // Apply Dirichlet pressure at left/right boundaries.
 pf[left]  = dirichlet(PL);
 p[left]   = dirichlet(PL);
 
 pf[right] = dirichlet(PR);
 p[right]  = dirichlet(PR);
 
-// Keep velocity as zero-normal-gradient at inlet/outlet 
+  // Keep velocity as zero-normal-gradient at inlet/outlet.
 u.n[left]  = neumann( BF_COEFF_REF * UN_MINUS * u.n[] );
 u.n[right] = neumann( BF_COEFF_REF * UN_MINUS * u.n[] );
 u.t[left]  = neumann( BF_COEFF_REF * UN_MINUS * u.t[] );
@@ -264,9 +285,12 @@ u.t[right] = neumann( BF_COEFF_REF * UN_MINUS * u.t[] );
 }
 
 
-// ===========================================================================
-// INITIALIZATION
-// ===========================================================================
+/**
+## init()
+
+Create initial drop and hypha interfaces unless a restart snapshot is
+available.
+*/
 event init(t = 0) {
   if (!restore (file = "restart")) {
 
@@ -285,9 +309,12 @@ event init(t = 0) {
 }
 
 
-// ===========================================================================
-// ADAPTIVITY
-// ===========================================================================
+/**
+## adapt()
+
+Adaptive mesh refinement driven by interfaces, curvature, velocity, and
+conformation fields.
+*/
 event adapt(i++) {
   scalar K1[], K2[];
   curvature(f1, K1);
@@ -302,9 +329,11 @@ event adapt(i++) {
 }
 
 
-// ===========================================================================
-// OUTPUTS
-// ===========================================================================
+/**
+## writingFiles()
+
+Write periodic restart and snapshot files.
+*/
 event writingFiles (t = 0; t += tsnap; t <= tmax+tsnap) {
   dump(file="restart");
   char nameOut[80];
@@ -313,9 +342,11 @@ event writingFiles (t = 0; t += tsnap; t <= tmax+tsnap) {
 }
 
 
-// ===========================================================================
-// LOGGING DROPLET VELOCITY (U_d = vcm)
-// ===========================================================================
+/**
+## logWriting()
+
+Compute kinetic energy and droplet center-of-mass velocity `U_d`.
+*/
 event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
   double ke = 0., vcm = 0., wt = 0.;
 
@@ -339,9 +370,12 @@ event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
   }
 }
 
-// ===========================================================================
-// LOGGING HYPHA DEFORMATION: sub-cell estimate of interface y at f2=0.5
-// ===========================================================================
+/**
+## log_hypha_deformation()
+
+Track the maximum interface height using a sub-cell linearized estimate
+for the `f2 = 0.5` contour.
+*/
 event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
 
   double y_if_max = -1e9;
@@ -390,9 +424,11 @@ event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
 
 
 
-// ===========================================================================
-// MEASURE FLUID VELOCITY U_f
-// ===========================================================================
+/**
+## measure_Uf()
+
+Compute average carrier-flow velocity `U_f` in the hypha phase.
+*/
 event measure_Uf (t += tsnap2) {
 
   double Uf = 0., wt = 0.;
@@ -414,9 +450,12 @@ event measure_Uf (t += tsnap2) {
 }
 
 
-// ===========================================================================
-// RELATIVE-LUBRICATION DRAG:  μ (U_d - U_f) / h(x)
-// ===========================================================================
+/**
+## relative_drag()
+
+Apply a lubrication-inspired body-force correction
+$\mu (U_d - U_f)/h_{\mathrm{eff}}(x)$.
+*/
 #define sign(x) ((x > 0) - (x < 0))
 event relative_drag (i++) {
 
@@ -447,9 +486,12 @@ event relative_drag (i++) {
 }
 
 
-// ===========================================================================
-// WALL-SHEAR FEEDBACK TO KELVIN–VOIGT: τ_xy = μ Uf / h(x)
-// ===========================================================================
+/**
+## wall_shear()
+
+Feed back estimated wall shear into the Kelvin-Voigt stress state via
+`conform_p`.
+*/
 event wall_shear (i++) {
   double Uf = Uf_global;
 

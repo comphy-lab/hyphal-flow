@@ -1,6 +1,11 @@
 /**
 # Reduced gravity 
 
+Recast gravity as an interface force contribution for non-coalescing
+three-phase calculations.
+
+## Formulation
+
 We re-express gravity in [two-phase flows](two-phase.h) as an
 [interfacial force](iforce.h) as
 $$
@@ -14,7 +19,8 @@ $$
 \phi = [\rho]\mathbf{G}\cdot(\mathbf{x} - \mathbf{Z})
 $$
 with $\mathbf{G}$ the gravity vector and $\mathbf{Z}$ an optional
-reference level. */
+reference level.
+*/
 
 coord Bf1 = {0.,0.,0.}, Z1 = {0.,0.,0.};
 coord Bf2 = {0.,0.,0.}, Z2 = {0.,0.,0.};

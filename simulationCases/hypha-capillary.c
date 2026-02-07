@@ -1,5 +1,11 @@
-/* Title: Flow of a drop through a single hypha branch
-   Author: Vatsal Sanjay
+/**
+# hypha-capillary.c
+
+Pressure-driven transport of a drop through a single hypha branch with
+three-phase non-coalescing viscoelastic physics.
+
+## Author
+Vatsal Sanjay
 */
 
 #include "navier-stokes/centered.h"
@@ -9,7 +15,9 @@
 #include "tension.h"
 #include "reduced-three-phase-nonCoalescing.h"
 
-// Error tolerances
+/**
+## Numerical Tolerances
+*/
 #define fErr   (1e-3)
 #define KErr   (1e-4)
 #define VelErr (1e-2)
@@ -21,38 +29,40 @@
 int MAXlevel;
 double tmax;
 
-// Drop parameters
+/**
+## Material Parameters
+
+Drop (`d`), hypha film/wall (`h`), and cytoplasm (`c`) parameter sets.
+*/
 double Ohd, RhoR_dc, Ec_d, De_d;
-
-// Hypha wall + film parameters
 double RhoR_hc, Ohf, hf, Ec_h, De_h;
-
-// Cytoplasm parameters
 double Ohc, Ec_c, De_c;
 
 double Ldomain;
 
-// --- existing gap() from original code ---
-#define gap(x,y,hf,width,x0,c0) (y - ((c0+1e0) + 0.5 * (hf - (c0+1e0)) * (1 + tanh(sq(x-x0) / width))))
+/**
+## Geometry Helper
 
-// --- parameters used by local-gap helper ---
+`gap()` defines the wall profile and `local_gap()` is used by drag and
+wall-shear closures.
+*/
+#define gap(x,y,hf,width,x0,c0) (y - ((c0+1e0) + 0.5 * (hf - (c0+1e0)) * (1 + tanh(sq(x-x0) / width))))
 double width_gap  = 2.0;
 double clearance_gap = 0.20;
 double x0tanh_gap = 0.0;
-
-// local film-thickness helper
 static inline double local_gap(double x) {
     return gap(x, 0.0, hf, width_gap, x0tanh_gap, clearance_gap);
 }
-
-// globals to store velocities
 double Ud_global = 0.0;   // droplet velocity
 double Uf_global = 0.0;   // carrier fluid velocity
 
 
-// ===========================================================================
-// MAIN
-// ===========================================================================
+/**
+## main()
+
+Initialize material properties, pressure forcing, and interface
+parameters before entering the Basilisk event loop.
+*/
 int main(int argc, char const *argv[]) {
 
   system("mkdir -p intermediate");
@@ -117,9 +127,12 @@ int main(int argc, char const *argv[]) {
 }
 
 
-// ===========================================================================
-// INITIALIZATION
-// ===========================================================================
+/**
+## init()
+
+Create initial drop and hypha interfaces unless a restart snapshot is
+available.
+*/
 event init(t = 0) {
   if (!restore (file = "restart")) {
 
@@ -138,9 +151,12 @@ event init(t = 0) {
 }
 
 
-// ===========================================================================
-// ADAPTIVITY
-// ===========================================================================
+/**
+## adapt()
+
+Adaptive mesh refinement driven by interfaces, curvature, velocity, and
+conformation fields.
+*/
 event adapt(i++) {
   scalar K1[], K2[];
   curvature(f1, K1);
@@ -155,9 +171,11 @@ event adapt(i++) {
 }
 
 
-// ===========================================================================
-// OUTPUTS
-// ===========================================================================
+/**
+## writingFiles()
+
+Write periodic restart and snapshot files.
+*/
 event writingFiles (t = 0; t += tsnap; t <= tmax+tsnap) {
   dump(file="restart");
   char nameOut[80];
@@ -166,9 +184,11 @@ event writingFiles (t = 0; t += tsnap; t <= tmax+tsnap) {
 }
 
 
-// ===========================================================================
-// LOGGING DROPLET VELOCITY (U_d = vcm)
-// ===========================================================================
+/**
+## logWriting()
+
+Compute kinetic energy and droplet center-of-mass velocity `U_d`.
+*/
 event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
   double ke = 0., vcm = 0., wt = 0.;
 
@@ -193,9 +213,11 @@ event logWriting (t = 0; t += tsnap2; t <= tmax+tsnap) {
 }
 
 
-// ===========================================================================
-// MEASURE FLUID VELOCITY U_f
-// ===========================================================================
+/**
+## measure_Uf()
+
+Compute average carrier-flow velocity `U_f` in the hypha phase.
+*/
 event measure_Uf (t += tsnap2) {
 
   double Uf = 0., wt = 0.;
@@ -217,9 +239,12 @@ event measure_Uf (t += tsnap2) {
 }
 
 
-// ===========================================================================
-// RELATIVE-LUBRICATION DRAG:  μ (U_d - U_f) / h(x)
-// ===========================================================================
+/**
+## relative_drag()
+
+Apply a lubrication-inspired body-force correction
+$\mu (U_d - U_f)/h(x)$ in the interface neighborhood.
+*/
 #define sign(x) ((x > 0) - (x < 0))
 event relative_drag (i++) {
 
@@ -247,9 +272,12 @@ event relative_drag (i++) {
 }
 
 
-// ===========================================================================
-// WALL-SHEAR FEEDBACK TO KELVIN–VOIGT: τ_xy = μ Uf / h(x)
-// ===========================================================================
+/**
+## wall_shear()
+
+Feed back estimated wall shear into the Kelvin-Voigt stress state via
+`conform_p`.
+*/
 event wall_shear (i++) {
   double Uf = Uf_global;
 
@@ -268,4 +296,3 @@ event wall_shear (i++) {
     }
   }
 }
-

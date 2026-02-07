@@ -1,16 +1,16 @@
-/* Title: Flow of a drop through a single hypha branch
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
+/**
+# hypha.c
 
-# Version 1.0
-# Updated: Aug 11, 2024
+Baseline single-branch hypha simulation with non-coalescing three-phase
+viscoelastic coupling and body-force driven transport.
 
-# Change log: 
-* Version 1.0, Aug 11, 2024: allowing the stresses to relax. This allows for the cytoplasm as well as the drop to be viscoelastic.
+## Author
+Vatsal Sanjay
+
+## Version
+- `1.0` (August 11, 2024): allow stress relaxation in both drop and
+  cytoplasm.
 */
-
-// 1 is drop, 2 is film and 3 is air
 
 // #include "axi.h"
 #include "params.h"
@@ -21,7 +21,9 @@
 #include "tension.h"
 #include "reduced-three-phase-nonCoalescing.h"
 
-// Error tolerances
+/**
+## Numerical Tolerances
+*/
 #define fErr (1e-3) // error tolerance in VOF
 #define KErr (1e-4) // error tolerance in KAPPA
 #define VelErr (1e-2) // error tolerances in velocity
@@ -34,21 +36,29 @@
 int MAXlevel;
 double tmax;
 
-// moving Drop is assumed Newtonian for now
+/**
+## Material Parameters
+
+Drop (`d`), hypha film/wall (`h`), and cytoplasm (`c`) parameter sets.
+*/
 double Ohd, RhoR_dc, Ec_d, De_d; 
-
-// hypha is modelled as Kelvin-Voigt solid
 double RhoR_hc, Ohf, hf, Ec_h, De_h; 
-
-// cytoplasm is assumed Newtonian as well
 double Ohc, Ec_c, De_c;
 
+/**
+## Geometry Helper
+*/
 #define gap(x,y,hf,width,x0,c0) (y - ((c0+1e0) + 0.5 * (hf - (c0+1e0)) * (1 + tanh(sq(x-x0) / width))))
 
 double Bond; // driving force
 double Ldomain;
 
 
+/**
+## main()
+
+Initialize properties and forcing, then enter the Basilisk event loop.
+*/
 int main(int argc, char const *argv[]) {
 
   char comm[80];
@@ -107,6 +117,11 @@ int main(int argc, char const *argv[]) {
 
 }
 
+/**
+## init()
+
+Initialize interfaces unless a restart snapshot is available.
+*/
 event init(t = 0){
   if (!restore (file = "restart")) {
     double width = 2e0; // width of the tanh function
@@ -121,6 +136,12 @@ event init(t = 0){
   }
 }
 
+/**
+## adapt()
+
+Adaptive mesh refinement driven by interfaces, curvature, velocity, and
+conformation fields.
+*/
 event adapt(i++){
   scalar KAPPA1[], KAPPA2[];
   curvature(f1, KAPPA1);
@@ -132,9 +153,11 @@ event adapt(i++){
 
   unrefine(x > L0-1e0);
 }
-// ===========================================================================
-// STOP SIMULATION WHEN THE *LEADING EDGE* OF THE DROP REACHES DOMAIN END (x)
-// ===========================================================================
+/**
+## stop_when_drop_exits()
+
+Stop the run when the leading drop edge approaches the domain outlet.
+*/
 event stop_when_drop_exits (t += tsnap2) {
 
   double xmax = -HUGE;
@@ -169,7 +192,11 @@ event stop_when_drop_exits (t += tsnap2) {
   }
 }
 
-// Outputs
+/**
+## writingFiles()
+
+Write periodic restart and snapshot files.
+*/
 event writingFiles (t = 0, t += tsnap; t <= tmax+tsnap) {
   dump (file = "restart");
   char nameOut[80];
@@ -177,6 +204,11 @@ event writingFiles (t = 0, t += tsnap; t <= tmax+tsnap) {
   dump (file = nameOut);
 }
 
+/**
+## logWriting()
+
+Log kinetic energy and droplet center-of-mass velocity.
+*/
 event logWriting (t = 0, t += tsnap2; t <= tmax+tsnap) {
   double ke = 0., vcm = 0., wt = 0.;
   foreach (reduction(+:ke) reduction(+:vcm) reduction(+:wt)){
@@ -206,9 +238,12 @@ event logWriting (t = 0, t += tsnap2; t <= tmax+tsnap) {
 }
 
 
-// ===========================================================================
-// LOGGING HYPHA DEFORMATION: sub-cell estimate of interface y at f2=0.5
-// ===========================================================================
+/**
+## log_hypha_deformation()
+
+Track maximum hypha interface height using a sub-cell estimate of the
+`f2 = 0.5` contour.
+*/
 event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
 
   double y_if_max = -1e9;

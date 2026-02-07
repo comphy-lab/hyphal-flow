@@ -1,15 +1,14 @@
-/** Title: log-conform-elastic.h
-# Version: 10.0
-# Main feature: A exists in across the domain but stress only acts according to G.
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
-# Updated: Jul 23, 2024
+/**
+# log-conform-elastic.h
+
+Log-conformation formulation for the purely elastic limit used in the
+hyphal-flow simulations.
+
+## Notes
+- Adapted from `http://basilisk.fr/src/log-conform.h`.
+- `conform_p` and `conform_qq` store conformation tensor components.
+- Stress is applied through the elastic modulus field `Gp`.
 */
-
-// The code is same as http://basilisk.fr/src/log-conform.h but written for purely elastic limit (lambda \to \infty)
-
-// In this code, conform_p, conform_qq are in fact the Conformation tensor. 
 
 #include "bcg.h"
 
@@ -338,4 +337,3 @@ event acceleration (i++)
       av.y[] -= (tau_qq[] + tau_qq[0,-1])*alpha.y[]/sq(y)/2.;
 #endif
 }
-

@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>hyphal-flow | hyphal-flow</title>
+  <title>runSingularCaseHamilton.sbatch | hyphal-flow</title>
   
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="Computational fluid dynamics simulations using Basilisk C framework.">
+  <meta name="description" content="SCRIPTDIR='\${SLURMSUBMITDIR:-\$(pwd)}' exec bash '\${SCRIPTDIR}/runSingleCaseHamilton.sbatch' '\$@'">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="fluid dynamics, CFD, Basilisk, multiphase flow, computational physics">
+  <meta name="keywords" content="runsingularcasehamilton">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -424,246 +424,35 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
             
             <div class="page-content">
                 
-                                
-                                
+                                <h1 class="page-title">runSingularCaseHamilton.sbatch</h1>
                 
-                <h1 id="hyphal-flow">hyphal-flow</h1>
-                <p>Basilisk C simulations for drop transport in a single
-                fungal hypha branch with three-phase, non-coalescing
-                viscoelastic modeling.</p>
-                <h2 id="repository-layout">Repository Layout</h2>
-                <div class="repository-structure">
-                <ul>
-                <li><strong><a href="src-local">src-local/</a></strong>
-                - # Project-specific Basilisk headers
-                <ul>
-                <li><strong><a
-                href="src-local/log-conform-elastic.h.html">log-conform-elastic.h</a></strong>
-                -</li>
-                <li><strong><a
-                href="src-local/log-conform-viscoelastic.h.html">log-conform-viscoelastic.h</a></strong>
-                -</li>
-                <li><strong><a
-                href="src-local/reduced-three-phase-nonCoalescing.h.html">reduced-three-phase-nonCoalescing.h</a></strong>
-                -</li>
-                <li><strong><a
-                href="src-local/three-phase-nonCoalescing-elastic.h.html">three-phase-nonCoalescing-elastic.h</a></strong>
-                -</li>
-                <li><strong><a
-                href="src-local/three-phase-nonCoalescing-viscoelastic.h.html">three-phase-nonCoalescing-viscoelastic.h</a></strong>
-                -</li>
-                </ul></li>
-                <li><strong><a
-                href="simulationCases">simulationCases/</a></strong> - #
-                Simulation entry points + case dirs
-                <ul>
-                <li><strong><a
-                href="simulationCases/hypha.c.html">hypha.c</a></strong>
-                -</li>
-                <li><strong><a
-                href="simulationCases/hypha-capillary.c.html">hypha-capillary.c</a></strong>
-                -</li>
-                <li><strong><a
-                href="simulationCases/Hypha-capillary-length.c.html">Hypha-capillary-length.c</a></strong>
-                -</li>
-                <li><strong><a
-                href="simulationCases/Makefile.html">Makefile</a></strong>
-                -</li>
-                <li><strong><a
-                href="simulationCases/runCodesInParallel.sh.html">runCodesInParallel.sh</a></strong>
-                -</li>
-                </ul></li>
-                <li><strong><a
-                href="postProcess">postProcess/</a></strong> - #
-                Analysis and plotting utilities
-                <ul>
-                <li><strong><a
-                href="postProcess/getData-elastic-nonCoalescence.c.html">getData-elastic-nonCoalescence.c</a></strong>
-                -</li>
-                <li><strong><a
-                href="postProcess/getFacet-threePhase.c.html">getFacet-threePhase.c</a></strong>
-                -</li>
-                <li><strong><a
-                href="postProcess/plot_vcm_vs_time.py.html">plot_vcm_vs_time.py</a></strong>
-                -</li>
-                <li><strong><a
-                href="postProcess/plot_hypha_width_vs_time.py.html">plot_hypha_width_vs_time.py</a></strong>
-                -</li>
-                <li><strong><a
-                href="postProcess/plot_vcm_vs_Ec_H.py.html">plot_vcm_vs_Ec_H.py</a></strong>
-                -</li>
-                </ul></li>
-                <li><strong><a
-                href="default.params.html">default.params</a></strong> -
-                # Base parameters for sweeps</li>
-                <li><strong><a
-                href="sweep.params.html">sweep.params</a></strong> - #
-                Default MPI sweep config</li>
-                <li><strong><a
-                href="sweep-128.params.html">sweep-128.params</a></strong>
-                - # Default serial-128 sweep config</li>
-                <li><strong><a
-                href="runSweepHamilton.sbatch.html">runSweepHamilton.sbatch</a></strong>
-                - # MPI sweep runner</li>
-                <li><strong><a
-                href="runSweepHamilton-serial-128.sbatch.html">runSweepHamilton-serial-128.sbatch</a></strong>
-                - # Serial compile + parallel launch</li>
-                <li><strong><a
-                href="AGENTS.md.html">AGENTS.md</a></strong> - #
-                Authoritative project guidance</li>
-                <li><strong><a
-                href="README.md.html">README.md</a></strong> -</li>
-                <li><strong><a href="LICENSE.html">LICENSE</a></strong>
-                -</li>
-                </ul>
+                                
+                                <div class="raw-file-button-container">
+                    <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/runSingularCaseHamilton.sbatch" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-github"></i> See raw file
+                    </a>
                 </div>
-                <h2 id="requirements">Requirements</h2>
-                <ul>
-                <li>Basilisk <code>qcc</code></li>
-                <li>C compiler (GCC/Clang)</li>
-                <li><code>mpicc</code> and MPI runtime for MPI
-                builds</li>
-                <li>Python 3 (for plotting scripts and sweep value
-                generation)</li>
-                </ul>
-                <h2 id="quick-start">Quick Start</h2>
-                <h3 id="compile-a-simulation-case">1. Compile a
-                simulation case</h3>
-                <p>OpenMP build:</p>
+                
+                <h1
+                id="runsingularcasehamilton.sbatch">runSingularCaseHamilton.sbatch</h1>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qcc</span> <span class="at">-Wall</span> <span class="at">-O2</span> <span class="at">-fopenmp</span> <span class="at">-I</span><span class="va">$(</span><span class="ex">PWD</span><span class="va">)</span>/src-local simulationCases/hypha.c <span class="at">-o</span> hypha <span class="at">-lm</span></span></code></pre></div></div>
-                <p>MPI build:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="va">CC99</span><span class="op">=</span><span class="st">&#39;mpicc -std=c99&#39;</span> <span class="ex">qcc</span> <span class="at">-Wall</span> <span class="at">-O2</span> <span class="at">-D_MPI</span><span class="op">=</span>1 <span class="at">-disable-dimensions</span> <span class="dt">\</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">-I</span><span class="va">$(</span><span class="ex">PWD</span><span class="va">)</span>/src-local simulationCases/hypha.c <span class="at">-o</span> hyphaMPI <span class="at">-lm</span></span></code></pre></div></div>
-                <h3 id="run-locally">2. Run locally</h3>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">./hypha</span></span></code></pre></div></div>
-                <p>or with MPI:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mpirun</span> <span class="at">-np</span> 8 ./hyphaMPI</span></code></pre></div></div>
-                <h3 id="run-a-cluster-sweep">3. Run a cluster sweep</h3>
-                <p>The Hamilton job script performs an <code>Ec_h</code>
-                sweep defined in the selected sweep config file and
-                writes results to
-                <code>simulationCases/&lt;CaseNo&gt;/</code>.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> runSweepHamilton.sbatch</span></code></pre></div></div>
-                <p>By default it reads <code>sweep.params</code>. You
-                can pass a different sweep file:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> runSweepHamilton.sbatch my-sweep.params</span></code></pre></div></div>
-                <p>For the serial executable workflow (compile without
-                MPI, launch all cases in parallel), use:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> runSweepHamilton-serial-128.sbatch</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> runSweepHamilton-serial-128.sbatch my-sweep-128.params</span></code></pre></div></div>
-                <h2 id="parameter-files">Parameter Files</h2>
-                <ul>
-                <li><code>default.params</code>: base parameter values
-                used by the sweep script.</li>
-                <li><code>sweep.params</code>: default sweep input for
-                <code>runSweepHamilton.sbatch</code> (contains
-                <code>CASE_START</code>, optional <code>CASE_END</code>,
-                and <code>SWEEP_Ec_h=...</code> list).</li>
-                <li><code>sweep-128.params</code>: default sweep input
-                for <code>runSweepHamilton-serial-128.sbatch</code> (128
-                <code>Ec_h</code> values,
-                <code>CASE_START=1506</code>).</li>
-                </ul>
-                <h2 id="post-processing">Post-Processing</h2>
-                <p><code>postProcess/</code> contains extraction and
-                plotting utilities. Typical usage is to run plotting
-                scripts from inside a case directory containing
-                <code>log</code> and/or <code>hypha-def-log</code>, for
-                example:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> ../postProcess/plot_vcm_vs_time.py</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> ../postProcess/plot_hypha_width_vs_time.py</span></code></pre></div></div>
-                <p>For multi-case analysis (after collecting logs into
-                one directory):</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python3</span> postProcess/plot_vcm_vs_Ec_H.py <span class="at">--log_dir</span> path/to/logs <span class="at">--pattern</span> <span class="st">&quot;log*&quot;</span></span></code></pre></div></div>
-                <h2 id="notes">Notes</h2>
-                <ul>
-                <li><code>simulationCases/hypha.c</code> reads
-                <code>Ec_h</code> from a parameter interface
-                (<code>param_double(...)</code>), so runtime parameter
-                handling must be available in the configured Basilisk
-                toolchain.</li>
-                <li>Generated binaries, logs, restart files, local
-                Basilisk checkouts, and <code>.comphy-basilisk/</code>
-                are intentionally not committed.</li>
-                </ul>
-                <h2 id="license">License</h2>
-                <p>GPL-3.0. See <code>LICENSE</code>.</p>
-                <h2 id="generated-documentation">Generated
-                Documentation</h2>
-                <h3 id="root-directory">Root Directory</h3>
-                <ul>
-                <li><a
-                href="default.params.html">default.params</a></li>
-                <li><a
-                href="runParameterSweep.sh.html">runParameterSweep.sh</a></li>
-                <li><a
-                href="runSimulation.sh.html">runSimulation.sh</a></li>
-                <li><a
-                href="runSingleCaseHamilton.sbatch.html">runSingleCaseHamilton.sbatch</a></li>
-                <li><a
-                href="runSingularCaseHamilton.sbatch.html">runSingularCaseHamilton.sbatch</a></li>
-                <li><a
-                href="runSweepHamilton-serial-128.sbatch.html">runSweepHamilton-serial-128.sbatch</a></li>
-                <li><a
-                href="runSweepHamilton.sbatch.html">runSweepHamilton.sbatch</a></li>
-                <li><a
-                href="sweep-128.params.html">sweep-128.params</a></li>
-                <li><a href="sweep.params.html">sweep.params</a></li>
-                </ul>
-                <h3 id="postprocess">postProcess</h3>
-                <ul>
-                <li><a
-                href="postProcess/getData-elastic-nonCoalescence.c.html">postProcess/getData-elastic-nonCoalescence.c</a></li>
-                <li><a
-                href="postProcess/getFacet-threePhase.c.html">postProcess/getFacet-threePhase.c</a></li>
-                <li><a
-                href="postProcess/plot_hypha_width_vs_time.py.html">postProcess/plot_hypha_width_vs_time.py</a></li>
-                <li><a
-                href="postProcess/plot_vcm_vs_Ec_H.py.html">postProcess/plot_vcm_vs_Ec_H.py</a></li>
-                <li><a
-                href="postProcess/plot_vcm_vs_time-2.py.html">postProcess/plot_vcm_vs_time-2.py</a></li>
-                <li><a
-                href="postProcess/plot_vcm_vs_time.py.html">postProcess/plot_vcm_vs_time.py</a></li>
-                </ul>
-                <h3 id="simulationcases">simulationCases</h3>
-                <ul>
-                <li><a
-                href="simulationCases/Hypha-capillary-length.c.html">simulationCases/Hypha-capillary-length.c</a></li>
-                <li><a
-                href="simulationCases/Makefile.html">simulationCases/Makefile</a></li>
-                <li><a
-                href="simulationCases/hypha-capillary.c.html">simulationCases/hypha-capillary.c</a></li>
-                <li><a
-                href="simulationCases/hypha.c.html">simulationCases/hypha.c</a></li>
-                <li><a
-                href="simulationCases/runCodesInParallel.sh.html">simulationCases/runCodesInParallel.sh</a></li>
-                </ul>
-                <h3 id="src-local">src-local</h3>
-                <ul>
-                <li><a
-                href="src-local/log-conform-elastic.h.html">src-local/log-conform-elastic.h</a></li>
-                <li><a
-                href="src-local/log-conform-viscoelastic.h.html">src-local/log-conform-viscoelastic.h</a></li>
-                <li><a
-                href="src-local/params.h.html">src-local/params.h</a></li>
-                <li><a
-                href="src-local/parse_params.sh.html">src-local/parse_params.sh</a></li>
-                <li><a
-                href="src-local/reduced-three-phase-nonCoalescing.h.html">src-local/reduced-three-phase-nonCoalescing.h</a></li>
-                <li><a
-                href="src-local/three-phase-nonCoalescing-elastic.h.html">src-local/three-phase-nonCoalescing-elastic.h</a></li>
-                <li><a
-                href="src-local/three-phase-nonCoalescing-viscoelastic.h.html">src-local/three-phase-nonCoalescing-viscoelastic.h</a></li>
-                </ul>
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --job-name=hyphaSingleMPI</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -N 1</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -n 128</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -c 1</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mem=240G</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --time=3-00:00:00</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --gres=tmp:100G</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH -p multi</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-type=</span><span class="re">END</span><span class="co">,FAIL</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --mail-user=your.email@durham.ac.uk</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --output=slurm-single-%j.out</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">#SBATCH --error=slurm-single-%j.err</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Compatibility entrypoint for the singular naming variant.</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="va">SCRIPT_DIR</span><span class="op">=</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">{SLURM_SUBMIT_DIR:-</span><span class="dt">\$</span><span class="st">(pwd)}&quot;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> bash <span class="st">&quot;</span><span class="dt">\$</span><span class="st">{SCRIPT_DIR}/runSingleCaseHamilton.sbatch&quot;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">@&quot;</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -705,8 +494,8 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
                 <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
               </a>
-              <a href="https://github.com/comphy-lab/hyphal-flow" class="edit-link" aria-label="Edit this page on GitHub">
-                <i class="fa-brands fa-github"></i> View repository
+              <a href="https://github.com/comphy-lab/hyphal-flow/edit/main/runSingularCaseHamilton.sbatch" class="edit-link" aria-label="Edit this page on GitHub">
+                <i class="fa-brands fa-github"></i> Edit this page
               </a>
             </div>
           </footer>

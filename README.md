@@ -12,7 +12,9 @@ hyphal-flow/
 ├── postProcess/            # Analysis and plotting utilities
 ├── default.params          # Base parameters for sweeps
 ├── sweep.params            # Sweep metadata/config values
+├── sweep-128.params        # 128-case sweep configuration
 ├── runSweepHamilton.sbatch # Hamilton batch sweep script
+├── runSweepHamilton-serial-128.sbatch # Serial compile + parallel launch script
 └── AGENTS.md               # Authoritative project instructions
 ```
 
@@ -67,11 +69,21 @@ By default it reads `sweep.params`. You can pass a different sweep file:
 sbatch runSweepHamilton.sbatch my-sweep.params
 ```
 
+For the serial executable workflow (compile without MPI, launch all cases in
+parallel), use:
+
+```bash
+sbatch runSweepHamilton-serial-128.sbatch
+sbatch runSweepHamilton-serial-128.sbatch my-sweep-128.params
+```
+
 ## Parameter Files
 
 - `default.params`: base parameter values used by the sweep script.
 - `sweep.params`: default sweep input for `runSweepHamilton.sbatch` (contains
   `CASE_START`, optional `CASE_END`, and `SWEEP_Ec_h=...` list).
+- `sweep-128.params`: default sweep input for
+  `runSweepHamilton-serial-128.sbatch` (128 `Ec_h` values, `CASE_START=1506`).
 
 ## Post-Processing
 

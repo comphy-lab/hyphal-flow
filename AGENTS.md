@@ -30,6 +30,13 @@ This file is the authoritative project guidance for `hyphal-flow`.
     ```
   - Uses `default.params` (or `BASE_CONFIG` from the sweep file) as base config.
   - Writes outputs under `simulationCases/<CaseNo>/`.
+- Run serial-compiled sweep and launch cases in parallel:
+  ```bash
+  sbatch runSweepHamilton-serial-128.sbatch
+  ```
+  - Uses `sweep-128.params` by default.
+  - Compiles with `qcc -O2 -Wall -disable-dimensions` (no MPI).
+  - Launches all compiled cases concurrently in the background.
 
 ## Repository Rules
 

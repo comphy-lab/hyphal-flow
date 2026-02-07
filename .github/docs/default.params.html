@@ -202,7 +202,7 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="CaseNo=0000 Ech=0.01">
+  <meta name="description" content="CaseNo=1000">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
   <meta name="keywords" content="default">
@@ -436,10 +436,34 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <h1 id="default.params">default.params</h1>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode ini"><code class="sourceCode ini"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># default.params</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Minimal base parameter file for sweep runner</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Base parameter file for hypha simulations.</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">CaseNo</span><span class="ot">=</span><span class="dv">0000</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_h</span><span class="ot">=</span><span class="fl">0.01</span></span></code></pre></div></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">CaseNo</span><span class="ot">=</span><span class="dv">1000</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Numerical controls</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MAXlevel</span><span class="ot">=</span><span class="dv">13</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">tmax</span><span class="ot">=</span><span class="fl">20.0</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Drop phase</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dt">Ohd</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="dt">RhoR_dc</span><span class="ot">=</span><span class="fl">1.2</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_d</span><span class="ot">=</span><span class="fl">0.0</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">De_d</span><span class="ot">=</span><span class="fl">0.0</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Hypha phase</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="dt">Ohf</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="dt">hr</span><span class="ot">=</span><span class="fl">0.90</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_h</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">De_h</span><span class="ot">=</span><span class="fl">1e30</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Cytoplasm phase</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_c</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_c</span><span class="ot">=</span><span class="fl">0.0</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="dt">De_c</span><span class="ot">=</span><span class="fl">0.0</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Forcing and geometry</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="dt">Bond</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="dt">Ldomain</span><span class="ot">=</span><span class="fl">80.0</span></span></code></pre></div></div>
             </div>
         </main>
 

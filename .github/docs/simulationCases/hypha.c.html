@@ -441,12 +441,12 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <p>Vatsal Sanjay</p>
                 <h2 id="version">Version</h2>
                 <ul>
-                <li><code>1.0</code> (August 11, 2024): allow stress
-                relaxation in both drop and cytoplasm.</li>
+                <li>August 11, 2024: allow stress relaxation in both
+                drop and cytoplasm.</li>
                 </ul>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// #include &quot;axi.h&quot;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/params.h" title="Link to Basilisk source for params.h"><span class="im">"params.h"</span></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/params.h.html" title="Link to local documentation for params.h"><span class="im">"params.h"</span></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/navier-stokes/centered.h" title="Link to Basilisk source for navier-stokes/centered.h"><span class="im">"navier-stokes/centered.h"</span></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/three-phase-nonCoalescing-viscoelastic.h.html" title="Link to local documentation for three-phase-nonCoalescing-viscoelastic.h"><span class="im">"three-phase-nonCoalescing-viscoelastic.h"</span></a></span>
@@ -490,57 +490,59 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  sprintf <span class="op">(</span>comm<span class="op">,</span> <span class="st">&quot;mkdir -p intermediate&quot;</span><span class="op">);</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  system<span class="op">(</span>comm<span class="op">);</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  MAXlevel <span class="op">=</span> <span class="dv">16</span><span class="op">;</span> <span class="co">//atoi(argv[1]);</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  tmax <span class="op">=</span> <span class="fl">2e2</span><span class="op">;</span> <span class="co">//atof(argv[2]);</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Drop</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  Ohd <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// &lt;0.000816/sqrt(816*0.017*0.00075) = 0.008&gt;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  RhoR_dc <span class="op">=</span> <span class="fl">1.2e0</span><span class="op">;</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  Ec_d <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">//atof(argv[3]);</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  De_d <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">//atof(argv[4]);</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Hypha</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  Ohf <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  hf <span class="op">=</span> <span class="fl">0.90</span><span class="op">;</span> <span class="co">//atof(argv[5]); // ratio of the gap thickness to the drop radius, far awaay from the drop.</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  Ec_h <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ec_h&quot;</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">);</span> <span class="co">//atof(argv[6]); // Elasto-capillary number: 1e-4 (very soft), (0.1 is very similar to 0) to 1e1 (appears to be rigid)</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  De_h <span class="op">=</span> <span class="fl">1e30</span><span class="op">;</span> <span class="co">//atof(argv[7]);</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  RhoR_hc <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// density ratio of hypha to cytoplasm</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cytoplasm</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  Ohc <span class="op">=</span> <span class="fl">1e-2</span><span class="op">;</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  Ec_c <span class="op">=</span> <span class="fl">0.00</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>   <span class="co">//atof(argv[8]);</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  De_c <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">//atof(argv[9]);</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  Bond <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// Bond number: we keep the driving fixed</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  params_init_from_argv<span class="op">(</span>argc<span class="op">,</span> argv<span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  MAXlevel <span class="op">=</span> param_int<span class="op">(</span><span class="st">&quot;MAXlevel&quot;</span><span class="op">,</span> <span class="dv">12</span><span class="op">);</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  tmax <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;tmax&quot;</span><span class="op">,</span> <span class="fl">2e2</span><span class="op">);</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Drop</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  Ohd <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ohd&quot;</span><span class="op">,</span> <span class="fl">1e0</span><span class="op">);</span> <span class="co">// &lt;0.000816/sqrt(816*0.017*0.00075) = 0.008&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  RhoR_dc <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;RhoR_dc&quot;</span><span class="op">,</span> <span class="fl">1.2e0</span><span class="op">);</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  Ec_d <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ec_d&quot;</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">);</span> <span class="co">//atof(argv[3]);</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  De_d <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;De_d&quot;</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">);</span> <span class="co">//atof(argv[4]);</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Hypha</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  Ohf <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ohf&quot;</span><span class="op">,</span> <span class="fl">1e0</span><span class="op">);</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  hf <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;hr&quot;</span><span class="op">,</span> param_double<span class="op">(</span><span class="st">&quot;hf&quot;</span><span class="op">,</span> <span class="fl">0.90</span><span class="op">));</span> <span class="co">// ratio of the gap thickness to the drop radius, far awaay from the drop.</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  Ec_h <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ec_h&quot;</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">);</span> <span class="co">//atof(argv[6]); // Elasto-capillary number: 1e-4 (very soft), (0.1 is very similar to 0) to 1e1 (appears to be rigid)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  De_h <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;De_h&quot;</span><span class="op">,</span> <span class="fl">1e30</span><span class="op">);</span> <span class="co">//atof(argv[7]);</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  RhoR_hc <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// density ratio of hypha to cytoplasm</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cytoplasm</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  Ohc <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Oh_c&quot;</span><span class="op">,</span> param_double<span class="op">(</span><span class="st">&quot;Ohc&quot;</span><span class="op">,</span> <span class="fl">1e-2</span><span class="op">));</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  Ec_c <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ec_c&quot;</span><span class="op">,</span> <span class="fl">0.00</span><span class="op">);</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>   <span class="co">//atof(argv[8]);</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  De_c <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;De_c&quot;</span><span class="op">,</span> <span class="fl">0.0</span><span class="op">);</span> <span class="co">//atof(argv[9]);</span></span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  Ldomain <span class="op">=</span><span class="fl">100.0</span><span class="op">;</span> <span class="co">// Dimension of the domain: should be large enough to get a steady solution to drop velocity.</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  Bond <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Bond&quot;</span><span class="op">,</span> <span class="fl">1e0</span><span class="op">);</span> <span class="co">// Bond number: we keep the driving fixed</span></span>
 <span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  fprintf<span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;Level %d tmax %g. Ohd %3.2f, Ec_d %3.2f, De_d %3.2e, Ohc %3.2f, Ec_c %3.2f, De_c %3.2e, Ohf %3.2f, Ec_h %3.2f, De_h %4.3e, hf %3.2f, Bo %3.2f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> MAXlevel<span class="op">,</span> tmax<span class="op">,</span> Ohd<span class="op">,</span> Ec_d<span class="op">,</span> De_d<span class="op">,</span> Ohc<span class="op">,</span> Ec_c<span class="op">,</span> De_c<span class="op">,</span> Ohf<span class="op">,</span> Ec_h<span class="op">,</span> De_h<span class="op">,</span> hf<span class="op">,</span> Bond<span class="op">);</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  Ldomain <span class="op">=</span> param_double<span class="op">(</span><span class="st">&quot;Ldomain&quot;</span><span class="op">,</span> <span class="fl">100.0</span><span class="op">);</span> <span class="co">// Dimension of the domain: should be large enough to get a steady solution to drop velocity.</span></span>
 <span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  L0<span class="op">=</span>Ldomain<span class="op">;</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  X0<span class="op">=-</span><span class="fl">4.0</span><span class="op">;</span> Y0<span class="op">=</span><span class="fl">0.0</span><span class="op">;</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  init_grid <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="op">(</span><span class="dv">14</span><span class="op">));</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  periodic<span class="op">(</span>right<span class="op">);</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="co">// drop</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  rho1 <span class="op">=</span> RhoR_dc<span class="op">;</span> mu1 <span class="op">=</span> Ohd<span class="op">;</span> G1 <span class="op">=</span> Ec_d<span class="op">;</span> lambda1 <span class="op">=</span> De_d<span class="op">;</span></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Hypha</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  rho2 <span class="op">=</span> RhoR_hc<span class="op">;</span> mu2 <span class="op">=</span> Ohf<span class="op">;</span> G2 <span class="op">=</span> Ec_h<span class="op">;</span> lambda2 <span class="op">=</span> De_h<span class="op">;</span></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cytoplasm</span></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  rho3 <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> mu3 <span class="op">=</span> Ohc<span class="op">;</span> G3 <span class="op">=</span> Ec_c<span class="op">;</span> lambda3 <span class="op">=</span> De_c<span class="op">;</span></span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  Bf1<span class="op">.</span>x <span class="op">=</span> Bond<span class="op">;</span></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  Bf2<span class="op">.</span>x <span class="op">=</span> Bond<span class="op">;</span></span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>  f1<span class="op">.</span>sigma <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// drop-cytoplasm interfacial tension</span></span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  f2<span class="op">.</span>sigma <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// hypha-cytoplasm interfacial tension</span></span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  run<span class="op">();</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  fprintf<span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;Level %d tmax %g. Ohd %3.2f, Ec_d %3.2f, De_d %3.2e, Ohc %3.2f, Ec_c %3.2f, De_c %3.2e, Ohf %3.2f, Ec_h %3.2f, De_h %4.3e, hf %3.2f, Bo %3.2f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> MAXlevel<span class="op">,</span> tmax<span class="op">,</span> Ohd<span class="op">,</span> Ec_d<span class="op">,</span> De_d<span class="op">,</span> Ohc<span class="op">,</span> Ec_c<span class="op">,</span> De_c<span class="op">,</span> Ohf<span class="op">,</span> Ec_h<span class="op">,</span> De_h<span class="op">,</span> hf<span class="op">,</span> Bond<span class="op">);</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  L0<span class="op">=</span>Ldomain<span class="op">;</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  X0<span class="op">=-</span><span class="fl">4.0</span><span class="op">;</span> Y0<span class="op">=</span><span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  init_grid <span class="op">(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> <span class="op">(</span><span class="dv">8</span><span class="op">));</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  periodic<span class="op">(</span>right<span class="op">);</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  <span class="co">// drop</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>  rho1 <span class="op">=</span> RhoR_dc<span class="op">;</span> mu1 <span class="op">=</span> Ohd<span class="op">;</span> G1 <span class="op">=</span> Ec_d<span class="op">;</span> lambda1 <span class="op">=</span> De_d<span class="op">;</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Hypha</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  rho2 <span class="op">=</span> RhoR_hc<span class="op">;</span> mu2 <span class="op">=</span> Ohf<span class="op">;</span> G2 <span class="op">=</span> Ec_h<span class="op">;</span> lambda2 <span class="op">=</span> De_h<span class="op">;</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cytoplasm</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  rho3 <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> mu3 <span class="op">=</span> Ohc<span class="op">;</span> G3 <span class="op">=</span> Ec_c<span class="op">;</span> lambda3 <span class="op">=</span> De_c<span class="op">;</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>  Bf1<span class="op">.</span>x <span class="op">=</span> Bond<span class="op">;</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>  Bf2<span class="op">.</span>x <span class="op">=</span> Bond<span class="op">;</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  f1<span class="op">.</span>sigma <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// drop-cytoplasm interfacial tension</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  f2<span class="op">.</span>sigma <span class="op">=</span> <span class="fl">1e0</span><span class="op">;</span> <span class="co">// hypha-cytoplasm interfacial tension</span></span>
 <span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>  run<span class="op">();</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="init">init()</h2>
                 <p>Initialize interfaces unless a restart snapshot is
                 available.</p>
@@ -551,7 +553,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> clearance <span class="op">=</span> <span class="fl">0.20</span><span class="op">;</span> <span class="co">// clearance from the drop inside the cytoplasm at t =</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> x0tanh <span class="op">=</span> <span class="fl">0.0</span><span class="op">;</span> <span class="co">// midpoint of the tanh function</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    refine <span class="op">(</span>y <span class="op">&lt;</span> <span class="fl">1.2</span> <span class="op">&amp;&amp;</span> level <span class="op">&lt;</span> MAXlevel<span class="op">);</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    refine <span class="op">(</span>sq<span class="op">(</span>y<span class="op">)</span> <span class="op">+</span> sq<span class="op">(</span>x<span class="op">/</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0.81</span> <span class="op">&amp;&amp;</span> sq<span class="op">(</span>y<span class="op">)</span> <span class="op">+</span> sq<span class="op">(</span>x<span class="op">/</span><span class="fl">1.5</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">1.21</span> <span class="op">&amp;&amp;</span> level <span class="op">&lt;</span> MAXlevel<span class="op">);</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    fraction<span class="op">(</span>f1<span class="op">,</span> sq<span class="op">(</span><span class="fl">1e0</span><span class="op">)</span> <span class="op">-</span> sq<span class="op">(</span>y<span class="op">)</span> <span class="op">-</span> sq<span class="op">(</span>x<span class="op">/</span><span class="fl">1.5</span><span class="op">));</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    fraction<span class="op">(</span>f2<span class="op">,</span> gap<span class="op">(</span>x<span class="op">,</span>y<span class="op">,</span>hf<span class="op">,</span>width<span class="op">,</span>x0tanh<span class="op">,</span>clearance<span class="op">));</span></span>
@@ -572,7 +574,8 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  MAXlevel<span class="op">,</span> MINlevel<span class="op">);</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  unrefine<span class="op">(</span>x <span class="op">&gt;</span> L0<span class="op">-</span><span class="fl">1e0</span><span class="op">);</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  unrefine<span class="op">(</span>y <span class="op">&gt;</span> <span class="fl">1e1</span><span class="op">);</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2
                 id="stop_when_drop_exits">stop_when_drop_exits()</h2>
                 <p>Stop the run when the leading drop edge approaches
@@ -580,37 +583,35 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>event stop_when_drop_exits <span class="op">(</span>t <span class="op">+=</span> tsnap2<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> xmax <span class="op">=</span> <span class="op">-</span>HUGE<span class="op">;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  foreach <span class="op">(</span>reduction<span class="op">(</span>max<span class="op">:</span>xmax<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>f1<span class="op">[]</span> <span class="op">&gt;</span> <span class="fl">1e-6</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="co">// cell&#39;s right edge as a conservative &quot;front&quot; estimate</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">double</span> xr <span class="op">=</span> x <span class="op">+</span> <span class="fl">0.5</span><span class="op">*</span>Delta<span class="op">;</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>xr <span class="op">&gt;</span> xmax<span class="op">)</span> xmax <span class="op">=</span> xr<span class="op">;</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">// buffer</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> finest <span class="op">=</span> L0<span class="op">/(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> buffer <span class="op">=</span> <span class="fl">2.</span><span class="op">*</span>finest<span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  scalar xpos<span class="op">[];</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  coord ex <span class="op">=</span> <span class="op">{</span><span class="fl">1.</span><span class="op">,</span> <span class="fl">0.</span><span class="op">};</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  coord z0 <span class="op">=</span> <span class="op">{</span><span class="fl">0.</span><span class="op">,</span> <span class="fl">0.</span><span class="op">};</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  position <span class="op">(</span>f1<span class="op">,</span> xpos<span class="op">,</span> ex<span class="op">,</span> z0<span class="op">,</span> add <span class="op">=</span> false<span class="op">);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  stats sx <span class="op">=</span> statsf <span class="op">(</span>xpos<span class="op">);</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> xmax <span class="op">=</span> sx<span class="op">.</span>volume <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">?</span> sx<span class="op">.</span>max <span class="op">:</span> <span class="op">-</span>HUGE<span class="op">;</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="co">// buffer</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> finest <span class="op">=</span> L0<span class="op">/(</span><span class="dv">1</span> <span class="op">&lt;&lt;</span> MAXlevel<span class="op">);</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> buffer <span class="op">=</span> <span class="fl">2.</span><span class="op">*</span>finest<span class="op">;</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> x_end <span class="op">=</span> X0 <span class="op">+</span> L0<span class="op">;</span></span>
 <span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> x_end <span class="op">=</span> X0 <span class="op">+</span> L0<span class="op">;</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;drop front xmax = %.6f, x_end = %.6f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> xmax<span class="op">,</span> x_end<span class="op">);</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>xmax <span class="op">&gt;</span> x_end <span class="op">-</span> buffer<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>      fprintf<span class="op">(</span>ferr<span class="op">,</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="sc">\n</span><span class="st">*** Drop leading edge reached end of domain ***</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;xmax = %.6f, domain end = %.6f</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Stopping simulation at t = %.6g</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">,</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        xmax<span class="op">,</span> x_end<span class="op">,</span> t<span class="op">);</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    dump <span class="op">(</span>file <span class="op">=</span> <span class="st">&quot;final&quot;</span><span class="op">);</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    exit<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;drop front xmax = %.6f, x_end = %.6f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> xmax<span class="op">,</span> x_end<span class="op">);</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>xmax <span class="op">&gt;</span> x_end <span class="op">-</span> buffer<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>      fprintf<span class="op">(</span>ferr<span class="op">,</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="sc">\n</span><span class="st">*** Drop leading edge reached end of domain ***</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;xmax = %.6f, domain end = %.6f</span><span class="sc">\n</span><span class="st">&quot;</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Stopping simulation at t = %.6g</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        xmax<span class="op">,</span> x_end<span class="op">,</span> t<span class="op">);</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>    dump <span class="op">(</span>file <span class="op">=</span> <span class="st">&quot;final&quot;</span><span class="op">);</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>    exit<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="writingfiles">writingFiles()</h2>
                 <p>Write periodic restart and snapshot files.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre

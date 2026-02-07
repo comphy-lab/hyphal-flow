@@ -41,6 +41,16 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/hyphal-flow/runParameterSweep.sh.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/hyphal-flow/runSimulation.sh.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/hyphal-flow/runSweepHamilton-serial-128.sbatch.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -82,6 +92,16 @@
   </url>
   <url>
     <loc>https://comphy-lab.org/hyphal-flow/src-local/log-conform-viscoelastic.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/hyphal-flow/src-local/params.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/hyphal-flow/src-local/parse_params.sh.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

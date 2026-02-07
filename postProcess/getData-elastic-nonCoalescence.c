@@ -1,7 +1,13 @@
-/* Title: getting Data from simulation snapshot
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
+/**
+# getData-elastic-nonCoalescence.c
+
+Sample scalar diagnostics from a Basilisk snapshot and print tabulated
+pointwise values for downstream plotting.
+
+## Computed Fields
+- `D2c`: log-scaled viscous dissipation proxy
+- `vel`: velocity magnitude
+- `trA`: trace-like conformation/stress metric
 */
 
 #include "utils.h"
@@ -19,6 +25,12 @@ double xmin, ymin, xmax, ymax, Deltax, Deltay, Oh1, Oh2, Oh3;
 scalar D2c[], vel[], trA[];
 scalar * list = NULL;
 
+/**
+## main()
+
+Usage:
+`./getData-elastic-nonCoalescence snapshot xmin ymin xmax ymax ny Oh1 Oh2 Oh3`
+*/
 int main(int a, char const *arguments[])
 {
   sprintf (filename, "%s", arguments[1]);
@@ -34,8 +46,8 @@ int main(int a, char const *arguments[])
   list = list_add (list, vel);
   list = list_add (list, trA);
 
-  /*
-  Actual run and codes!
+  /**
+  Restore the snapshot and evaluate derived fields on cell centers.
   */
   restore (file = filename);
 
@@ -67,13 +79,12 @@ int main(int a, char const *arguments[])
 
   FILE * fp = ferr;
   Deltay = (double)((ymax-ymin)/(ny));
-  // fprintf(ferr, "%g\n", Deltay);
   nx = (int)((xmax - xmin)/Deltay);
-  // fprintf(ferr, "%d\n", nx);
   Deltax = (double)((xmax-xmin)/(nx));
-  // fprintf(ferr, "%g\n", Deltax);
   len = list_len(list);
-  // fprintf(ferr, "%d\n", len);
+  /**
+  Interpolate all diagnostics onto a uniform `nx x ny` sampling grid.
+  */
   double ** field = (double **) matrix_new (nx, ny+1, len*sizeof(double));
   for (int i = 0; i < nx; i++) {
     double x = Deltax*(i+1./2) + xmin;

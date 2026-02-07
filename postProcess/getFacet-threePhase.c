@@ -1,7 +1,8 @@
-/* Title: Getting Facets
-# Author: Vatsal Sanjay
-# vatsalsanjay@gmail.com
-# Physics of Fluids
+/**
+# getFacet-threePhase.c
+
+Extract interface facets from a saved snapshot for either the drop
+(`f1`) or film (`f2`) phase.
 */
 
 #include "utils.h"
@@ -12,16 +13,24 @@ scalar f[], f1[], f2[];
 char filename[80];
 bool includeCoat;
 
+/**
+## main()
+
+Usage:
+`./getFacet-threePhase snapshot true|false`
+
+When `true`, facets are extracted from `f1`; otherwise `f2` is used.
+*/
 int main(int a, char const *arguments[]){
   sprintf(filename, "%s", arguments[1]);
 
-  // Compare the string from command line argument to "true"
+  /**
+  Interpret the second argument as a boolean selector.
+  */
   if (strcmp(arguments[2], "true") == 0) {
     includeCoat = true;
-    // fprintf(ferr, "includeCoat\n");
   } else {
     includeCoat = false;
-    // fprintf(ferr, "not includeCoat\n");
   }
 
   restore (file = filename);

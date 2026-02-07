@@ -78,3 +78,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+basilisk 
+**/.vscode
+**/.project_config

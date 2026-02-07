@@ -1,5 +1,29 @@
 # default.params
-# Minimal base parameter file for sweep runner
+# Base parameter file for hypha simulations.
 
-CaseNo=0000
+CaseNo=1000
+
+# Numerical controls
+MAXlevel=13
+tmax=20.0
+
+# Drop phase
+Ohd=1.0
+RhoR_dc=1.2
+Ec_d=0.0
+De_d=0.0
+
+# Hypha phase
+Ohf=1.0
+hr=0.90
 Ec_h=0.01
+De_h=1e30
+
+# Cytoplasm phase
+Oh_c=0.01
+Ec_c=0.0
+De_c=0.0
+
+# Forcing and geometry
+Bond=1.0
+Ldomain=80.0

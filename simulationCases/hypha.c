@@ -65,37 +65,39 @@ int main(int argc, char const *argv[]) {
   sprintf (comm, "mkdir -p intermediate");
   system(comm);
 
-  MAXlevel = 16; //atoi(argv[1]);
-  tmax = 2e2; //atof(argv[2]);
+  params_init_from_argv(argc, argv);
+
+  MAXlevel = param_int("MAXlevel", 12);
+  tmax = param_double("tmax", 2e2);
 
   // Drop
-  Ohd = 1e0; // <0.000816/sqrt(816*0.017*0.00075) = 0.008>
-  RhoR_dc = 1.2e0;
-  Ec_d = 0.0; //atof(argv[3]);
-  De_d = 0.0; //atof(argv[4]);
+  Ohd = param_double("Ohd", 1e0); // <0.000816/sqrt(816*0.017*0.00075) = 0.008>
+  RhoR_dc = param_double("RhoR_dc", 1.2e0);
+  Ec_d = param_double("Ec_d", 0.0); //atof(argv[3]);
+  De_d = param_double("De_d", 0.0); //atof(argv[4]);
 
   // Hypha
-  Ohf = 1e0;
-  hf = 0.90; //atof(argv[5]); // ratio of the gap thickness to the drop radius, far awaay from the drop.
+  Ohf = param_double("Ohf", 1e0);
+  hf = param_double("hr", param_double("hf", 0.90)); // ratio of the gap thickness to the drop radius, far awaay from the drop.
   Ec_h = param_double("Ec_h", 0.0); //atof(argv[6]); // Elasto-capillary number: 1e-4 (very soft), (0.1 is very similar to 0) to 1e1 (appears to be rigid)
-  De_h = 1e30; //atof(argv[7]);
+  De_h = param_double("De_h", 1e30); //atof(argv[7]);
   RhoR_hc = 1e0; // density ratio of hypha to cytoplasm
 
   // cytoplasm
-  Ohc = 1e-2;
-  Ec_c = 0.00
+  Ohc = param_double("Oh_c", param_double("Ohc", 1e-2));
+  Ec_c = param_double("Ec_c", 0.00);
    //atof(argv[8]);
-  De_c = 0.0; //atof(argv[9]);
+  De_c = param_double("De_c", 0.0); //atof(argv[9]);
 
-  Bond = 1e0; // Bond number: we keep the driving fixed
+  Bond = param_double("Bond", 1e0); // Bond number: we keep the driving fixed
 
-  Ldomain =100.0; // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
+  Ldomain = param_double("Ldomain", 100.0); // Dimension of the domain: should be large enough to get a steady solution to drop velocity.
 
   fprintf(ferr, "Level %d tmax %g. Ohd %3.2f, Ec_d %3.2f, De_d %3.2e, Ohc %3.2f, Ec_c %3.2f, De_c %3.2e, Ohf %3.2f, Ec_h %3.2f, De_h %4.3e, hf %3.2f, Bo %3.2f\n", MAXlevel, tmax, Ohd, Ec_d, De_d, Ohc, Ec_c, De_c, Ohf, Ec_h, De_h, hf, Bond);
 
   L0=Ldomain;
   X0=-4.0; Y0=0.0;
-  init_grid (1 << (14));
+  init_grid (1 << (8));
   periodic(right);
 
   // drop
@@ -128,7 +130,7 @@ event init(t = 0){
     double clearance = 0.20; // clearance from the drop inside the cytoplasm at t = 0
     double x0tanh = 0.0; // midpoint of the tanh function
 
-    refine (y < 1.2 && level < MAXlevel);
+    refine (sq(y) + sq(x/1.5) > 0.81 && sq(y) + sq(x/1.5) < 1.21 && level < MAXlevel);
 
     fraction(f1, sq(1e0) - sq(y) - sq(x/1.5));
     fraction(f2, gap(x,y,hf,width,x0tanh,clearance));
@@ -152,6 +154,7 @@ event adapt(i++){
   MAXlevel, MINlevel);
 
   unrefine(x > L0-1e0);
+  unrefine(y > 1e1);
 }
 /**
 ## stop_when_drop_exits()

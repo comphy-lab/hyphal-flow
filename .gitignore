@@ -1,30 +1,8 @@
-.DS_Store
-*/.DS_Store
-*.html
-*/*.html
-
-intermediate/
-*/intermediate/
-restart
-*/restart
-log
-*/log
-hypha 
-*/hypha
-
-basilisk/_darcs
-# makefile related
-*.tst
-*.s 
-*.s.d 
-*.tests 
-*.deps
-
-getData-elastic
-getFacet-threePhase
-*.mp4
-
-Video*
+# OS specific files
+**/.DS_Store
+**/Thumbs.db
+**/.Spotlight-V100
+**/.Trashes
 
 # Prerequisites
 *.d
@@ -78,9 +56,54 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-basilisk 
-**/.vscode
+
+# debug information files
+*.dwo
+
+# No _darcs
+**/_darcs
 **/.project_config
-.comphy-basilisk
+
+# Basilisk installation (local only)
+basilisk/
+
+# Case folders (4-digit case numbers: 1000-9999)
+simulationCases/[0-9][0-9][0-9][0-9]/
+docs/simulationCases/[0-9][0-9][0-9][0-9]/
+
+# bview file
+**/display.html
+
+# SLURM output files
+*.err
+slurm-*.out
+slurm-*.err
+
+# Temporary sweep directories
+.sweep_tmp_*
+
+# postProcessing specific
+**/getData*
+**/getFacet*
+**/getFootPrint
+**/Video
+
+# always add .c and .h
+!*.c
+!*.h
+!*.sh
+!*.sbatch
+
+# Local install scripts (do not commit)
+reset_install_*.sh
+
+# Documentation generation artifacts
+**/__pycache__/
+**/*.pyc
+
+# Timestamped CSS backups
+**/custom_styles_backup_*.css
+
+# Local CLAUDE.md (references AGENTS.md)
 CLAUDE.md
-postProcess/getData-elastic-nonCoalescence
+

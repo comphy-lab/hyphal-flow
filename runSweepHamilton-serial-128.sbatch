@@ -8,7 +8,7 @@
 #SBATCH --gres=tmp:100G
 #SBATCH -p multi
 #SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=your.email@durham.ac.uk
+#SBATCH --mail-user=vatsal.sanjay@durham.ac.uk
 #SBATCH --output=slurm-serial-128-%j.out
 #SBATCH --error=slurm-serial-128-%j.err
 

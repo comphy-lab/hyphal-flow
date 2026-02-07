@@ -247,32 +247,33 @@ Track maximum hypha interface height using a sub-cell estimate of the
 */
 event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
 
+  const double f_eps = 1e-6;
+  const double dy_eps = 1e-12;
   double y_if_max = -1e9;
 
   foreach (reduction(max:y_if_max)) {
-    // interfacial band
-    if (f2[] > 1e-6 && f2[] < 1.0 - 1e-6) {
+    double f = f2[];
+    if (f <= f_eps || f >= 1.0 - f_eps)
+      continue; // not in interfacial band
 
-      // Local gradient of f2 (central differences)
-      double dfdx = (f2[1,0] - f2[-1,0])/(2.*Delta);
-      double dfdy = (f2[0,1] - f2[0,-1])/(2.*Delta);
+    const double y_top = y + 0.5*Delta;
+    if (y_top <= y_if_max)
+      continue; // even clamped estimate cannot beat current local max
 
-      // If gradient is too small, fall back to cell center
-      double g = sqrt(dfdx*dfdx + dfdy*dfdy);
-      double y_if = y;
+    // Default fallback is cell-center estimate.
+    double y_if = y;
+    double dfdy = (f2[0,1] - f2[0,-1])/(2.*Delta);
 
-      if (g > 1e-12 && fabs(dfdy) > 1e-12) {
-        // Linearize: f2(x,y) ~ f2[] + dfdx*(x-xc) + dfdy*(y-yc)
-        // Solve for y where f2 = 0.5 along vertical line through cell center:
-        y_if = y + (0.5 - f2[])/dfdy;
-        // Clamp to cell bounds (avoid crazy jumps)
-        if (y_if > y + 0.5*Delta) y_if = y + 0.5*Delta;
-        if (y_if < y - 0.5*Delta) y_if = y - 0.5*Delta;
-      }
-
-      if (y_if > y_if_max)
-        y_if_max = y_if;
+    if (fabs(dfdy) > dy_eps) {
+      // Solve linearized f2(xc,y) = 0.5 and clamp to current cell bounds.
+      const double y_bot = y - 0.5*Delta;
+      y_if = y + (0.5 - f)/dfdy;
+      if (y_if > y_top) y_if = y_top;
+      else if (y_if < y_bot) y_if = y_bot;
     }
+
+    if (y_if > y_if_max)
+      y_if_max = y_if;
   }
 
   if (y_if_max < -1e8)
@@ -280,13 +281,19 @@ event log_hypha_deformation (t = 0; t += tsnap2; t <= tmax + tsnap) {
 
   if (pid() == 0) {
     static FILE *fh = NULL;
-    if (!fh) {
+    static int fh_open_failed = 0;
+    if (!fh && !fh_open_failed) {
       fh = fopen("hypha-def-log","w");
-      fprintf(fh, "t y_if_max\n");
-    } else
-      fh = fopen("hypha-def-log","a");
+      if (!fh) {
+        perror("hypha-def-log");
+        fh_open_failed = 1;
+      } else
+        fprintf(fh, "t y_if_max\n");
+    }
 
-    fprintf(fh, "%g %g\n", t, y_if_max);
-    fclose(fh);
+    if (fh) {
+      fprintf(fh, "%g %g\n", t, y_if_max);
+      fflush(fh);
+    }
   }
 }

@@ -24,7 +24,7 @@ set -euo pipefail
 # Configuration
 # ============================================================
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
-SOURCE_FILE_NAME="dropImpact.c"
+SOURCE_FILE_NAME="hypha.c"
 EXECUTABLE_NAME="${SOURCE_FILE_NAME%.c}"
 MPI_TASKS="${SLURM_NTASKS:-128}"
 
@@ -39,7 +39,7 @@ EC_MAX="10"
 
 # Base params file: keep everything fixed here
 # Must contain at least CaseNo=... (will be overwritten)
-BASE_CONFIG="${SCRIPT_DIR}/sweep_base.params"
+BASE_CONFIG="${SCRIPT_DIR}/default.params"
 
 # Where your source lives (as in your original script)
 SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${SOURCE_FILE_NAME}"

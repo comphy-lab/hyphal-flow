@@ -1,146 +1,96 @@
 # hyphal-flow
 
-A computational framework for studying a drop flowing through a single fungal hypha branch with viscoelastic effects. Built on Basilisk C, this code simulates three-phase non-coalescing systems, allowing you to track fluid-structure interactions among the drop, hyphal wall (treated as a viscoelastic Kelvin–Voigt solid), and surrounding medium (cytoplasm).
+Basilisk C simulations for drop transport in a single fungal hypha branch with
+three-phase, non-coalescing viscoelastic modeling.
 
-## Key Features
+## Repository Layout
 
-### Three-Phase Model with Viscoelasticity
-- Drop–Hypha–Cytoplasm phases with separate density, viscosity, and elastic properties
-- Log-conformation viscoelastic model to handle elasticity in the hypha or fluid
-- Surface tension and non-coalescing mechanics between phases
-
-### Adaptive Mesh Refinement
-- Automated refinement based on:
-  - Phase fraction field
-  - Interfacial curvature
-  - Velocity and stress gradients
-
-### High-Performance Capability
-- Compatible with OpenMP for shared-memory parallelism
-- Optional MPI support for distributed-memory HPC
-- Customizable event-driven time stepping for transient simulations
-
-### Configurable Physics
-- User-defined non-dimensional groups (Ohnesorge, Bond, Deborah, Elasto-capillary)
-- Flexible boundary conditions and domain setup
-- Explicit or implicit viscous terms based on Basilisk's Navier–Stokes solvers
-
-## Project Structure
-
-```
+```text
 hyphal-flow/
-├── .vscode/                              # VS Code configuration
-├── basilisk/                             # Core Basilisk C source and headers
-├── postProcess/
-│   ├── getData-elastic-nonCoalescence.c  # Data extraction for visualization
-│   └── getFacet-threePhase.c            # Interface extraction utility
-├── src-local/
-│   ├── log-conform-elastic.h             # Log-conformation for elastic fluids
-│   ├── log-conform-viscoelastic.h        # Extended viscoelastic model
-│   ├── reduced-three-phase-nonCoalescing.h
-│   ├── three-phase-nonCoalescing-elastic.h
-│   └── three-phase-nonCoalescing-viscoelastic.h
-├── testCases/
-│   ├── hypha.c                           # Main simulation file
-│   ├── Makefile                          # Compilation instructions
-│   └── runCodesInParallel.sh            # MPI parallel run script
-├── LICENSE
-├── README.md
-└── reset_install_requirements.sh         # Basilisk environment setup
+├── src-local/              # Project-specific Basilisk headers
+├── simulationCases/        # Main simulation entry points and case outputs
+├── postProcess/            # Analysis and plotting utilities
+├── default.params          # Base parameters for sweeps
+├── sweep.params            # Sweep metadata/config values
+├── runSweepHamilton.sbatch # Hamilton batch sweep script
+└── AGENTS.md               # Authoritative project instructions
 ```
 
-## Installation
+## Requirements
 
-### Prerequisites
-- A C compiler (e.g., GCC 7.0+)
-- OpenMP (often bundled with GCC)
-- MPI implementation (e.g., OpenMPI or MPICH) for parallel execution
-- Basilisk C source code (managed through this repository)
+- Basilisk `qcc`
+- C compiler (GCC/Clang)
+- `mpicc` and MPI runtime for MPI builds
+- Python 3 (for plotting scripts and sweep value generation)
 
-### Setup Steps
-1. Clone the repository:
+## Quick Start
+
+### 1. Compile a simulation case
+
+OpenMP build:
+
 ```bash
-git clone https://github.com/VatsalSy/hyphal-flow.git
-cd hyphal-flow
+qcc -Wall -O2 -fopenmp -I$(PWD)/src-local simulationCases/hypha.c -o hypha -lm
 ```
 
-2. Set up the environment:
-```bash
-./reset_install_requirements.sh
-```
-This script:
-- Installs or updates Basilisk in a local directory
-- Configures environment variables in .project_config
+MPI build:
 
-3. Verify your setup:
 ```bash
-source .project_config
-qcc --version
+CC99='mpicc -std=c99' qcc -Wall -O2 -D_MPI=1 -disable-dimensions \
+  -I$(PWD)/src-local simulationCases/hypha.c -o hyphaMPI -lm
 ```
 
-## Usage
+### 2. Run locally
 
-### Compiling the Code
-
-#### Single-Core / OpenMP
 ```bash
-qcc -Wall -O2 -fopenmp -I$(PWD)/src-local testCases/hypha.c -o hypha -lm
-
-# Run with desired threads
-export OMP_NUM_THREADS=4
 ./hypha
 ```
 
-#### MPI (Distributed Memory)
+or with MPI:
+
 ```bash
-CC99='mpicc -std=c99' qcc -Wall -O2 -D_MPI=1 \
-    -I$(PWD)/src-local testCases/hypha.c -o hyphaMPI -lm
 mpirun -np 8 ./hyphaMPI
 ```
 
-### Simulation Parameters
+### 3. Run a cluster sweep
 
-In `hypha.c`, you can adjust:
-- Mesh resolution (MAXlevel / MINlevel)
-- Non-dimensional numbers (Ohd, Ohf, Ohc, Ec_*, De_*)
-- Bond number and domain size (Ldomain)
-- Time stepping and output frequency
+The Hamilton job script performs a 200-case log sweep in `Ec_h` and writes
+results to `simulationCases/<CaseNo>/`.
 
-### Post-Processing
+```bash
+sbatch runSweepHamilton.sbatch
+```
 
-The `postProcess` folder contains utilities for data analysis:
-- `getData-elastic-nonCoalescence.c`: Extracts fields for visualization
-- `getFacet-threePhase.c`: Retrieves interface geometry
+## Parameter Files
 
-## Contributing
+- `default.params`: base parameter values used by the sweep script.
+- `sweep.params`: recorded sweep range and case numbering metadata.
 
-Contributions are welcome! To propose changes:
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/MyFeature`
-3. Commit and push your changes
-4. Open a Pull Request
+## Post-Processing
 
-Please ensure new features are tested and documented.
+`postProcess/` contains extraction and plotting utilities. Typical usage is to
+run plotting scripts from inside a case directory containing `log` and/or
+`hypha-def-log`, for example:
+
+```bash
+python3 ../postProcess/plot_vcm_vs_time.py
+python3 ../postProcess/plot_hypha_width_vs_time.py
+```
+
+For multi-case analysis (after collecting logs into one directory):
+
+```bash
+python3 postProcess/plot_vcm_vs_Ec_H.py --log_dir path/to/logs --pattern "log*"
+```
+
+## Notes
+
+- `simulationCases/hypha.c` reads `Ec_h` from a parameter interface
+  (`param_double(...)`), so runtime parameter handling must be available in the
+  configured Basilisk toolchain.
+- Generated binaries, logs, restart files, local Basilisk checkouts, and
+  `.comphy-basilisk/` are intentionally not committed.
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
-
-## Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@software{hyphal_flow_2024,
-  author       = {Vatsal Sanjay},
-  title        = {Hyphal Flow: A Three-Phase Viscoelastic Framework},
-  year         = {2024},
-  version      = {v1.0},
-  url          = {https://github.com/VatsalSy/hyphal-flow}
-}
-```
-
-## Acknowledgments
-- Built upon the Basilisk C framework by Stéphane Popinet.
-- Special thanks to the Physics of Fluids group for support. 
-- Special thanks to Mazi Jalaal and Eric Lauga for insights on fungal fluid dynamics.
+GPL-3.0. See `LICENSE`.

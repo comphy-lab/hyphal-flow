@@ -5,17 +5,33 @@ three-phase, non-coalescing viscoelastic modeling.
 
 ## Repository Layout
 
-```text
-hyphal-flow/
-├── src-local/              # Project-specific Basilisk headers
-├── simulationCases/        # Main simulation entry points and case outputs
-├── postProcess/            # Analysis and plotting utilities
-├── default.params          # Base parameters for sweeps
-├── sweep.params            # Sweep metadata/config values
-├── sweep-128.params        # 128-case sweep configuration
-├── runSweepHamilton.sbatch # Hamilton batch sweep script
-├── runSweepHamilton-serial-128.sbatch # Serial compile + parallel launch script
-└── AGENTS.md               # Authoritative project instructions
+```
+├── src-local/                               # Project-specific Basilisk headers
+│   ├── log-conform-elastic.h
+│   ├── log-conform-viscoelastic.h
+│   ├── reduced-three-phase-nonCoalescing.h
+│   ├── three-phase-nonCoalescing-elastic.h
+│   └── three-phase-nonCoalescing-viscoelastic.h
+├── simulationCases/                         # Simulation entry points + case dirs
+│   ├── hypha.c
+│   ├── hypha-capillary.c
+│   ├── Hypha-capillary-length.c
+│   ├── Makefile
+│   └── runCodesInParallel.sh
+├── postProcess/                             # Analysis and plotting utilities
+│   ├── getData-elastic-nonCoalescence.c
+│   ├── getFacet-threePhase.c
+│   ├── plot_vcm_vs_time.py
+│   ├── plot_hypha_width_vs_time.py
+│   └── plot_vcm_vs_Ec_H.py
+├── default.params                           # Base parameters for sweeps
+├── sweep.params                             # Default MPI sweep config
+├── sweep-128.params                         # Default serial-128 sweep config
+├── runSweepHamilton.sbatch                  # MPI sweep runner
+├── runSweepHamilton-serial-128.sbatch       # Serial compile + parallel launch
+├── AGENTS.md                                # Authoritative project guidance
+├── README.md
+└── LICENSE
 ```
 
 ## Requirements

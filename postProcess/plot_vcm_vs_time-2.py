@@ -1,43 +1,56 @@
-import numpy as np
+"""
+# plot_vcm_vs_time-2.py
+
+Robust `log` parser for center-of-mass velocity time series.
+
+Unlike the minimal parser, this script skips descriptive header lines
+before plotting `vcm` against time.
+"""
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-# --------------------------------------------------
-# Read log file, skipping non-numeric header lines
-# --------------------------------------------------
-t = []
-vcm = []
 
-with open("log", "r") as f:
-    for line in f:
-        line = line.strip()
-        if not line:
-            continue
-        # skip header / description lines
-        if line.startswith("Level") or line.startswith("i"):
-            continue
+def read_log(path: str = "log") -> tuple[np.ndarray, np.ndarray]:
+    """
+    Parse a simulation `log` file and return `(t, vcm)` arrays.
+    """
+    t_values = []
+    vcm_values = []
 
-        parts = line.split()
-        if len(parts) < 5:
-            continue
+    with open(path, "r", encoding="utf-8") as handle:
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith("Level") or line.startswith("i"):
+                continue
 
-        # columns: i dt t ke vcm
-        t.append(float(parts[2]))
-        vcm.append(float(parts[4]))
+            parts = line.split()
+            if len(parts) < 5:
+                continue
 
-t = np.array(t)
-vcm = np.array(vcm)
+            t_values.append(float(parts[2]))
+            vcm_values.append(float(parts[4]))
 
-# --------------------------------------------------
-# Plot
-# --------------------------------------------------
-plt.figure()
-plt.plot(t, vcm, marker="o")
-plt.xlabel("Time")
-plt.ylabel(r"$v_{\mathrm{cm}}$")
-plt.title("Centre-of-mass velocity vs time")
-plt.grid(True)
-plt.tight_layout()
-plt.show()
+    return np.array(t_values), np.array(vcm_values)
 
-# Optional save
-# plt.savefig("vcm_vs_time.png", dpi=300)
+
+def main() -> None:
+    """
+    Load data with header filtering and plot droplet velocity vs time.
+    """
+    t, vcm = read_log("log")
+
+    plt.figure()
+    plt.plot(t, vcm, marker="o")
+    plt.xlabel("Time")
+    plt.ylabel(r"$v_{\mathrm{cm}}$")
+    plt.title("Center-of-mass velocity vs time")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()

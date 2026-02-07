@@ -1,24 +1,35 @@
-import numpy as np
+"""
+# plot_vcm_vs_time.py
+
+Plot droplet center-of-mass velocity from a standard `log` file.
+
+## Input Format
+
+The script expects a text file named `log` with columns:
+`i dt t ke vcm`.
+"""
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-# ---------------------------
-# Load data
-# ---------------------------
-# Columns: i, dt, t, ke, vcm
-data = np.loadtxt("log", skiprows=1)
 
-t   = data[:, 2]   # time
-vcm = data[:, 4]   # centre-of-mass velocity (U_d)
+def main() -> None:
+    """
+    Load time-series data from `log` and generate a velocity-vs-time plot.
+    """
+    data = np.loadtxt("log", skiprows=1)
+    t = data[:, 2]
+    vcm = data[:, 4]
 
-# ---------------------------
-# Plot
-# ---------------------------
-plt.figure()
-plt.plot(t, vcm)
-plt.xlabel("Time")
-plt.ylabel(r"$v_{\mathrm{cm}}$")
-plt.title("Droplet centre-of-mass velocity vs time")
-plt.grid(True)
+    plt.figure()
+    plt.plot(t, vcm)
+    plt.xlabel("Time")
+    plt.ylabel(r"$v_{\mathrm{cm}}$")
+    plt.title("Droplet center-of-mass velocity vs time")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
 
-plt.tight_layout()
-plt.show()
+
+if __name__ == "__main__":
+    main()

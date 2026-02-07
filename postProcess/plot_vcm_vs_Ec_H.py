@@ -1,9 +1,15 @@
-#plot max(vcm) vs Ec_h from many simulation logs
 """
-Parse many plain-text simulation logs, extract:
-  - Ec_h (specifically)
-  - maximum vcm from the time-series table
-and plot max(vcm) vs Ec_h on a log-log scale.
+# plot_vcm_vs_Ec_H.py
+
+Aggregate multiple simulation log files, extract `(Ec_h, max(vcm))`,
+and plot the trend on log-log axes.
+
+## Workflow
+
+1. Scan files in `--log_dir` filtered by `--pattern`.
+2. Parse `Ec_h` from header text.
+3. Parse the tabular section and compute `max(vcm)`.
+4. Plot and optionally save the resulting curve.
 """
 
 import argparse
@@ -20,7 +26,9 @@ EC_KEY = "Ec_h"
 
 
 def looks_binary(sample: bytes) -> bool:
-    """Heuristic: if there are NUL bytes or many non-printable bytes, treat as binary."""
+    """
+    Return `True` when a byte sample likely represents binary content.
+    """
     if b"\x00" in sample:
         return True
     # count non-text-ish bytes
@@ -30,7 +38,9 @@ def looks_binary(sample: bytes) -> bool:
 
 
 def read_text_lines(path: str) -> Optional[List[str]]:
-    """Read file safely as text. Return None if it looks binary/unreadable."""
+    """
+    Read a file as text lines, returning `None` for binary or unreadable files.
+    """
     try:
         with open(path, "rb") as fb:
             sample = fb.read(4096)
@@ -43,7 +53,9 @@ def read_text_lines(path: str) -> Optional[List[str]]:
 
 
 def extract_ec_h(lines: List[str]) -> Optional[float]:
-    """Extract Ec_h from header text."""
+    """
+    Extract the `Ec_h` value from free-form header lines.
+    """
     for line in lines:
         m = re.search(rf"\b{re.escape(EC_KEY)}\s+([0-9.eE+-]+)\b", line)
         if m:
@@ -55,7 +67,9 @@ def extract_ec_h(lines: List[str]) -> Optional[float]:
 
 
 def find_table_header(lines: List[str]) -> Tuple[Optional[int], Optional[List[str]]]:
-    """Find the line that starts the table header (line starting with 'i')."""
+    """
+    Return the index and tokenized header for the first table header row.
+    """
     for i, line in enumerate(lines):
         if line.strip().startswith("i"):
             headers = line.split()
@@ -64,7 +78,9 @@ def find_table_header(lines: List[str]) -> Tuple[Optional[int], Optional[List[st
 
 
 def extract_max_vcm(lines: List[str]) -> Optional[float]:
-    """Extract maximum vcm value from the data table."""
+    """
+    Compute the maximum `vcm` value from the parsed data table.
+    """
     header_idx, headers = find_table_header(lines)
     if headers is None or "vcm" not in headers or header_idx is None:
         return None
@@ -89,7 +105,9 @@ def extract_max_vcm(lines: List[str]) -> Optional[float]:
 
 
 def iter_files(log_dir: str, pattern: str) -> List[str]:
-    """Collect matching files from directory. Simple glob-like '*' matching."""
+    """
+    Collect matching files from a directory using `*` wildcard matching.
+    """
     # Avoid importing glob to keep it very simple and predictable
     # Convert "log*" -> regex "^log.*$"
     pat = re.escape(pattern).replace(r"\*", ".*")
@@ -104,6 +122,9 @@ def iter_files(log_dir: str, pattern: str) -> List[str]:
 
 
 def main() -> int:
+    """
+    Parse logs, extract `(Ec_h, max(vcm))`, and generate the summary plot.
+    """
     ap = argparse.ArgumentParser()
     ap.add_argument("--log_dir", type=str, required=True, help="Directory containing log files.")
     ap.add_argument("--pattern", type=str, default="*", help='Filename pattern, e.g. "log*" (supports * only).')

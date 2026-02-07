@@ -23,7 +23,12 @@ This file is the authoritative project guidance for `hyphal-flow`.
   ```bash
   sbatch runSweepHamilton.sbatch
   ```
-  - Uses `default.params` as base config.
+  - Uses `sweep.params` by default for sweep values (`SWEEP_Ec_h`).
+  - You can provide a custom sweep file:
+    ```bash
+    sbatch runSweepHamilton.sbatch my-sweep.params
+    ```
+  - Uses `default.params` (or `BASE_CONFIG` from the sweep file) as base config.
   - Writes outputs under `simulationCases/<CaseNo>/`.
 
 ## Repository Rules

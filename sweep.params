@@ -1,5 +1,6 @@
 # sweep.params
 # Parameter sweep configuration for batch simulations.
+# Used by runSweepHamilton.sbatch by default.
 # Sweep: Ec_h only (200 cases), logarithmically spaced from 0.01 to 10 (inclusive)
 
 # ============================================================
@@ -7,6 +8,9 @@
 # ============================================================
 # Start from this parameter file and override sweep variables
 BASE_CONFIG=default.params
+
+# Optional: simulation source file in simulationCases/
+# SOURCE_FILE_NAME=hypha.c
 
 # ============================================================
 # Case Number Range

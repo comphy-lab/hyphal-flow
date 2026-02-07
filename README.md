@@ -54,17 +54,24 @@ mpirun -np 8 ./hyphaMPI
 
 ### 3. Run a cluster sweep
 
-The Hamilton job script performs a 200-case log sweep in `Ec_h` and writes
-results to `simulationCases/<CaseNo>/`.
+The Hamilton job script performs an `Ec_h` sweep defined in the selected sweep
+config file and writes results to `simulationCases/<CaseNo>/`.
 
 ```bash
 sbatch runSweepHamilton.sbatch
 ```
 
+By default it reads `sweep.params`. You can pass a different sweep file:
+
+```bash
+sbatch runSweepHamilton.sbatch my-sweep.params
+```
+
 ## Parameter Files
 
 - `default.params`: base parameter values used by the sweep script.
-- `sweep.params`: recorded sweep range and case numbering metadata.
+- `sweep.params`: default sweep input for `runSweepHamilton.sbatch` (contains
+  `CASE_START`, optional `CASE_END`, and `SWEEP_Ec_h=...` list).
 
 ## Post-Processing
 

@@ -13,9 +13,13 @@
 #SBATCH --error=slurm-%j.err
 
 # ============================================================
-# Hypha Ec_h Sweep (Hamilton): 200 cases, log-spaced Ec_h
-# Ec_h from 0.01 to 10 (inclusive), only Ec_h changes.
-# Each case compiled + run sequentially with MPI.
+# Hypha Ec_h Sweep (Hamilton)
+# Reads sweep values from a config file (default: sweep.params).
+# Each case is compiled + run sequentially with MPI.
+# Usage:
+#   sbatch runSweepHamilton.sbatch
+#   sbatch runSweepHamilton.sbatch sweep.params
+#   sbatch runSweepHamilton.sbatch custom_sweep.params
 # ============================================================
 
 set -euo pipefail
@@ -24,25 +28,70 @@ set -euo pipefail
 # Configuration
 # ============================================================
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
-SOURCE_FILE_NAME="hypha.c"
+SWEEP_CONFIG_ARG="${1:-sweep.params}"
+
+if [[ "$SWEEP_CONFIG_ARG" = /* ]]; then
+  SWEEP_CONFIG="$SWEEP_CONFIG_ARG"
+else
+  SWEEP_CONFIG="${SCRIPT_DIR}/${SWEEP_CONFIG_ARG}"
+fi
+
+if [ ! -f "$SWEEP_CONFIG" ]; then
+  echo "ERROR: Sweep config not found: $SWEEP_CONFIG" >&2
+  echo "Usage: sbatch runSweepHamilton.sbatch [sweep_config_file]" >&2
+  exit 1
+fi
+
+CONFIG_DIR="$(cd "$(dirname "$SWEEP_CONFIG")" && pwd)"
+
+# shellcheck disable=SC1090
+source "$SWEEP_CONFIG"
+
+SOURCE_FILE_NAME="${SOURCE_FILE_NAME:-hypha.c}"
 EXECUTABLE_NAME="${SOURCE_FILE_NAME%.c}"
 MPI_TASKS="${SLURM_NTASKS:-128}"
+CASE_START="${CASE_START:-1000}"
+BASE_CONFIG="${BASE_CONFIG:-default.params}"
+SWEEP_EC_RAW="${SWEEP_Ec_h:-}"
 
-# Case numbering (200 cases)
-CASE_START=1000
-NCASES=200
-CASE_END=$((CASE_START + NCASES - 1))
+if [[ "$BASE_CONFIG" != /* ]]; then
+  BASE_CONFIG="${CONFIG_DIR}/${BASE_CONFIG}"
+fi
 
-# Sweep range (log-spaced, inclusive)
-EC_MIN="0.01"
-EC_MAX="10"
-
-# Base params file: keep everything fixed here
-# Must contain at least CaseNo=... (will be overwritten)
-BASE_CONFIG="${SCRIPT_DIR}/default.params"
-
-# Where your source lives (as in your original script)
+# Where simulation source lives
 SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${SOURCE_FILE_NAME}"
+
+if [ -z "$SWEEP_EC_RAW" ]; then
+  echo "ERROR: SWEEP_Ec_h is missing in $SWEEP_CONFIG" >&2
+  exit 1
+fi
+
+SWEEP_EC_RAW="$(printf '%s' "$SWEEP_EC_RAW" | tr -d '[:space:]')"
+IFS=',' read -r -a _EC_VALUES <<< "$SWEEP_EC_RAW"
+
+EC_VALUES=()
+for ec in "${_EC_VALUES[@]}"; do
+  [ -n "$ec" ] && EC_VALUES+=("$ec")
+done
+
+NCASES=${#EC_VALUES[@]}
+if [ "$NCASES" -le 0 ]; then
+  echo "ERROR: No Ec_h values parsed from SWEEP_Ec_h in $SWEEP_CONFIG" >&2
+  exit 1
+fi
+
+if [ -n "${CASE_END:-}" ]; then
+  EXPECTED_NCASES=$((CASE_END - CASE_START + 1))
+  if [ "$EXPECTED_NCASES" -ne "$NCASES" ]; then
+    echo "ERROR: CASE_START/CASE_END imply $EXPECTED_NCASES cases, but SWEEP_Ec_h has $NCASES values" >&2
+    exit 1
+  fi
+else
+  CASE_END=$((CASE_START + NCASES - 1))
+fi
+
+EC_MIN="${EC_VALUES[0]}"
+EC_MAX="${EC_VALUES[$((NCASES - 1))]}"
 
 cd "$SCRIPT_DIR"
 
@@ -53,9 +102,10 @@ echo "Job started at: $(date)"
 echo "Node: $(hostname)"
 echo "Working dir: $(pwd)"
 echo "Job ID: ${SLURM_JOB_ID:-unknown}"
+echo "Sweep config: ${SWEEP_CONFIG}"
 echo "MPI tasks: ${MPI_TASKS}"
 echo "Cases: ${CASE_START}..${CASE_END} (${NCASES})"
-echo "Ec_h: ${EC_MIN} .. ${EC_MAX} (log-spaced, inclusive)"
+echo "Ec_h: ${EC_MIN} .. ${EC_MAX} (from SWEEP_Ec_h list)"
 echo "============================================="
 echo ""
 
@@ -118,23 +168,6 @@ if [ ! -f "$SRC_FILE_ORIG" ]; then
 fi
 
 # ============================================================
-# Helper: compute log-spaced Ec_h list using python
-# ============================================================
-EC_LIST_FILE="${SCRIPT_DIR}/.Ec_h_values_${SLURM_JOB_ID:-$$}.txt"
-trap 'rm -f "$EC_LIST_FILE"' EXIT
-
-python3 - << 'PY' > "$EC_LIST_FILE"
-import numpy as np
-ec_min = 0.01
-ec_max = 10.0
-n = 200
-vals = np.logspace(np.log10(ec_min), np.log10(ec_max), n)
-for v in vals:
-    # plenty of sig figs; Basilisk atof can read scientific notation
-    print(f"{v:.12g}")
-PY
-
-# ============================================================
 # Run sweep
 # ============================================================
 echo "============================================="
@@ -144,11 +177,11 @@ echo ""
 
 SUCCESSFUL=0
 FAILED=0
-CASE_NO=$CASE_START
 IDX=0
 
-while read -r EC_H; do
+for EC_H in "${EC_VALUES[@]}"; do
   IDX=$((IDX + 1))
+  CASE_NO=$((CASE_START + IDX - 1))
   CASE_DIR="${SCRIPT_DIR}/simulationCases/${CASE_NO}"
 
   echo "========================================="
@@ -191,7 +224,6 @@ while read -r EC_H; do
     echo "ERROR: Compilation failed for case ${CASE_NO}" >&2
     FAILED=$((FAILED + 1))
     cd "$SCRIPT_DIR"
-    CASE_NO=$((CASE_NO + 1))
     continue
   fi
 
@@ -212,9 +244,7 @@ while read -r EC_H; do
 
   cd "$SCRIPT_DIR"
   echo ""
-
-  CASE_NO=$((CASE_NO + 1))
-done < "$EC_LIST_FILE"
+done
 
 # ============================================================
 # Summary

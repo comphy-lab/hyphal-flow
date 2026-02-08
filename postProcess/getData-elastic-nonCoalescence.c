@@ -15,12 +15,12 @@ pointwise values for downstream plotting.
 
 scalar f1[], f2[];
 vector u[];
-symmetric tensor tau_p[];
-scalar tau_qq[];
+symmetric tensor conform_p[];
+scalar conform_qq[];
 
 char filename[80];
 int nx, ny, len;
-double xmin, ymin, xmax, ymax, Deltax, Deltay, Oh1, Oh2, Oh3;
+double xmin, ymin, xmax, ymax, Deltax, Deltay;
 
 scalar D2c[], vel[], trA[];
 scalar * list = NULL;
@@ -38,10 +38,6 @@ int main(int a, char const *arguments[])
   xmax = atof(arguments[4]); ymax = atof(arguments[5]);
   ny = atoi(arguments[6]);
 
-  Oh1 = atof(arguments[7]);
-  Oh2 = atof(arguments[8]);
-  Oh3 = atof(arguments[9]);
-
   list = list_add (list, D2c);
   list = list_add (list, vel);
   list = list_add (list, trA);
@@ -57,7 +53,7 @@ int main(int a, char const *arguments[])
     double D33 = (u.x[1,0] - u.x[-1,0])/(2*Delta);
     double D13 = 0.5*( (u.y[1,0] - u.y[-1,0] + u.x[0,1] - u.x[0,-1])/(2*Delta) );
     double D2 = (sq(D11)+sq(D22)+sq(D33)+2.0*sq(D13));
-    D2c[] = 2*( Oh1*clamp(f1[], 0., 1.) + Oh2*clamp(f2[], 0., 1.) + Oh3*clamp(1-f1[]-f2[], 0., 1.) )*D2;
+    D2c[] = D2;
     
     if (D2c[] > 0.){
       D2c[] = log(D2c[])/log(10);
@@ -67,7 +63,7 @@ int main(int a, char const *arguments[])
 
     vel[] = sqrt(sq(u.x[])+sq(u.y[]));
 
-    trA[] = (tau_p.x.x[] + tau_p.y.y[] + tau_qq[])/2.0;
+    trA[] = (conform_p.x.x[] + conform_p.y.y[] + conform_qq[])/3.0;
 
     if (trA[] > 0.){
       trA[] = log(trA[])/log(10);

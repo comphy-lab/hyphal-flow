@@ -145,12 +145,15 @@ Adaptive mesh refinement driven by interfaces, curvature, velocity, and
 conformation fields.
 */
 event adapt(i++){
-  scalar KAPPA1[], KAPPA2[];
+  scalar KAPPA1[], KAPPA2[], trA[];
   curvature(f1, KAPPA1);
   curvature(f2, KAPPA2);
+  foreach(){
+    trA[] = (conform_p.x.x[] + conform_p.y.y[] + conform_qq[])/3.0;
+  }
 
-  adapt_wavelet ((scalar *){f1, f2, KAPPA1, KAPPA2, u.x, u.y, conform_p.x.x, conform_p.x.y, conform_p.y.y},
-  (double[]){fErr, fErr, KErr, KErr, VelErr, VelErr, AErr, AErr, AErr},
+  adapt_wavelet ((scalar *){f1, f2, KAPPA1, KAPPA2, u.x, u.y, trA},
+  (double[]){fErr, fErr, KErr, KErr, VelErr, VelErr, AErr},
   MAXlevel, MINlevel);
 
   unrefine(x > L0-1e0);

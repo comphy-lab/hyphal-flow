@@ -3,6 +3,18 @@
 
 Extract interface facets from a saved snapshot for either the drop
 (`f1`) or film (`f2`) phase.
+
+## Purpose
+
+Restore a snapshot and emit line segments from `output_facets(...)` for a
+selected phase indicator. The output is written to `stderr` in Basilisk's
+facet text format.
+
+## Build Example
+
+```bash
+qcc -Wall -O2 postProcess/getFacet-threePhase.c -o getFacet -lm
+```
 */
 
 #include "utils.h"
@@ -20,6 +32,15 @@ Usage:
 `./getFacet-threePhase snapshot true|false`
 
 When `true`, facets are extracted from `f1`; otherwise `f2` is used.
+
+#### Arguments
+
+- `snapshot`: Basilisk dump/snapshot file to restore.
+- `true|false`: phase selector (`true -> f1`, `false -> f2`).
+
+#### Returns
+
+`0` after writing facet segments to `stderr`.
 */
 int main(int a, char const *arguments[]){
   sprintf(filename, "%s", arguments[1]);

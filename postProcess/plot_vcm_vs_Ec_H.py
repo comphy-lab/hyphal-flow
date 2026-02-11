@@ -4,12 +4,25 @@
 Aggregate multiple simulation log files, extract `(Ec_h, max(vcm))`,
 and plot the trend on log-log axes.
 
+## Dependencies
+
+- `numpy`: numeric arrays and sorting.
+- `matplotlib`: log-log plotting.
+- `argparse`: command-line interface.
+- `re`: header/value parsing.
+
 ## Workflow
 
 1. Scan files in `--log_dir` filtered by `--pattern`.
 2. Parse `Ec_h` from header text.
 3. Parse the tabular section and compute `max(vcm)`.
 4. Plot and optionally save the resulting curve.
+
+#### Example
+
+```bash
+python3 postProcess/plot_vcm_vs_Ec_H.py --log_dir simulationCases --pattern "log*" --out vcm_vs_Ec_h.png
+```
 """
 
 import argparse
@@ -28,6 +41,14 @@ EC_KEY = "Ec_h"
 def looks_binary(sample: bytes) -> bool:
     """
     Return `True` when a byte sample likely represents binary content.
+
+    #### Args
+
+    - `sample`: Leading file bytes used for a quick text/binary heuristic.
+
+    #### Returns
+
+    - `bool`: `True` if the sample appears non-textual.
     """
     if b"\x00" in sample:
         return True
@@ -40,6 +61,14 @@ def looks_binary(sample: bytes) -> bool:
 def read_text_lines(path: str) -> Optional[List[str]]:
     """
     Read a file as text lines, returning `None` for binary or unreadable files.
+
+    #### Args
+
+    - `path`: Candidate log file path.
+
+    #### Returns
+
+    - `Optional[List[str]]`: File lines when readable text, else `None`.
     """
     try:
         with open(path, "rb") as fb:
@@ -55,6 +84,14 @@ def read_text_lines(path: str) -> Optional[List[str]]:
 def extract_ec_h(lines: List[str]) -> Optional[float]:
     """
     Extract the `Ec_h` value from free-form header lines.
+
+    #### Args
+
+    - `lines`: Full log file lines.
+
+    #### Returns
+
+    - `Optional[float]`: Parsed `Ec_h` value, or `None` if unavailable.
     """
     for line in lines:
         m = re.search(rf"\b{re.escape(EC_KEY)}\s+([0-9.eE+-]+)\b", line)
@@ -69,6 +106,14 @@ def extract_ec_h(lines: List[str]) -> Optional[float]:
 def find_table_header(lines: List[str]) -> Tuple[Optional[int], Optional[List[str]]]:
     """
     Return the index and tokenized header for the first table header row.
+
+    #### Args
+
+    - `lines`: Full log file lines.
+
+    #### Returns
+
+    - `Tuple[Optional[int], Optional[List[str]]]`: Header row index and tokens.
     """
     for i, line in enumerate(lines):
         if line.strip().startswith("i"):
@@ -80,6 +125,14 @@ def find_table_header(lines: List[str]) -> Tuple[Optional[int], Optional[List[st
 def extract_max_vcm(lines: List[str]) -> Optional[float]:
     """
     Compute the maximum `vcm` value from the parsed data table.
+
+    #### Args
+
+    - `lines`: Full log file lines.
+
+    #### Returns
+
+    - `Optional[float]`: Maximum `vcm`, or `None` if parsing fails.
     """
     header_idx, headers = find_table_header(lines)
     if headers is None or "vcm" not in headers or header_idx is None:
@@ -107,6 +160,15 @@ def extract_max_vcm(lines: List[str]) -> Optional[float]:
 def iter_files(log_dir: str, pattern: str) -> List[str]:
     """
     Collect matching files from a directory using `*` wildcard matching.
+
+    #### Args
+
+    - `log_dir`: Directory containing log files.
+    - `pattern`: Filename filter supporting `*` wildcard only.
+
+    #### Returns
+
+    - `List[str]`: Sorted matching file paths.
     """
     # Avoid importing glob to keep it very simple and predictable
     # Convert "log*" -> regex "^log.*$"
@@ -124,6 +186,10 @@ def iter_files(log_dir: str, pattern: str) -> List[str]:
 def main() -> int:
     """
     Parse logs, extract `(Ec_h, max(vcm))`, and generate the summary plot.
+
+    #### Returns
+
+    - `int`: Process exit code (`0` success, non-zero on errors).
     """
     ap = argparse.ArgumentParser()
     ap.add_argument("--log_dir", type=str, required=True, help="Directory containing log files.")

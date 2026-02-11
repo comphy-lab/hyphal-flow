@@ -41,10 +41,12 @@ from __future__ import annotations
 
 import argparse
 import math
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -60,6 +62,7 @@ else:
 np: Any = None
 plt: Any = None
 LineCollection: Any = None
+WORKER_ENV_PID: int | None = None
 
 
 FIELD_INDEX = {"d2c": 2, "vel": 3, "trA": 4}
@@ -140,6 +143,14 @@ def parse_args() -> argparse.Namespace:
     type=int,
     default=400,
     help="Number of grid points along y for sampled scalar field.",
+  )
+  parser.add_argument(
+    "--cpus",
+    "--CPUs",
+    dest="cpus",
+    type=int,
+    default=4,
+    help="Number of worker processes for snapshot rendering (default: 4).",
   )
   parser.add_argument(
     "--fps",
@@ -291,6 +302,42 @@ def ensure_python_dependencies() -> None:
   LineCollection = _LineCollection
 
 
+def ensure_plotting_runtime() -> None:
+  """
+  Ensure plotting globals are available in the current process.
+  """
+  if np is None or plt is None or LineCollection is None:
+    ensure_python_dependencies()
+
+
+def configure_worker_environment(cache_root: Path | None) -> None:
+  """
+  Configure process-local matplotlib and LaTeX cache directories.
+  """
+  global WORKER_ENV_PID
+
+  if cache_root is None:
+    return
+
+  pid = os.getpid()
+  if WORKER_ENV_PID == pid:
+    return
+
+  worker_root = cache_root / f"worker-{pid}"
+  mpl_dir = worker_root / "mplconfig"
+  tex_var_dir = worker_root / "texmf-var"
+  tex_cfg_dir = worker_root / "texmf-config"
+  for path in (mpl_dir, tex_var_dir, tex_cfg_dir):
+    path.mkdir(parents=True, exist_ok=True)
+
+  os.environ["MPLCONFIGDIR"] = str(mpl_dir)
+  os.environ["TEXMFVAR"] = str(tex_var_dir)
+  os.environ["TEXMFCONFIG"] = str(tex_cfg_dir)
+  os.environ.setdefault("OMP_NUM_THREADS", "1")
+
+  WORKER_ENV_PID = pid
+
+
 def run_capture(cmd: list[str], cwd: Path | None = None) -> str:
   """
   Run a subprocess and return combined `stdout` + `stderr` text.
@@ -351,17 +398,26 @@ def list_snapshots(case_dir: Path, pattern: str) -> list[Path]:
   return [p for p in snapshots if p.is_file()]
 
 
-def compile_helper(source: Path, output: Path, extra_flags: list[str]) -> None:
+def compile_get_helper(source: Path, output: Path) -> None:
   """
-  Compile one C helper with `qcc`.
+  Compile one get* helper with `qcc`.
   """
-  cmd = ["qcc", "-Wall", "-O2", *extra_flags, source.name, "-o", str(output), "-lm"]
+  cmd = [
+    "qcc",
+    "-O2",
+    "-Wall",
+    "-disable-dimensions",
+    source.name,
+    "-o",
+    str(output),
+    "-lm",
+  ]
   subprocess.run(cmd, check=True, cwd=source.parent)
 
 
-def ensure_tools(script_dir: Path, build_dir: Path) -> tuple[Path, Path, Path]:
+def precompile_get_helpers(script_dir: Path, build_dir: Path) -> tuple[Path, Path, Path]:
   """
-  Compile the required helper binaries for facets, field data, and drop CoM.
+  Pre-processing step: compile get* helper binaries before rendering.
 
   #### Returns
 
@@ -386,9 +442,9 @@ def ensure_tools(script_dir: Path, build_dir: Path) -> tuple[Path, Path, Path]:
   data_bin = build_dir / "getData-elastic-nonCoalescence"
   com_bin = build_dir / "getDropCom-f1"
 
-  compile_helper(facet_src, facet_bin, extra_flags=[])
-  compile_helper(data_src, data_bin, extra_flags=["-disable-dimensions"])
-  compile_helper(com_src, com_bin, extra_flags=["-disable-dimensions"])
+  compile_get_helper(facet_src, facet_bin)
+  compile_get_helper(data_src, data_bin)
+  compile_get_helper(com_src, com_bin)
 
   return facet_bin, data_bin, com_bin
 
@@ -727,6 +783,136 @@ def default_cmap_for_field(field_key: str) -> str:
   return "viridis"
 
 
+def render_single_snapshot(
+  idx: int,
+  snapshot: Path,
+  case_dir: Path,
+  frames_dir: Path,
+  facet_bin: Path,
+  data_bin: Path,
+  com_bin: Path,
+  args: argparse.Namespace,
+  use_vmin: float | None,
+  use_vmax: float | None,
+  use_left_vmin: float | None,
+  use_left_vmax: float | None,
+  worker_cache_root: Path | None,
+) -> tuple[int, Path]:
+  """
+  Render one frame for a snapshot and return `(index, frame_path)`.
+  """
+  configure_worker_environment(worker_cache_root)
+  ensure_plotting_runtime()
+
+  t = snapshot_time(snapshot)
+  xcm, ycm = get_drop_com(snapshot, com_bin, case_dir)
+
+  xmin = args.x_center - args.x_half_width
+  xmax = args.x_center + args.x_half_width
+  ymin = 0.0
+  ymax = args.y_half_width
+
+  x, y, field = get_field_grid(snapshot, data_bin, case_dir, args.field, xmin, ymin, xmax, ymax, args.ny)
+  left_field = None
+  if args.left_field is not None:
+    x_left, y_left, left_field = get_field_grid(
+      snapshot, data_bin, case_dir, args.left_field, xmin, ymin, xmax, ymax, args.ny
+    )
+    if len(x_left) != len(x) or len(y_left) != len(y):
+      raise RuntimeError("Left/right field grids are inconsistent.")
+
+  f1_segments = get_facets(snapshot, facet_bin, case_dir, include_f1=True)
+  f2_segments = get_facets(snapshot, facet_bin, case_dir, include_f1=False)
+
+  frame_path = frames_dir / f"frame_{idx:06d}.png"
+  render_frame(
+    frame_path=frame_path,
+    t=t,
+    xcm=xcm,
+    ycm=ycm,
+    x=x,
+    y=y,
+    field=field,
+    left_field=left_field,
+    left_field_key=args.left_field,
+    f1_segments=f1_segments,
+    f2_segments=f2_segments,
+    args=args,
+    vmin=use_vmin,
+    vmax=use_vmax,
+    left_vmin=use_left_vmin,
+    left_vmax=use_left_vmax,
+  )
+  return idx, frame_path
+
+
+def render_snapshots(
+  snapshots: list[Path],
+  case_dir: Path,
+  frames_dir: Path,
+  facet_bin: Path,
+  data_bin: Path,
+  com_bin: Path,
+  args: argparse.Namespace,
+  use_vmin: float | None,
+  use_vmax: float | None,
+  use_left_vmin: float | None,
+  use_left_vmax: float | None,
+  worker_cache_root: Path | None,
+) -> None:
+  """
+  Render all snapshots, batching work in chunks of `args.cpus`.
+  """
+  tasks = list(enumerate(snapshots))
+  total = len(tasks)
+
+  if args.cpus <= 1:
+    for idx, snapshot in tasks:
+      _, frame_path = render_single_snapshot(
+        idx=idx,
+        snapshot=snapshot,
+        case_dir=case_dir,
+        frames_dir=frames_dir,
+        facet_bin=facet_bin,
+        data_bin=data_bin,
+        com_bin=com_bin,
+        args=args,
+        use_vmin=use_vmin,
+        use_vmax=use_vmax,
+        use_left_vmin=use_left_vmin,
+        use_left_vmax=use_left_vmax,
+        worker_cache_root=None,
+      )
+      print(f"[{idx + 1}/{total}] wrote {frame_path}", file=sys.stderr)
+    return
+
+  with ProcessPoolExecutor(max_workers=args.cpus) as executor:
+    for start in range(0, total, args.cpus):
+      batch = tasks[start:start + args.cpus]
+      futures = [
+        executor.submit(
+          render_single_snapshot,
+          idx,
+          snapshot,
+          case_dir,
+          frames_dir,
+          facet_bin,
+          data_bin,
+          com_bin,
+          args,
+          use_vmin,
+          use_vmax,
+          use_left_vmin,
+          use_left_vmax,
+          worker_cache_root,
+        )
+        for idx, snapshot in batch
+      ]
+      batch_results = [future.result() for future in futures]
+      for idx, frame_path in sorted(batch_results, key=lambda item: item[0]):
+        print(f"[{idx + 1}/{total}] wrote {frame_path}", file=sys.stderr)
+
+
 def main() -> int:
   """
   Execute snapshot discovery, frame rendering, and optional MP4 assembly.
@@ -778,6 +964,9 @@ def main() -> int:
   if args.y_half_width <= 0:
     print("--y-half-width must be > 0", file=sys.stderr)
     return 1
+  if args.cpus <= 0:
+    print("--cpus must be > 0", file=sys.stderr)
+    return 1
   if not args.skip_video and shutil.which(args.ffmpeg) is None:
     print(f"ffmpeg executable not found: {args.ffmpeg}", file=sys.stderr)
     return 1
@@ -801,9 +990,15 @@ def main() -> int:
   temp_build = tempfile.TemporaryDirectory(prefix="video-hyphal-tools-", dir=case_dir)
   temp_objects.append(temp_build)
   build_dir = Path(temp_build.name)
+  worker_cache_root: Path | None = None
+  if args.cpus > 1:
+    temp_worker_cache = tempfile.TemporaryDirectory(prefix="video-hyphal-worker-cache-", dir=case_dir)
+    temp_objects.append(temp_worker_cache)
+    worker_cache_root = Path(temp_worker_cache.name)
 
   try:
-    facet_bin, data_bin, com_bin = ensure_tools(script_dir, build_dir)
+    print("Pre-processing: compiling get* helpers...", file=sys.stderr)
+    facet_bin, data_bin, com_bin = precompile_get_helpers(script_dir, build_dir)
 
     first = snapshots[0]
     xmin0 = args.x_center - args.x_half_width
@@ -858,46 +1053,20 @@ def main() -> int:
       if use_left_vmax is None:
         use_left_vmax = fixed_left_vmax if fixed_left_vmax is not None else auto_left_vmax
 
-    for idx, snapshot in enumerate(snapshots):
-      t = snapshot_time(snapshot)
-      xcm, ycm = get_drop_com(snapshot, com_bin, case_dir)
-
-      xmin = args.x_center - args.x_half_width
-      xmax = args.x_center + args.x_half_width
-      ymin = 0.0
-      ymax = args.y_half_width
-
-      x, y, field = get_field_grid(snapshot, data_bin, case_dir, args.field, xmin, ymin, xmax, ymax, args.ny)
-      left_field = None
-      if args.left_field is not None:
-        x_left, y_left, left_field = get_field_grid(
-          snapshot, data_bin, case_dir, args.left_field, xmin, ymin, xmax, ymax, args.ny
-        )
-        if len(x_left) != len(x) or len(y_left) != len(y):
-          raise RuntimeError("Left/right field grids are inconsistent.")
-      f1_segments = get_facets(snapshot, facet_bin, case_dir, include_f1=True)
-      f2_segments = get_facets(snapshot, facet_bin, case_dir, include_f1=False)
-
-      frame_path = frames_dir / f"frame_{idx:06d}.png"
-      render_frame(
-        frame_path=frame_path,
-        t=t,
-        xcm=xcm,
-        ycm=ycm,
-        x=x,
-        y=y,
-        field=field,
-        left_field=left_field,
-        left_field_key=args.left_field,
-        f1_segments=f1_segments,
-        f2_segments=f2_segments,
-        args=args,
-        vmin=use_vmin,
-        vmax=use_vmax,
-        left_vmin=use_left_vmin,
-        left_vmax=use_left_vmax,
-      )
-      print(f"[{idx + 1}/{len(snapshots)}] wrote {frame_path}", file=sys.stderr)
+    render_snapshots(
+      snapshots=snapshots,
+      case_dir=case_dir,
+      frames_dir=frames_dir,
+      facet_bin=facet_bin,
+      data_bin=data_bin,
+      com_bin=com_bin,
+      args=args,
+      use_vmin=use_vmin,
+      use_vmax=use_vmax,
+      use_left_vmin=use_left_vmin,
+      use_left_vmax=use_left_vmax,
+      worker_cache_root=worker_cache_root,
+    )
 
     if args.skip_video:
       print(f"Frames written to: {frames_dir}", file=sys.stderr)

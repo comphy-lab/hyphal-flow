@@ -7,13 +7,15 @@
 # sequentially using runSimulation.sh.
 #
 # Usage:
-#   bash runParameterSweep.sh [sweep_file] [--exec exec_code]
+#   bash runParameterSweep.sh [sweep_file] [--exec exec_code] [--mpi] [--CPUs N]
 #
 # Examples:
 #   bash runParameterSweep.sh
 #   bash runParameterSweep.sh sweep.params
 #   bash runParameterSweep.sh sweep.params --exec hypha.c
 #   bash runParameterSweep.sh --exec hypha-capillary.c sweep.params
+#   bash runParameterSweep.sh sweep.params --mpi
+#   bash runParameterSweep.sh sweep.params --mpi --CPUs 16
 
 set -euo pipefail
 
@@ -28,6 +30,8 @@ Arguments:
 
 Options:
   --exec FILE   C source file in simulationCases/ (default: hypha.c)
+  --mpi         Compile/run each case with MPI via runSimulation.sh
+  --CPUs N      MPI process count for --mpi (default: 4)
   -n, --dry-run Show generated parameter combinations only
   -v, --verbose Print expanded per-case parameter details
   -h, --help    Show this help message
@@ -138,6 +142,8 @@ SWEEP_FILE="sweep.params"
 SWEEP_FILE_SET=0
 DRY_RUN=0
 VERBOSE=0
+USE_MPI=0
+MPI_CPUS=4
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -156,6 +162,23 @@ while [[ $# -gt 0 ]]; do
       ;;
     --exec=*)
       EXEC_CODE="${1#*=}"
+      shift
+      ;;
+    --mpi)
+      USE_MPI=1
+      shift
+      ;;
+    --CPUs|--cpus)
+      if [[ -z "${2:-}" ]]; then
+        echo "ERROR: $1 requires a positive integer value." >&2
+        usage
+        exit 1
+      fi
+      MPI_CPUS="$2"
+      shift 2
+      ;;
+    --CPUs=*|--cpus=*)
+      MPI_CPUS="${1#*=}"
       shift
       ;;
     -n|--dry-run)
@@ -192,6 +215,11 @@ done
 if [[ $# -gt 0 ]]; then
   echo "ERROR: Unexpected trailing arguments: $*" >&2
   usage
+  exit 1
+fi
+
+if [[ ! "$MPI_CPUS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "ERROR: --CPUs must be a positive integer, got: $MPI_CPUS" >&2
   exit 1
 fi
 
@@ -294,6 +322,11 @@ echo "Source file: ${EXEC_CODE}"
 echo "Base config: ${BASE_CONFIG}"
 echo "Sweep variables: ${#SWEEP_VARS[@]}"
 echo "Cases: ${CASE_START}..${CASE_END} (${COMBINATION_COUNT})"
+if [[ $USE_MPI -eq 1 ]]; then
+  echo "Run mode: MPI (np=${MPI_CPUS})"
+else
+  echo "Run mode: Serial"
+fi
 if [[ $DRY_RUN -eq 1 ]]; then
   echo "Mode: Dry run"
 fi
@@ -328,7 +361,12 @@ for param_file in "${PARAM_FILES[@]}"; do
   echo "Running Case ${case_no}"
   echo "-----------------------------------------"
 
-  if bash "$RUN_SIM_SCRIPT" "$param_file" --exec "$EXEC_CODE"; then
+  run_cmd=(bash "$RUN_SIM_SCRIPT" "$param_file" --exec "$EXEC_CODE")
+  if [[ $USE_MPI -eq 1 ]]; then
+    run_cmd+=(--mpi --CPUs "$MPI_CPUS")
+  fi
+
+  if "${run_cmd[@]}"; then
     ((SUCCESSFUL += 1))
   else
     ((FAILED += 1))

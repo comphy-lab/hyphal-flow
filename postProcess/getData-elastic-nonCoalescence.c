@@ -2,12 +2,30 @@
 # getData-elastic-nonCoalescence.c
 
 Sample scalar diagnostics from a Basilisk snapshot and print tabulated
-pointwise values for downstream plotting.
+pointwise values for downstream plotting scripts.
+
+## Purpose
+
+Convert adaptive-grid fields into a uniform sampling table over a rectangular
+window. The output is written to `stderr` as plain whitespace-separated columns.
 
 ## Computed Fields
-- `D2c`: log-scaled viscous dissipation proxy
+
+- `D2c`: $\log_{10}\left(\|\boldsymbol{\mathcal{D}}\|\right)$ where
+  $\|\boldsymbol{\mathcal{D}}\|=\sqrt{(\boldsymbol{\mathcal{D}}:\boldsymbol{\mathcal{D}})/2}$
 - `vel`: velocity magnitude
-- `trA`: trace-like conformation/stress metric
+- `trA`: $\log_{10}\left(\mathrm{tr}(\mathbf{A})/3\right)$ where
+  $\mathrm{tr}(\mathbf{A}) = A_{xx} + A_{yy} + A_{\theta\theta}$
+
+## Output Columns
+
+`x y D2c vel trA`
+
+## Build Example
+
+```bash
+qcc -Wall -O2 -disable-dimensions postProcess/getData-elastic-nonCoalescence.c -o getData -lm
+```
 */
 
 #include "utils.h"
@@ -30,6 +48,17 @@ scalar * list = NULL;
 
 Usage:
 `./getData-elastic-nonCoalescence snapshot xmin ymin xmax ymax ny Oh1 Oh2 Oh3`
+
+#### Arguments
+
+- `snapshot`: Basilisk dump/snapshot file to restore.
+- `xmin ymin xmax ymax`: sampling rectangle bounds in simulation coordinates.
+- `ny`: number of points along the `y` direction.
+- `Oh1 Oh2 Oh3`: accepted for CLI compatibility (not used in this utility).
+
+#### Returns
+
+`0` after writing sampled rows to `stderr`.
 */
 int main(int a, char const *arguments[])
 {
@@ -52,8 +81,8 @@ int main(int a, char const *arguments[])
     double D22 = (u.y[]/y);
     double D33 = (u.x[1,0] - u.x[-1,0])/(2*Delta);
     double D13 = 0.5*( (u.y[1,0] - u.y[-1,0] + u.x[0,1] - u.x[0,-1])/(2*Delta) );
-    double D2 = (sq(D11)+sq(D22)+sq(D33)+2.0*sq(D13));
-    D2c[] = D2;
+    double D_contract = (sq(D11)+sq(D22)+sq(D33)+2.0*sq(D13));
+    D2c[] = sqrt(0.5*D_contract);
     
     if (D2c[] > 0.){
       D2c[] = log(D2c[])/log(10);

@@ -12,7 +12,7 @@ Vatsal Sanjay
   cytoplasm.
 */
 
-// #include "axi.h"
+#include "axi.h"
 #include "params.h"
 #include "navier-stokes/centered.h"
 #define FILTERED

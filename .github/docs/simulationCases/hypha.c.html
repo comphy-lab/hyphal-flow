@@ -445,7 +445,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 drop and cytoplasm.</li>
                 </ul>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// #include &quot;axi.h&quot;</span></span>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/axi.h" title="Link to Basilisk source for axi.h"><span class="im">"axi.h"</span></a></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/params.h.html" title="Link to local documentation for params.h"><span class="im">"params.h"</span></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/navier-stokes/centered.h" title="Link to Basilisk source for navier-stokes/centered.h"><span class="im">"navier-stokes/centered.h"</span></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED</span></span>
@@ -565,17 +565,20 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 curvature, velocity, and conformation fields.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>event adapt<span class="op">(</span>i<span class="op">++){</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  scalar KAPPA1<span class="op">[],</span> KAPPA2<span class="op">[];</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  scalar KAPPA1<span class="op">[],</span> KAPPA2<span class="op">[],</span> trA<span class="op">[];</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  curvature<span class="op">(</span>f1<span class="op">,</span> KAPPA1<span class="op">);</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  curvature<span class="op">(</span>f2<span class="op">,</span> KAPPA2<span class="op">);</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  adapt_wavelet <span class="op">((</span>scalar <span class="op">*){</span>f1<span class="op">,</span> f2<span class="op">,</span> KAPPA1<span class="op">,</span> KAPPA2<span class="op">,</span> u<span class="op">.</span>x<span class="op">,</span> u<span class="op">.</span>y<span class="op">,</span> conform_p<span class="op">.</span>x<span class="op">.</span>x<span class="op">,</span> conform_p<span class="op">.</span>x<span class="op">.</span>y<span class="op">,</span> conform_p<span class="op">.</span>y<span class="op">.</span>y<span class="op">},</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><span class="dt">double</span><span class="op">[]){</span>fErr<span class="op">,</span> fErr<span class="op">,</span> KErr<span class="op">,</span> KErr<span class="op">,</span> VelErr<span class="op">,</span> VelErr<span class="op">,</span> AErr<span class="op">,</span> AErr<span class="op">,</span> AErr<span class="op">},</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  MAXlevel<span class="op">,</span> MINlevel<span class="op">);</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  unrefine<span class="op">(</span>x <span class="op">&gt;</span> L0<span class="op">-</span><span class="fl">1e0</span><span class="op">);</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  unrefine<span class="op">(</span>y <span class="op">&gt;</span> <span class="fl">1e1</span><span class="op">);</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">(){</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    trA<span class="op">[]</span> <span class="op">=</span> <span class="op">(</span>conform_p<span class="op">.</span>x<span class="op">.</span>x<span class="op">[]</span> <span class="op">+</span> conform_p<span class="op">.</span>y<span class="op">.</span>y<span class="op">[]</span> <span class="op">+</span> conform_qq<span class="op">[])/</span><span class="fl">3.0</span><span class="op">;</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>  adapt_wavelet <span class="op">((</span>scalar <span class="op">*){</span>f1<span class="op">,</span> f2<span class="op">,</span> KAPPA1<span class="op">,</span> KAPPA2<span class="op">,</span> u<span class="op">.</span>x<span class="op">,</span> u<span class="op">.</span>y<span class="op">,</span> trA<span class="op">},</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><span class="dt">double</span><span class="op">[]){</span>fErr<span class="op">,</span> fErr<span class="op">,</span> KErr<span class="op">,</span> KErr<span class="op">,</span> VelErr<span class="op">,</span> VelErr<span class="op">,</span> AErr<span class="op">},</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  MAXlevel<span class="op">,</span> MINlevel<span class="op">);</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  unrefine<span class="op">(</span>x <span class="op">&gt;</span> L0<span class="op">-</span><span class="fl">1e0</span><span class="op">);</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  unrefine<span class="op">(</span>y <span class="op">&gt;</span> <span class="fl">1e1</span><span class="op">);</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2
                 id="stop_when_drop_exits">stop_when_drop_exits()</h2>
                 <p>Stop the run when the leading drop edge approaches

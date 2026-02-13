@@ -26,8 +26,8 @@ three-phase hyphal-flow runs.
 - Left half (`r < 0`): `trA`
 - Right half (`r >= 0`): `vel`
 - Domain window:
-  - Basilisk `x` in `0 +- 2`
-  - Basilisk `y` in `y_CoM(f1) +- 4`
+  - Basilisk `x` in `x_CoM(f1) + x_center +- x_half_width` (co-moving)
+  - Basilisk `y` in `0 +- y_half_width` (mirrored to `r < 0` and `r > 0`)
 - Default duration: `10 s` with `fps = N_frames / duration` when `--fps` is unset.
 
 #### Example
@@ -246,8 +246,13 @@ def parse_args() -> argparse.Namespace:
   )
   parser.add_argument("--left-cmap", default=None, help="Left-field colormap (default: field-based auto).")
 
-  # Requested defaults: x in 0 ± 2 and y in CoM ± 4.
-  parser.add_argument("--x-center", type=float, default=0.0)
+  # x-center is treated as an offset from the per-frame CoM along Basilisk x.
+  parser.add_argument(
+    "--x-center",
+    type=float,
+    default=0.0,
+    help="Offset from CoM for the vertical (z) window center.",
+  )
   parser.add_argument("--x-half-width", type=float, default=2.0)
   parser.add_argument("--y-half-width", type=float, default=4.0)
   return parser.parse_args()
@@ -687,11 +692,10 @@ def render_frame(
     # Requested: hardcode r_CoM to zero.
     ax.plot(0.0, xcm, "o", ms=7.0, mfc="gold", mec="black", mew=1.2)
 
-  # Window is defined in Basilisk coordinates and then mapped:
-  # x in [x_center ± x_half_width] -> z-axis
-  # r is centered at 0 and shown as [-y_half_width, +y_half_width].
-  xmin = args.x_center - args.x_half_width
-  xmax = args.x_center + args.x_half_width
+  # Co-moving window in Basilisk x (plotted as z): center at frame CoM plus optional offset.
+  z_center = (xcm + args.x_center) if math.isfinite(xcm) else args.x_center
+  xmin = z_center - args.x_half_width
+  xmax = z_center + args.x_half_width
   ax.set_xlim(-args.y_half_width, args.y_half_width)
   ax.set_ylim(xmin, xmax)
   ax.set_aspect("equal")
@@ -807,8 +811,9 @@ def render_single_snapshot(
   t = snapshot_time(snapshot)
   xcm, ycm = get_drop_com(snapshot, com_bin, case_dir)
 
-  xmin = args.x_center - args.x_half_width
-  xmax = args.x_center + args.x_half_width
+  z_center = (xcm + args.x_center) if math.isfinite(xcm) else args.x_center
+  xmin = z_center - args.x_half_width
+  xmax = z_center + args.x_half_width
   ymin = 0.0
   ymax = args.y_half_width
 
@@ -1001,8 +1006,10 @@ def main() -> int:
     facet_bin, data_bin, com_bin = precompile_get_helpers(script_dir, build_dir)
 
     first = snapshots[0]
-    xmin0 = args.x_center - args.x_half_width
-    xmax0 = args.x_center + args.x_half_width
+    xcm0, _ = get_drop_com(first, com_bin, case_dir)
+    z_center0 = (xcm0 + args.x_center) if math.isfinite(xcm0) else args.x_center
+    xmin0 = z_center0 - args.x_half_width
+    xmax0 = z_center0 + args.x_half_width
     # Physical extraction in Basilisk y is only non-negative for this setup.
     # We mirror about r=0 at plotting stage.
     ymin0 = 0.0

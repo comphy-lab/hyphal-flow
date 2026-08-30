@@ -1,334 +1,42 @@
-#!/bin/bash
-#SBATCH --job-name=hyphaEcSweep
-#SBATCH -N 1
-#SBATCH -n 128
-#SBATCH -c 1
+#!/usr/bin/env bash
+#SBATCH --job-name=hyphal-flow-sweep
+#SBATCH --nodes=1
+#SBATCH --ntasks=128
+#SBATCH --cpus-per-task=1
 #SBATCH --mem=240G
 #SBATCH --time=3-00:00:00
 #SBATCH --gres=tmp:100G
-#SBATCH -p multi
-#SBATCH --mail-type=END,FAIL
-#SBATCH --mail-user=vatsal.sanjay@durham.ac.uk
-#SBATCH --output=slurm-%j.out
-#SBATCH --error=slurm-%j.err
+#SBATCH --partition=multi
+#SBATCH --output=slurm-sweep-%j.out
+#SBATCH --error=slurm-sweep-%j.err
 
-# ============================================================
-# Hypha Ec_h Sweep (Hamilton, MPI)
-# Reads sweep values from a config file (default: sweep.params).
-# Each case is compiled + run sequentially with MPI.
-# Usage:
-#   sbatch runSweepHamilton.sbatch [sweep_config] [--exec SOURCE]
-# Examples:
-#   sbatch runSweepHamilton.sbatch
-#   sbatch runSweepHamilton.sbatch sweep.params
-#   sbatch runSweepHamilton.sbatch custom_sweep.params --exec hypha-capillary.c
-# ============================================================
+# Thin Hamilton sweep wrapper. Parsing, compilation and case hygiene stay in
+# the repository runner; the site environment supplies Basilisk and MPI.
 
 set -euo pipefail
 
-usage() {
-  cat <<'EOF'
-Usage: sbatch runSweepHamilton.sbatch [sweep_config] [--exec SOURCE]
-
-Arguments:
-  sweep_config   Sweep config file (default: sweep.params)
-
-Options:
-  --exec SOURCE  Source file in simulationCases/ (default: hypha.c)
-  -h, --help     Show this help message
-EOF
-}
-
-# ============================================================
-# Configuration
-# ============================================================
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
-SWEEP_CONFIG_ARG="sweep.params"
-EXEC_SOURCE_NAME="hypha.c"
-SWEEP_CONFIG_SET=0
+SWEEP_FILE="${1:-sweep.params}"
+: "${RUN_ROOT:?Set RUN_ROOT to the reserved external run directory}"
+[[ -f "${SCRIPT_DIR}/runParameterSweep.sh" &&
+   -f "${SCRIPT_DIR}/simulationCases/hyphal-flow.c" ]] || {
+  printf 'ERROR: submit this wrapper from the hyphal-flow repository root\n' >&2
+  exit 2
+}
+[[ "$RUN_ROOT" = /* && "$RUN_ROOT" != / && -d "$RUN_ROOT" ]] || {
+  printf 'ERROR: RUN_ROOT must be an existing absolute directory other than /\n' >&2
+  exit 2
+}
+SCRIPT_REAL="$(cd "$SCRIPT_DIR" && pwd -P)"
+RUN_REAL="$(cd "$RUN_ROOT" && pwd -P)"
+case "${RUN_REAL}/" in
+  "${SCRIPT_REAL}/"*) printf 'ERROR: RUN_ROOT must be outside the source checkout\n' >&2; exit 2 ;;
+esac
 
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    --exec)
-      if [[ -z "${2:-}" ]]; then
-        echo "ERROR: --exec requires a source filename." >&2
-        usage
-        exit 1
-      fi
-      EXEC_SOURCE_NAME="$2"
-      shift 2
-      ;;
-    --exec=*)
-      EXEC_SOURCE_NAME="${1#*=}"
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
-    -*)
-      echo "ERROR: Unknown option: $1" >&2
-      usage
-      exit 1
-      ;;
-    *)
-      if [[ $SWEEP_CONFIG_SET -eq 0 ]]; then
-        SWEEP_CONFIG_ARG="$1"
-        SWEEP_CONFIG_SET=1
-        shift
-      else
-        echo "ERROR: Unexpected argument: $1" >&2
-        usage
-        exit 1
-      fi
-      ;;
-  esac
-done
-
-if [[ $# -gt 0 ]]; then
-  echo "ERROR: Unexpected trailing arguments: $*" >&2
-  usage
-  exit 1
-fi
-
-if [[ "$EXEC_SOURCE_NAME" != *.c ]]; then
-  EXEC_SOURCE_NAME="${EXEC_SOURCE_NAME}.c"
-fi
-
-if [[ "$SWEEP_CONFIG_ARG" = /* ]]; then
-  SWEEP_CONFIG="$SWEEP_CONFIG_ARG"
-else
-  SWEEP_CONFIG="${SCRIPT_DIR}/${SWEEP_CONFIG_ARG}"
-fi
-
-if [ ! -f "$SWEEP_CONFIG" ]; then
-  echo "ERROR: Sweep config not found: $SWEEP_CONFIG" >&2
-  exit 1
-fi
-
-CONFIG_DIR="$(cd "$(dirname "$SWEEP_CONFIG")" && pwd)"
-
-# shellcheck disable=SC1090
-source "$SWEEP_CONFIG"
-
-SOURCE_FILE_NAME="$EXEC_SOURCE_NAME"
-EXECUTABLE_NAME="${SOURCE_FILE_NAME%.c}"
-MPI_TASKS="${SLURM_NTASKS:-128}"
-CASE_START="${CASE_START:-1000}"
-BASE_CONFIG="${BASE_CONFIG:-default.params}"
-SWEEP_EC_RAW="${SWEEP_Ec_h:-}"
-
-if [[ "$BASE_CONFIG" != /* ]]; then
-  BASE_CONFIG="${CONFIG_DIR}/${BASE_CONFIG}"
-fi
-
-# Where simulation source lives
-SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${SOURCE_FILE_NAME}"
-
-if [ -z "$SWEEP_EC_RAW" ]; then
-  echo "ERROR: SWEEP_Ec_h is missing in $SWEEP_CONFIG" >&2
-  exit 1
-fi
-
-SWEEP_EC_RAW="$(printf '%s' "$SWEEP_EC_RAW" | tr -d '[:space:]')"
-IFS=',' read -r -a _EC_VALUES <<< "$SWEEP_EC_RAW"
-
-EC_VALUES=()
-for ec in "${_EC_VALUES[@]}"; do
-  [ -n "$ec" ] && EC_VALUES+=("$ec")
-done
-
-NCASES=${#EC_VALUES[@]}
-if [ "$NCASES" -le 0 ]; then
-  echo "ERROR: No Ec_h values parsed from SWEEP_Ec_h in $SWEEP_CONFIG" >&2
-  exit 1
-fi
-
-if [ -n "${CASE_END:-}" ]; then
-  EXPECTED_NCASES=$((CASE_END - CASE_START + 1))
-  if [ "$EXPECTED_NCASES" -ne "$NCASES" ]; then
-    echo "ERROR: CASE_START/CASE_END imply $EXPECTED_NCASES cases, but SWEEP_Ec_h has $NCASES values" >&2
-    exit 1
-  fi
-else
-  CASE_END=$((CASE_START + NCASES - 1))
-fi
-
-EC_MIN="${EC_VALUES[0]}"
-EC_MAX="${EC_VALUES[$((NCASES - 1))]}"
-
-cd "$SCRIPT_DIR"
-
-echo "============================================="
-echo "Hypha Ec_h Sweep"
-echo "============================================="
-echo "Job started at: $(date)"
-echo "Node: $(hostname)"
-echo "Working dir: $(pwd)"
-echo "Job ID: ${SLURM_JOB_ID:-unknown}"
-echo "Sweep config: ${SWEEP_CONFIG}"
-echo "Source file: ${SOURCE_FILE_NAME}"
-echo "MPI tasks: ${MPI_TASKS}"
-echo "Cases: ${CASE_START}..${CASE_END} (${NCASES})"
-echo "Ec_h: ${EC_MIN} .. ${EC_MAX} (from SWEEP_Ec_h list)"
-echo "============================================="
-echo ""
-
-# ============================================================
-# Load Modules
-# ============================================================
-echo "Loading modules..."
 module purge
 module load gcc
 module load openmpi
-echo "Modules loaded"
-echo ""
 
-# ============================================================
-# Setup Basilisk Environment (ref-locked)
-# ============================================================
-echo "Setting up Basilisk environment..."
-if ! command -v curl &> /dev/null; then
-  echo "ERROR: curl not found" >&2
-  exit 1
-fi
-
-BASILISK_REF="v2026-01-13"
-BASILISK_INSTALL_URL="https://raw.githubusercontent.com/comphy-lab/basilisk-C/main/reset_install_basilisk-ref-locked.sh"
-LOCK_FILE="${SCRIPT_DIR}/basilisk/.comphy-lock"
-LOCK_REF=""
-if [ -f "$LOCK_FILE" ]; then
-  LOCK_REF="$(awk -F= '$1=="ref"{print $2; exit}' "$LOCK_FILE" 2>/dev/null || true)"
-fi
-
-if [ ! -f "$LOCK_FILE" ] || [ "$LOCK_REF" != "$BASILISK_REF" ]; then
-  echo "Lock mismatch or missing (found ref='${LOCK_REF:-none}') - hard install..."
-  curl -fsSL "$BASILISK_INSTALL_URL" | bash -s -- --ref="$BASILISK_REF" --hard
-else
-  curl -fsSL "$BASILISK_INSTALL_URL" | bash -s -- --ref="$BASILISK_REF"
-fi
-
-if [ -f "${SCRIPT_DIR}/.project_config" ]; then
-  source "${SCRIPT_DIR}/.project_config"
-  echo "Basilisk env loaded from .project_config"
-  echo "BASILISK: ${BASILISK:-unset}"
-else
-  echo "ERROR: .project_config not found after Basilisk install" >&2
-  exit 1
-fi
-echo ""
-
-# ============================================================
-# Validate inputs
-# ============================================================
-if [ ! -f "$BASE_CONFIG" ]; then
-  echo "ERROR: Base params file not found: $BASE_CONFIG" >&2
-  echo "Create it with your fixed parameters (everything except Ec_h)." >&2
-  exit 1
-fi
-
-if [ ! -f "$SRC_FILE_ORIG" ]; then
-  echo "ERROR: Source file not found: $SRC_FILE_ORIG" >&2
-  exit 1
-fi
-
-# ============================================================
-# Run sweep
-# ============================================================
-echo "============================================="
-echo "Running ${NCASES} simulations sequentially"
-echo "============================================="
-echo ""
-
-SUCCESSFUL=0
-FAILED=0
-IDX=0
-
-for EC_H in "${EC_VALUES[@]}"; do
-  IDX=$((IDX + 1))
-  CASE_NO=$((CASE_START + IDX - 1))
-  CASE_DIR="${SCRIPT_DIR}/simulationCases/${CASE_NO}"
-
-  echo "========================================="
-  echo "Case ${CASE_NO}  (index ${IDX}/${NCASES})  Ec_h=${EC_H}"
-  echo "Time: $(date)"
-  echo "========================================="
-
-  mkdir -p "$CASE_DIR"
-
-  # Write case.params (base + overrides)
-  cp "$BASE_CONFIG" "$CASE_DIR/case.params"
-
-  # Ensure CaseNo is set/updated
-  if grep -q "^CaseNo=" "$CASE_DIR/case.params"; then
-    sed -i'.bak' "s|^CaseNo=.*|CaseNo=${CASE_NO}|" "$CASE_DIR/case.params"
-  else
-    echo "CaseNo=${CASE_NO}" >> "$CASE_DIR/case.params"
-  fi
-
-  # Set/override Ec_h only
-  if grep -q "^Ec_h=" "$CASE_DIR/case.params"; then
-    sed -i'.bak' "s|^Ec_h=.*|Ec_h=${EC_H}|" "$CASE_DIR/case.params"
-  else
-    echo "Ec_h=${EC_H}" >> "$CASE_DIR/case.params"
-  fi
-  rm -f "$CASE_DIR/case.params.bak"
-
-  # Copy source into case directory (so it’s self-contained)
-  cp "$SRC_FILE_ORIG" "$CASE_DIR/$SOURCE_FILE_NAME"
-
-  cd "$CASE_DIR"
-
-  # Compile
-  echo "Compiling..."
-  if CC99='mpicc -std=c99 -D_GNU_SOURCE=1' qcc -I../../src-local \
-      -Wall -O2 -D_MPI=1 -disable-dimensions \
-      "$SOURCE_FILE_NAME" -o "$EXECUTABLE_NAME" -lm 2>&1; then
-    echo "Compilation OK"
-  else
-    echo "ERROR: Compilation failed for case ${CASE_NO}" >&2
-    FAILED=$((FAILED + 1))
-    cd "$SCRIPT_DIR"
-    continue
-  fi
-
-  if [ -f "restart" ]; then
-    echo "Restart file found - will resume"
-  fi
-
-  # Run
-  echo "Running: mpirun -np ${MPI_TASKS} ./${EXECUTABLE_NAME} case.params"
-  if mpirun -np "${MPI_TASKS}" ./"$EXECUTABLE_NAME" case.params; then
-    echo "Case ${CASE_NO} finished OK"
-    SUCCESSFUL=$((SUCCESSFUL + 1))
-  else
-    code=$?
-    echo "ERROR: Case ${CASE_NO} failed (exit ${code})" >&2
-    FAILED=$((FAILED + 1))
-  fi
-
-  cd "$SCRIPT_DIR"
-  echo ""
-done
-
-# ============================================================
-# Summary
-# ============================================================
-echo "============================================="
-echo "Sweep complete"
-echo "============================================="
-echo "Finished at: $(date)"
-echo "Total: ${NCASES}"
-echo "Successful: ${SUCCESSFUL}"
-echo "Failed: ${FAILED}"
-echo "Outputs in: simulationCases/"
-echo "============================================="
-
-if [ "$FAILED" -gt 0 ]; then
-  exit 1
-fi
-exit 0
+cd "$SCRIPT_DIR"
+bash runParameterSweep.sh "$SWEEP_FILE" \
+  --output-root "$RUN_REAL" --mpi --cpus "${SLURM_NTASKS:-128}"

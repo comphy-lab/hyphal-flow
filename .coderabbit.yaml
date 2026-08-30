@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-GB"
+early_access: false
+
+reviews:
+  profile: "chill"
+  high_level_summary: true
+  path_filters:
+    - "!docs/**"
+    - "!.github/docs/**"
+    - "!basilisk/**"
+    - "!simulationCases/legacy/**"
+    - "!src-local/legacy/**"
+    - "!scripts/legacy/**"
+    - "!**/reference-data/**"
+    - "!**/*.tsv"
+    - "!**/*.csv"
+    - "!**/*.dat"
+    - "!**/*.npz"
+    - "!**/*.mp4"
+    - "!**/*.png"
+    - "!**/*.pdf"
+  path_instructions:
+    - path: "src-local/**"
+      instructions: |
+        Basilisk literate C. Follow AGENTS.md and account for Basilisk event,
+        foreach and field syntax. Prioritise phase-fraction normalisation,
+        constitutive consistency, axisymmetric terms and field lifecycle.
+    - path: "simulationCases/hyphal-flow.c"
+      instructions: |
+        Canonical three-rheology simulation. Check parameter validation,
+        event ordering, bounded termination, VoF separation diagnostics,
+        axisymmetric volume weighting and output paths.
+    - path: "run*.sh"
+      instructions: |
+        Review quoting, fail-closed case-directory behaviour, resume manifest
+        matching, clean-clone qcc resolution and output-root containment.
+    - path: "smoke/**"
+      instructions: |
+        Reduced execution contracts only. Do not mislabel them as numerical
+        verification or physical validation.
+    - path: "postProcess/**"
+      instructions: |
+        Check reproducible field extraction, deterministic frames, parallel
+        worker isolation and publication-plot conventions.
+    - path: ".github/scripts/**"
+      instructions: |
+        These scripts generate the excluded documentation site. Review path
+        handling, HTML sanitisation and clean-clone behaviour carefully.
+    - path: "AGENTS.md"
+      instructions: |
+        Canonical repository operating manual. Check it against the actual
+        layout and supported execution contract.
+  tools:
+    cppcheck:
+      enabled: false
+    shellcheck:
+      enabled: true
+    ruff:
+      enabled: true
+    markdownlint:
+      enabled: true
+    actionlint:
+      enabled: true

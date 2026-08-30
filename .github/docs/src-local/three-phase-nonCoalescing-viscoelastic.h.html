@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>src-local/three-phase-nonCoalescing-viscoelastic.h | hyphal-flow</title>
+  <title>src-local/three-phase-nonCoalescing-viscoelastic.h | Hyphal Flow</title>
 
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="Three-phase interfacial model where two liquid phases (f1, f2) are kept non-coalescing and the third phase (f1 = f2 = 0) is ambient fluid.">
+  <meta name="description" content="The three-material model now lives in three-phase-rheology.h. This wrapper keeps historical case files buildable while new cases use the descriptive name. ~~~c">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="filtered, noncoalescing, phase, three, viscoelastic, vof.h">
+  <meta name="keywords" content="noncoalescing, phase, three, three-phase-rheology.h, viscoelastic">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -433,169 +433,14 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                     </a>
                 </div>
 
-                <h1
-                id="three-phase-noncoalescing-viscoelastic.h">three-phase-nonCoalescing-viscoelastic.h</h1>
-                <p>Three-phase interfacial model where two liquid phases
-                (<code>f1</code>, <code>f2</code>) are kept
-                non-coalescing and the third phase
-                (<code>f1 = f2 = 0</code>) is ambient fluid.</p>
-                <h2 id="physical-interpretation">Physical
-                Interpretation</h2>
-                <ul>
-                <li>Drop phase: <code>f1 = 1</code>,
-                <code>f2 = 0</code></li>
-                <li>Film/wall phase: <code>f2 = 1</code>,
-                <code>f1 = 0</code></li>
-                <li>Ambient phase: <code>f1 = f2 = 0</code></li>
-                </ul>
-                <p>The drop and film are represented by separate VoF
-                fields but may share material properties when
-                required.</p>
+                <h1 id="compatibility-include">Compatibility
+                include</h1>
+                <p>The three-material model now lives in
+                <code>three-phase-rheology.h</code>. This wrapper keeps
+                historical case files buildable while new cases use the
+                descriptive name.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/vof.h" title="Link to Basilisk source for vof.h"><span class="im">"vof.h"</span></a></span></code></pre></div></div>
-                <p>Instead of one VoF tracer, we define two, f1 and
-                f2.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>scalar f1<span class="op">[],</span> f2<span class="op">[],</span> <span class="op">*</span>interfaces <span class="op">=</span> <span class="op">{</span>f1<span class="op">,</span> f2<span class="op">};</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="dt">const</span><span class="op">)</span> scalar Gp <span class="op">=</span> unity<span class="op">;</span> <span class="co">// elastic modulus</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="dt">const</span><span class="op">)</span> scalar lambda <span class="op">=</span> unity<span class="op">;</span> <span class="co">// relaxation time</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> rho1 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho2 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho3 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> G1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// elastic moduli</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> lambda1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// relaxation times</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> TOLelastic <span class="op">=</span> <span class="fl">1e-1</span><span class="op">;</span> <span class="co">// tolerance for elastic modulus # </span><span class="al">TODO</span><span class="co">: FIX_ME, ideally we should not have to use such a large tolerance :(</span></span></code></pre></div></div>
-                <p>Auxilliary fields are necessary to define the
-                (variable) specific volume <span
-                class="math inline">\(\alpha=1/\rho\)</span> as well as
-                the cell-centered density.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>face vector alphav<span class="op">[];</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>scalar rhov<span class="op">[];</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>scalar Gpd<span class="op">[];</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>scalar lambdapd<span class="op">[];</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>event defaults <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  alpha <span class="op">=</span> alphav<span class="op">;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  rho <span class="op">=</span> rhov<span class="op">;</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  Gp <span class="op">=</span> Gpd<span class="op">;</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  lambda <span class="op">=</span> lambdapd<span class="op">;</span></span></code></pre></div></div>
-                <p>If the viscosity is non-zero, we need to allocate the
-                face-centered viscosity field.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  mu <span class="op">=</span> new face vector<span class="op">;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
-                <p>The density and viscosity are defined using
-                arithmetic averages by default. The user can overload
-                these definitions to use other types of averages
-                (i.e. harmonic). The difference comes in how we call
-                these averages. <span class="math display">\[
-                \hat{A} = (f_1+f_2) +
-                (1-f_1-f_2)\frac{A_g}{A_l}\,\,\,\forall\,\,\,A \in
-                \{\mu,\rho\}
-                \]</span></p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef rho</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define rho(f1, f2)  (clamp(f1,0.,1.)*rho1 + clamp(f2,0.,1.)*rho2 + clamp(1.-f1-f2,0.,1.)*rho3)</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef mu</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define mu(f1, f2)  (clamp(f1,0.,1.)*mu1 + clamp(f2,0.,1.)*mu2 + clamp(1.-f1-f2,0.,1.)*mu3)</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
-                <p>We have the option of using some “smearing” of the
-                density/viscosity jump. It is modified to take into
-                account that there are two VoF tracers.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifdef FILTERED</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>scalar sf1<span class="op">[],</span> sf2<span class="op">[],</span> <span class="op">*</span>smearInterfaces <span class="op">=</span> <span class="op">{</span>sf1<span class="op">,</span> sf2<span class="op">};</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#else</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sf1 f1</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sf2 f2</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>scalar <span class="op">*</span>smearInterfaces <span class="op">=</span> <span class="op">{</span>sf1<span class="op">,</span> sf2<span class="op">};</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>event tracer_advection <span class="op">(</span>i<span class="op">++)</span> <span class="op">{</span></span></code></pre></div></div>
-                <p>When using smearing of the density jump, we
-                initialise <em>sf</em> with the vertex-average of
-                <em>f</em>. Introduce for loops to ensure that smearing
-                is done properly.</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  <span class="pp">#ifdef FILTERED</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> counter1 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>scalar sf in smearInterfaces<span class="op">){</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      counter1<span class="op">++;</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">int</span> counter2 <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> <span class="op">(</span>scalar f in interfaces<span class="op">){</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        counter2<span class="op">++;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>counter1 <span class="op">==</span> counter2<span class="op">){</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>          <span class="co">// fprintf(ferr, &quot;%s %s\n&quot;, sf.name, f.name);</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="pp">#if dimension &lt;=</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            foreach<span class="op">(){</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>              sf<span class="op">[]</span> <span class="op">=</span> <span class="op">(</span><span class="fl">4.</span><span class="op">*</span>f<span class="op">[]</span> <span class="op">+</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                <span class="fl">2.</span><span class="op">*(</span>f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">])</span> <span class="op">+</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">])/</span><span class="fl">16.</span><span class="op">;</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="pp">#else </span><span class="co">// dimension ==</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            foreach<span class="op">(){</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>              sf<span class="op">[]</span> <span class="op">=</span> <span class="op">(</span><span class="fl">8.</span><span class="op">*</span>f<span class="op">[]</span> <span class="op">+</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                <span class="fl">4.</span><span class="op">*(</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])</span> <span class="op">+</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                <span class="fl">2.</span><span class="op">*(</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])</span> <span class="op">+</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">])/</span><span class="fl">64.</span><span class="op">;</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="pp">#endif</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="pp">#endif</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="pp">#if TREE</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>scalar sf in smearInterfaces<span class="op">){</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      sf<span class="op">.</span>prolongation <span class="op">=</span> refine_bilinear<span class="op">;</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>      sf<span class="op">.</span>dirty <span class="op">=</span> true<span class="op">;</span> <span class="co">// boundary conditions need to be updated</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  <span class="pp">#endif</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>event properties <span class="op">(</span>i<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  foreach_face<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> ff1 <span class="op">=</span> <span class="op">(</span>sf1<span class="op">[]</span> <span class="op">+</span> sf1<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> ff2 <span class="op">=</span> <span class="op">(</span>sf2<span class="op">[]</span> <span class="op">+</span> sf2<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    alphav<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]/</span>rho<span class="op">(</span>ff1<span class="op">,</span> ff2<span class="op">);</span></span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    face vector muv <span class="op">=</span> mu<span class="op">;</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>    muv<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]*</span>mu<span class="op">(</span>ff1<span class="op">,</span> ff2<span class="op">);</span></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">(){</span></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    rhov<span class="op">[]</span> <span class="op">=</span> cm<span class="op">[]*</span>rho<span class="op">(</span>sf1<span class="op">[],</span> sf2<span class="op">[]);</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    lambdapd<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>clamp<span class="op">(</span>sf1<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">)</span> <span class="op">&gt;</span> TOLelastic<span class="op">){</span></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">+=</span> G1<span class="op">*</span>clamp<span class="op">(</span>sf1<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>    lambdapd<span class="op">[]</span> <span class="op">+=</span> lambda1<span class="op">*</span>clamp<span class="op">(</span>sf1<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>clamp<span class="op">(</span>sf2<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">)</span> <span class="op">&gt;</span> TOLelastic<span class="op">){</span></span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">+=</span> G2<span class="op">*</span>clamp<span class="op">(</span>sf2<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>    lambdapd<span class="op">[]</span> <span class="op">+=</span> lambda2<span class="op">*</span>clamp<span class="op">(</span>sf2<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>clamp<span class="op">((</span><span class="dv">1</span><span class="op">-</span>sf1<span class="op">[]-</span>sf2<span class="op">[]),</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">)</span> <span class="op">&gt;</span> TOLelastic<span class="op">){</span></span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">+=</span> G3<span class="op">*</span>clamp<span class="op">((</span><span class="dv">1</span><span class="op">-</span>sf1<span class="op">[]-</span>sf2<span class="op">[]),</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>    lambdapd<span class="op">[]</span> <span class="op">+=</span> lambda3<span class="op">*</span>clamp<span class="op">((</span><span class="dv">1</span><span class="op">-</span>sf1<span class="op">[]-</span>sf2<span class="op">[]),</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="pp">#if TREE</span></span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>scalar sf in smearInterfaces<span class="op">){</span></span>
-<span id="cb7-74"><a href="#cb7-74" aria-hidden="true" tabindex="-1"></a>    sf<span class="op">.</span>prolongation <span class="op">=</span> fraction_refine<span class="op">;</span></span>
-<span id="cb7-75"><a href="#cb7-75" aria-hidden="true" tabindex="-1"></a>    sf<span class="op">.</span>dirty <span class="op">=</span> true<span class="op">;</span> <span class="co">// boundary conditions need to be updated</span></span>
-<span id="cb7-76"><a href="#cb7-76" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-77"><a href="#cb7-77" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb7-78"><a href="#cb7-78" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/three-phase-rheology.h.html" title="Link to local documentation for three-phase-rheology.h"><span class="im">"three-phase-rheology.h"</span></a></span></code></pre></div></div>
             </div>
         </main>
 
@@ -642,7 +487,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -670,17 +515,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -693,10 +538,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -709,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -719,7 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

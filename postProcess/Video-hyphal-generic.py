@@ -293,13 +293,14 @@ def ensure_python_dependencies() -> None:
       "Install them (e.g. `pip install numpy matplotlib`)."
     )
 
-  # Publication-style defaults with LaTeX typography.
+  # Process-safe publication typography. External LaTeX can deadlock when
+  # several frame workers render concurrently, so batch frames use Computer
+  # Modern mathtext instead.
   assert _matplotlib is not None
   _matplotlib.rcParams["font.family"] = "serif"
   _matplotlib.rcParams["font.serif"] = ["Computer Modern Roman", "DejaVu Serif"]
   _matplotlib.rcParams["mathtext.fontset"] = "cm"
-  _matplotlib.rcParams["text.usetex"] = True
-  _matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
+  _matplotlib.rcParams["text.usetex"] = False
   _matplotlib.rcParams["axes.linewidth"] = 2.5
 
   np = _np

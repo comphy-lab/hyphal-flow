@@ -1,0 +1,391 @@
+/**
+# hyphal-flow.c
+
+Canonical single-branch hypha simulation. The outer phase is an
+incompressible finite-strain neo-Hookean Kelvin--Voigt-type solid, while the
+carrier liquid and drop are finite-relaxation Oldroyd-B fluids. Separate VoF
+fields prevent the two interfaces from becoming one tracer; the overlap
+diagnostic still has to demonstrate that the carrier film remains resolved.
+
+## Author
+Vatsal Sanjay
+
+## Version
+- August 11, 2024: allow stress relaxation in both drop and
+  cytoplasm.
+*/
+
+#include "axi.h"
+#include "params.h"
+#include "navier-stokes/centered.h"
+#define FILTERED
+#include "three-phase-rheology.h"
+#include "log-conformation-rheology.h"
+#include "tension.h"
+#include "reduced-three-phase-nonCoalescing.h"
+
+/**
+## Numerical Tolerances
+*/
+#define fErr (1e-3) // error tolerance in VOF
+#define KErr (1e-4) // error tolerance in KAPPA
+#define VelErr (1e-2) // error tolerances in velocity
+#define AErr (1e-3) // error tolerance in Conformation tensor
+#define MINlevel 4 // minimum level
+int MAXlevel;
+double tmax;
+double snapshot_interval;
+double log_interval;
+
+/**
+## Material Parameters
+
+The Newtonian `Oh_*` contribution is the solvent viscosity. For the two
+liquids, `Ec_*` is the elastic modulus and `De_*` the relaxation time, so the
+implied Oldroyd-B polymer viscosity is `Ec_* De_*`. The solid uses the same
+finite-strain conformation stress in the practical no-relaxation limit; its
+Newtonian contribution is the Kelvin--Voigt dashpot.
+*/
+double Oh_drop, rho_drop, Ec_drop, De_drop;
+double Oh_solid, rho_solid, Ec_solid, De_solid;
+double Oh_liquid, rho_liquid, Ec_liquid, De_liquid;
+
+/**
+## Geometry Helper
+*/
+#define gap(x,y,radius,width,x0,c0) (y - ((c0+1.) + 0.5*(radius - (c0+1.))*(1. + tanh(sq(x-x0)/width))))
+
+double channel_radius;
+double Bond;
+double Ldomain;
+
+static int validate_phase (const char * name, double viscosity,
+                           double modulus, double relaxation_time)
+{
+  if (!isfinite (viscosity) || !isfinite (modulus) ||
+      !isfinite (relaxation_time) || viscosity <= 0. || modulus < 0. ||
+      relaxation_time < 0.) {
+    fprintf (stderr, "ERROR: %s viscosity must be positive and Ec/De non-negative\n",
+             name);
+    return -1;
+  }
+  if ((modulus > 0.) != (relaxation_time > 0.)) {
+    fprintf (stderr,
+             "ERROR: %s needs both Ec > 0 and De > 0, or Ec = De = 0\n",
+             name);
+    return -1;
+  }
+  return 0;
+}
+
+/**
+## main()
+
+Initialize properties and forcing, then enter the Basilisk event loop.
+*/
+int main (int argc, char const * argv[])
+{
+  // The command is a fixed literal; no parameter text reaches a shell.
+  if (system ("mkdir -p intermediate"))
+    return 2;
+
+  params_init_from_argv (argc, argv);
+
+  MAXlevel = param_int ("MAXlevel", 12);
+  tmax = param_double ("tmax", 200.);
+  snapshot_interval = param_double ("snapshot_interval", 0.1);
+  log_interval = param_double ("log_interval", 0.01);
+
+  Oh_drop = param_double ("Oh_drop", param_double ("Ohd", 1.));
+  rho_drop = param_double ("rho_drop", param_double ("RhoR_dc", 1.2));
+  Ec_drop = param_double ("Ec_drop", param_double ("Ec_d", 0.1));
+  De_drop = param_double ("De_drop", param_double ("De_d", 1.));
+
+  Oh_solid = param_double ("Oh_solid", param_double ("Ohf", 1.));
+  rho_solid = param_double ("rho_solid", param_double ("RhoR_hc", 1.));
+  Ec_solid = param_double ("Ec_solid", param_double ("Ec_h", 0.1));
+  De_solid = param_double ("De_solid", param_double ("De_h", 1e30));
+
+  Oh_liquid = param_double ("Oh_liquid",
+                            param_double ("Oh_c", param_double ("Ohc", 0.01)));
+  rho_liquid = param_double ("rho_liquid", 1.);
+  Ec_liquid = param_double ("Ec_liquid", param_double ("Ec_c", 0.1));
+  De_liquid = param_double ("De_liquid", param_double ("De_c", 1.));
+
+  channel_radius = param_double ("channel_radius",
+                                 param_double ("hr", param_double ("hf", 0.9)));
+  Bond = param_double ("Bond", 1.);
+  Ldomain = param_double ("Ldomain", 80.);
+
+  if (MAXlevel < MINlevel || MAXlevel > 20 || !isfinite (tmax) || tmax <= 0. ||
+      !isfinite (snapshot_interval) || snapshot_interval <= 0. ||
+      !isfinite (log_interval) || log_interval <= 0. ||
+      !isfinite (rho_drop) || !isfinite (rho_solid) ||
+      !isfinite (rho_liquid) || rho_drop <= 0. || rho_solid <= 0. ||
+      rho_liquid <= 0. || !isfinite (channel_radius) ||
+      !isfinite (Ldomain) || !isfinite (Bond) || channel_radius <= 0. ||
+      Ldomain < 8. ||
+      validate_phase ("drop", Oh_drop, Ec_drop, De_drop) ||
+      validate_phase ("outer solid", Oh_solid, Ec_solid, De_solid) ||
+      validate_phase ("carrier liquid", Oh_liquid, Ec_liquid, De_liquid))
+    return 2;
+
+  if (Ec_solid > 0. && De_solid < 1e6*max (tmax, 1.))
+    fprintf (stderr,
+             "WARNING: De_solid is finite on the run timescale; the outer "
+             "phase is relaxing viscoelastic rather than Kelvin--Voigt-type\n");
+
+  fprintf (ferr,
+           "level=%d tmax=%g | drop: Oh=%g Ec=%g De=%g mu_p=%g | "
+           "liquid: Oh=%g Ec=%g De=%g mu_p=%g | solid: Oh=%g Ec=%g "
+           "De=%g | radius=%g Bond=%g\n",
+           MAXlevel, tmax,
+           Oh_drop, Ec_drop, De_drop, Ec_drop*De_drop,
+           Oh_liquid, Ec_liquid, De_liquid, Ec_liquid*De_liquid,
+           Oh_solid, Ec_solid, De_solid, channel_radius, Bond);
+
+  L0 = Ldomain;
+  X0 = -4.;
+  Y0 = 0.;
+  init_grid (1 << MINlevel);
+  periodic (right);
+
+  // Phase 1: drop (finite-relaxation Oldroyd-B).
+  rho1 = rho_drop; mu1 = Oh_drop; G1 = Ec_drop; lambda1 = De_drop;
+
+  // Phase 2: outer finite-strain Kelvin--Voigt-type solid.
+  rho2 = rho_solid; mu2 = Oh_solid; G2 = Ec_solid; lambda2 = De_solid;
+
+  // Phase 3: carrier liquid (finite-relaxation Oldroyd-B).
+  rho3 = rho_liquid; mu3 = Oh_liquid; G3 = Ec_liquid; lambda3 = De_liquid;
+
+  Bf1.x = Bond;
+  Bf2.x = Bond;
+
+  f1.sigma = 1.; // drop--carrier-liquid interfacial tension
+  f2.sigma = 1.; // solid--carrier-liquid interfacial tension
+
+  run ();
+  return 0;
+}
+
+/**
+## init()
+
+Initialize interfaces unless a restart snapshot is available.
+*/
+event init(t = 0){
+  if (!restore (file = "restart")) {
+    double width = 2e0; // width of the tanh function
+    double clearance = 0.20; // clearance from the drop inside the cytoplasm at t = 0
+    double x0tanh = 0.0; // midpoint of the tanh function
+
+    refine (sq(y) + sq(x/1.5) > 0.81 && sq(y) + sq(x/1.5) < 1.21 && level < MAXlevel);
+
+    fraction(f1, sq(1e0) - sq(y) - sq(x/1.5));
+    fraction(f2, gap(x,y,channel_radius,width,x0tanh,clearance));
+
+  }
+}
+
+/**
+## adapt()
+
+Adaptive mesh refinement driven by interfaces, curvature, velocity, and
+conformation fields.
+*/
+event adapt(i++){
+  scalar KAPPA1[], KAPPA2[], trA[];
+  curvature(f1, KAPPA1);
+  curvature(f2, KAPPA2);
+  foreach(){
+    trA[] = (conform_p.x.x[] + conform_p.y.y[] + conform_qq[])/3.0;
+  }
+
+  adapt_wavelet ((scalar *){f1, f2, KAPPA1, KAPPA2, u.x, u.y, trA},
+  (double[]){fErr, fErr, KErr, KErr, VelErr, VelErr, AErr},
+  MAXlevel, MINlevel);
+
+  unrefine(x > X0 + L0 - 1.);
+  unrefine(y > 1e1);
+}
+/**
+## stop_when_drop_exits()
+
+Stop the run when the leading drop edge approaches the domain outlet.
+*/
+event stop_when_drop_exits (t += log_interval) {
+
+  scalar xpos[];
+  coord ex = {1., 0.};
+  coord z0 = {0., 0.};
+  position (f1, xpos, ex, z0, add = false);
+
+  stats sx = statsf (xpos);
+  double xmax = sx.volume > 0. ? sx.max : -HUGE;
+
+  // buffer
+  double finest = L0/(1 << MAXlevel);
+  double buffer = 2.*finest;
+
+  double x_end = X0 + L0;
+
+  if (pid() == 0)
+    fprintf(ferr, "drop front xmax = %.6f, x_end = %.6f\n", xmax, x_end);
+
+  if (xmax > x_end - buffer) {
+    if (pid() == 0) {
+      fprintf(ferr,
+        "\n*** Drop leading edge reached end of domain ***\n"
+        "xmax = %.6f, domain end = %.6f\n"
+        "Stopping simulation at t = %.6g\n\n",
+        xmax, x_end, t);
+    }
+    dump (file = "final");
+    exit(0);
+  }
+}
+
+/**
+## writingFiles()
+
+Write periodic restart and snapshot files.
+*/
+event writingFiles (t = 0, t += snapshot_interval; t <= tmax + snapshot_interval) {
+  dump (file = "restart");
+  char nameOut[80];
+  sprintf (nameOut, "intermediate/snapshot-%5.4f", t);
+  dump (file = nameOut);
+}
+
+/**
+## stop_at_tmax()
+
+Write a terminal snapshot and stop the otherwise open-ended event loop at the
+configured physical time. This makes reduced smoke cases genuinely bounded.
+*/
+event stop_at_tmax (t = tmax) {
+  dump (file = "final");
+  return 1;
+}
+
+/**
+## logWriting()
+
+Log kinetic energy and droplet center-of-mass velocity.
+*/
+event logWriting (t = 0, t += log_interval; t <= tmax + log_interval) {
+  double ke = 0., vcm = 0., wt = 0., overlap = 0.;
+  double volume_drop = 0., volume_solid = 0., volume_liquid = 0.;
+  double stress_drop = 0., stress_solid = 0., stress_liquid = 0.;
+  foreach (reduction(+:ke) reduction(+:vcm) reduction(+:wt)
+           reduction(+:volume_drop) reduction(+:volume_solid)
+           reduction(+:volume_liquid) reduction(max:overlap)
+           reduction(max:stress_drop) reduction(max:stress_solid)
+           reduction(max:stress_liquid)) {
+    double volume = dv();
+    double wd, ws, wl;
+    phase_weights (f1[], f2[], &wd, &ws, &wl);
+    double stress_norm = sqrt (sq(tau_p.x.x[]) + sq(tau_p.y.y[]) +
+                               2.*sq(tau_p.x.y[]) + sq(tau_qq[]));
+    ke += 0.5*rho(f1[], f2[])*(sq(u.x[]) + sq(u.y[]))*volume;
+    vcm += f1[]*u.x[]*volume;
+    wt += f1[]*volume;
+    volume_drop += wd*volume;
+    volume_solid += ws*volume;
+    volume_liquid += wl*volume;
+    overlap = max (overlap, max (f1[] + f2[] - 1., 0.));
+    stress_drop = max (stress_drop, wd*stress_norm);
+    stress_solid = max (stress_solid, ws*stress_norm);
+    stress_liquid = max (stress_liquid, wl*stress_norm);
+  }
+  if (wt > 0.0) vcm /= wt;
+  static FILE * fp;
+
+  if (pid() == 0){
+    if (i == 0) {
+      fprintf (ferr, "i dt t ke vcm overlap Vd Vs Vl Td Ts Tl\n");
+      fp = fopen ("log", "w");
+      fprintf (fp, "i dt t ke vcm overlap Vd Vs Vl Td Ts Tl\n");
+    } else {
+      fp = fopen ("log", "a");
+    }
+    fprintf (fp, "%d %g %g %g %5.4e %g %g %g %g %g %g %g\n",
+             i, dt, t, ke, vcm, overlap,
+             volume_drop, volume_solid, volume_liquid,
+             stress_drop, stress_solid, stress_liquid);
+    fclose(fp);
+    fprintf (ferr, "%d %g %g %g %5.4e %g %g %g %g %g %g %g\n",
+             i, dt, t, ke, vcm, overlap,
+             volume_drop, volume_solid, volume_liquid,
+             stress_drop, stress_solid, stress_liquid);
+    if (overlap > 1e-3)
+      fprintf (ferr,
+               "WARNING: VoF overlap=%g; carrier-film separation is under-resolved\n",
+               overlap);
+  }
+    assert(ke > -1e-10);
+  // assert(ke < 1e2);
+  // dump(file = "dumpTest");
+}
+
+
+/**
+## log_hypha_deformation()
+
+Track maximum hypha interface height using a sub-cell estimate of the
+`f2 = 0.5` contour.
+*/
+event log_hypha_deformation (t = 0; t += log_interval;
+                             t <= tmax + snapshot_interval) {
+
+  const double f_eps = 1e-6;
+  const double dy_eps = 1e-12;
+  double y_if_max = -1e9;
+
+  foreach (reduction(max:y_if_max)) {
+    double f = f2[];
+    if (f <= f_eps || f >= 1.0 - f_eps)
+      continue; // not in interfacial band
+
+    const double y_top = y + 0.5*Delta;
+    if (y_top <= y_if_max)
+      continue; // even clamped estimate cannot beat current local max
+
+    // Default fallback is cell-center estimate.
+    double y_if = y;
+    double dfdy = (f2[0,1] - f2[0,-1])/(2.*Delta);
+
+    if (fabs(dfdy) > dy_eps) {
+      // Solve linearized f2(xc,y) = 0.5 and clamp to current cell bounds.
+      const double y_bot = y - 0.5*Delta;
+      y_if = y + (0.5 - f)/dfdy;
+      if (y_if > y_top) y_if = y_top;
+      else if (y_if < y_bot) y_if = y_bot;
+    }
+
+    if (y_if > y_if_max)
+      y_if_max = y_if;
+  }
+
+  if (y_if_max < -1e8)
+    y_if_max = NAN;
+
+  if (pid() == 0) {
+    static FILE *fh = NULL;
+    static int fh_open_failed = 0;
+    if (!fh && !fh_open_failed) {
+      fh = fopen("hypha-def-log","w");
+      if (!fh) {
+        perror("hypha-def-log");
+        fh_open_failed = 1;
+      } else
+        fprintf(fh, "t y_if_max\n");
+    }
+
+    if (fh) {
+      fprintf(fh, "%g %g\n", t, y_if_max);
+      fflush(fh);
+    }
+  }
+}

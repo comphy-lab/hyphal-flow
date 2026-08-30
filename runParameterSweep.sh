@@ -1,145 +1,34 @@
-#!/bin/bash
-# runParameterSweep.sh
-#
-# Run a parameter sweep from the repository root.
-# The script reads SWEEP_* variables from a sweep config file, generates
-# case-specific parameter files with incrementing CaseNo, then runs each case
-# sequentially using runSimulation.sh.
-#
-# Usage:
-#   bash runParameterSweep.sh [sweep_file] [--exec exec_code] [--mpi] [--CPUs N]
-#
-# Examples:
-#   bash runParameterSweep.sh
-#   bash runParameterSweep.sh sweep.params
-#   bash runParameterSweep.sh sweep.params --exec hypha.c
-#   bash runParameterSweep.sh --exec hypha-capillary.c sweep.params
-#   bash runParameterSweep.sh sweep.params --mpi
-#   bash runParameterSweep.sh sweep.params --mpi --CPUs 16
+#!/usr/bin/env bash
+
+# Generate a Cartesian product of SWEEP_* values and route every case through
+# the canonical single-case runner. Dry runs only parse configuration; they do
+# not require Basilisk or a machine-local project configuration.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=src-local/parse_params.sh
+source "${SCRIPT_DIR}/src-local/parse_params.sh"
 
 usage() {
-  cat <<'EOF'
-Usage: bash runParameterSweep.sh [sweep_file] [--exec exec_code] [OPTIONS]
-
-Arguments:
-  sweep_file    Sweep config path (default: sweep.params)
+  command cat <<'EOF'
+Usage: bash runParameterSweep.sh [sweep_file] [OPTIONS]
 
 Options:
-  --exec FILE   C source file in simulationCases/ (default: hypha.c)
-  --mpi         Compile/run each case with MPI via runSimulation.sh
-  --CPUs N      MPI process count for --mpi (default: 4)
-  -n, --dry-run Show generated parameter combinations only
-  -v, --verbose Print expanded per-case parameter details
-  -h, --help    Show this help message
+  --exec FILE       Simulation source (only hyphal-flow.c is supported)
+  --output-root DIR Case-output root passed to runSimulation.sh
+  --dry-run         Print generated cases without compiling or executing
+  --verbose         Print all expanded parameter values
+  --mpi             Compile and execute every case with MPI
+  --cpus N          MPI process count (alias: --CPUs; default: 4)
+  -h, --help        Show this help
 EOF
 }
 
-trim() {
-  local s="$1"
-  s="${s#"${s%%[![:space:]]*}"}"
-  s="${s%"${s##*[![:space:]]}"}"
-  printf '%s' "$s"
-}
-
-set_param_in_file() {
-  local key="$1"
-  local value="$2"
-  local file="$3"
-
-  if grep -q "^${key}=" "$file"; then
-    sed -i'.bak' "s|^${key}=.*|${key}=${value}|" "$file"
-  else
-    printf '%s=%s\n' "$key" "$value" >> "$file"
-  fi
-  rm -f "${file}.bak"
-}
-
-parse_sweep_variables() {
-  local file="$1"
-  local raw_key raw_value key value
-
-  SWEEP_VARS=()
-  SWEEP_VALUES_RAW=()
-
-  while IFS='=' read -r raw_key raw_value || [[ -n "${raw_key:-}" ]]; do
-    key="$(trim "${raw_key:-}")"
-    [[ -z "$key" ]] && continue
-    [[ "$key" == \#* ]] && continue
-
-    if [[ "$key" =~ ^SWEEP_([A-Za-z0-9_]+)$ ]]; then
-      value="${raw_value:-}"
-      value="${value%%#*}"
-      value="$(trim "$value")"
-      if [[ -z "$value" ]]; then
-        echo "ERROR: Empty value list for ${key} in $file" >&2
-        exit 1
-      fi
-      SWEEP_VARS+=("${BASH_REMATCH[1]}")
-      SWEEP_VALUES_RAW+=("$value")
-    fi
-  done < "$file"
-
-  if [[ ${#SWEEP_VARS[@]} -eq 0 ]]; then
-    echo "ERROR: No SWEEP_* variables found in $file" >&2
-    exit 1
-  fi
-}
-
-generate_combinations() {
-  local depth="$1"
-  shift || true
-  local current_values=("$@")
-
-  if [[ "$depth" -eq "${#SWEEP_VARS[@]}" ]]; then
-    local case_no="$CURRENT_CASE_NO"
-    local case_file="${TEMP_DIR}/case_$(printf '%04d' "$case_no").params"
-    local i
-
-    cp "$BASE_CONFIG" "$case_file"
-    set_param_in_file "CaseNo" "$case_no" "$case_file"
-
-    for i in "${!SWEEP_VARS[@]}"; do
-      set_param_in_file "${SWEEP_VARS[$i]}" "${current_values[$i]}" "$case_file"
-    done
-
-    PARAM_FILES+=("$case_file")
-    ((COMBINATION_COUNT += 1))
-    ((CURRENT_CASE_NO += 1))
-
-    if [[ $DRY_RUN -eq 1 || $VERBOSE -eq 1 ]]; then
-      echo "Case ${case_no}:"
-      for i in "${!SWEEP_VARS[@]}"; do
-        echo "  ${SWEEP_VARS[$i]}=${current_values[$i]}"
-      done
-      echo ""
-    fi
-    return
-  fi
-
-  local values="${SWEEP_VALUES_RAW[$depth]}"
-  local value_array=()
-  local value trimmed_value
-
-  IFS=',' read -r -a value_array <<< "$values"
-  for value in "${value_array[@]}"; do
-    trimmed_value="$(trim "$value")"
-    [[ -z "$trimmed_value" ]] && continue
-    if [[ ${#current_values[@]} -gt 0 ]]; then
-      generate_combinations $((depth + 1)) "${current_values[@]}" "$trimmed_value"
-    else
-      generate_combinations $((depth + 1)) "$trimmed_value"
-    fi
-  done
-}
-
-# Defaults
-EXEC_CODE="hypha.c"
+EXEC_CODE="hyphal-flow.c"
 SWEEP_FILE="sweep.params"
 SWEEP_FILE_SET=0
+OUTPUT_ROOT="${SCRIPT_DIR}/simulationCases"
 DRY_RUN=0
 VERBOSE=0
 USE_MPI=0
@@ -147,245 +36,162 @@ MPI_CPUS=4
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    --exec)
-      if [[ -z "${2:-}" ]]; then
-        echo "ERROR: --exec requires a file name." >&2
-        usage
-        exit 1
-      fi
-      EXEC_CODE="$2"
-      shift 2
-      ;;
-    --exec=*)
-      EXEC_CODE="${1#*=}"
-      shift
-      ;;
-    --mpi)
-      USE_MPI=1
-      shift
-      ;;
-    --CPUs|--cpus)
-      if [[ -z "${2:-}" ]]; then
-        echo "ERROR: $1 requires a positive integer value." >&2
-        usage
-        exit 1
-      fi
-      MPI_CPUS="$2"
-      shift 2
-      ;;
-    --CPUs=*|--cpus=*)
-      MPI_CPUS="${1#*=}"
-      shift
-      ;;
-    -n|--dry-run)
-      DRY_RUN=1
-      shift
-      ;;
-    -v|--verbose)
-      VERBOSE=1
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
-    -*)
-      echo "ERROR: Unknown option: $1" >&2
-      usage
-      exit 1
-      ;;
+    -h|--help) usage; exit 0 ;;
+    --exec) EXEC_CODE="${2:-}"; shift 2 ;;
+    --exec=*) EXEC_CODE="${1#*=}"; shift ;;
+    --output-root) OUTPUT_ROOT="${2:-}"; shift 2 ;;
+    --output-root=*) OUTPUT_ROOT="${1#*=}"; shift ;;
+    -n|--dry-run) DRY_RUN=1; shift ;;
+    -v|--verbose) VERBOSE=1; shift ;;
+    --mpi) USE_MPI=1; shift ;;
+    --cpus|--CPUs) MPI_CPUS="${2:-}"; shift 2 ;;
+    --cpus=*|--CPUs=*) MPI_CPUS="${1#*=}"; shift ;;
+    --) shift; break ;;
+    -*) printf 'ERROR: unknown option: %s\n' "$1" >&2; usage; exit 2 ;;
     *)
-      if [[ $SWEEP_FILE_SET -eq 0 ]]; then
-        SWEEP_FILE="$1"
-        SWEEP_FILE_SET=1
-        shift
-      else
-        echo "ERROR: Unexpected argument: $1" >&2
-        usage
-        exit 1
+      if [[ $SWEEP_FILE_SET -ne 0 ]]; then
+        printf 'ERROR: unexpected argument: %s\n' "$1" >&2
+        exit 2
       fi
+      SWEEP_FILE="$1"
+      SWEEP_FILE_SET=1
+      shift
       ;;
   esac
 done
 
 if [[ $# -gt 0 ]]; then
-  echo "ERROR: Unexpected trailing arguments: $*" >&2
-  usage
-  exit 1
+  printf 'ERROR: unexpected trailing arguments: %s\n' "$*" >&2
+  exit 2
 fi
-
+if [[ "$EXEC_CODE" != "hyphal-flow.c" ]]; then
+  printf 'ERROR: only hyphal-flow.c is sweep-compatible; got %s\n' "$EXEC_CODE" >&2
+  exit 2
+fi
+if [[ -z "$OUTPUT_ROOT" ]]; then
+  printf 'ERROR: --output-root may not be empty\n' >&2
+  exit 2
+fi
 if [[ ! "$MPI_CPUS" =~ ^[1-9][0-9]*$ ]]; then
-  echo "ERROR: --CPUs must be a positive integer, got: $MPI_CPUS" >&2
-  exit 1
+  printf 'ERROR: --cpus must be a positive integer; got %s\n' "$MPI_CPUS" >&2
+  exit 2
 fi
 
-if [[ "$EXEC_CODE" != *.c ]]; then
-  EXEC_CODE="${EXEC_CODE}.c"
-fi
-
-if [[ ! "$SWEEP_FILE" = /* ]]; then
-  SWEEP_FILE="${SCRIPT_DIR}/${SWEEP_FILE}"
-fi
-
-if [[ ! -f "$SWEEP_FILE" ]]; then
-  echo "ERROR: Sweep file not found: $SWEEP_FILE" >&2
-  exit 1
-fi
-
-# Source project configuration
-if [[ -f "${SCRIPT_DIR}/.project_config" ]]; then
-  # shellcheck disable=SC1091
-  source "${SCRIPT_DIR}/.project_config"
-else
-  echo "ERROR: .project_config not found at ${SCRIPT_DIR}/.project_config" >&2
-  exit 1
-fi
-
-if ! command -v qcc >/dev/null 2>&1; then
-  echo "ERROR: qcc not found in PATH after sourcing .project_config" >&2
-  exit 1
-fi
-
-RUN_SIM_SCRIPT="${SCRIPT_DIR}/runSimulation.sh"
-if [[ ! -f "$RUN_SIM_SCRIPT" ]]; then
-  echo "ERROR: runSimulation.sh not found at ${RUN_SIM_SCRIPT}" >&2
-  exit 1
-fi
-
-SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${EXEC_CODE}"
-if [[ ! -f "$SRC_FILE_ORIG" ]]; then
-  echo "ERROR: Source file not found: $SRC_FILE_ORIG" >&2
-  exit 1
-fi
+[[ "$SWEEP_FILE" = /* ]] || SWEEP_FILE="${SCRIPT_DIR}/${SWEEP_FILE}"
+[[ "$OUTPUT_ROOT" = /* ]] || OUTPUT_ROOT="${SCRIPT_DIR}/${OUTPUT_ROOT}"
+[[ -f "$SWEEP_FILE" ]] || { printf 'ERROR: sweep file not found: %s\n' "$SWEEP_FILE" >&2; exit 2; }
 
 CONFIG_DIR="$(cd "$(dirname "$SWEEP_FILE")" && pwd)"
+BASE_CONFIG="$(get_param_value BASE_CONFIG "$SWEEP_FILE" default.params)"
+CASE_START="$(get_param_value CASE_START "$SWEEP_FILE" 1000)"
+CASE_END="$(get_param_value CASE_END "$SWEEP_FILE" '')"
+[[ "$BASE_CONFIG" = /* ]] || BASE_CONFIG="${CONFIG_DIR}/${BASE_CONFIG}"
+[[ -f "$BASE_CONFIG" ]] || { printf 'ERROR: base config not found: %s\n' "$BASE_CONFIG" >&2; exit 2; }
 
-# shellcheck disable=SC1090
-source "$SWEEP_FILE"
-
-BASE_CONFIG="${BASE_CONFIG:-default.params}"
-CASE_START="${CASE_START:-1000}"
-
-if [[ "$BASE_CONFIG" != /* ]]; then
-  BASE_CONFIG="${CONFIG_DIR}/${BASE_CONFIG}"
+if [[ ! "$CASE_START" =~ ^[0-9]{4}$ ]] || ((10#$CASE_START < 1000 || 10#$CASE_START > 9999)); then
+  printf 'ERROR: CASE_START must be four digits from 1000 to 9999; got %s\n' "$CASE_START" >&2
+  exit 2
+fi
+if [[ -n "$CASE_END" ]] && { [[ ! "$CASE_END" =~ ^[0-9]{4}$ ]] || ((10#$CASE_END < 1000 || 10#$CASE_END > 9999)); }; then
+  printf 'ERROR: CASE_END must be four digits from 1000 to 9999; got %s\n' "$CASE_END" >&2
+  exit 2
 fi
 
-if [[ ! -f "$BASE_CONFIG" ]]; then
-  echo "ERROR: BASE_CONFIG file not found: $BASE_CONFIG" >&2
-  exit 1
-fi
-
-if [[ ! "$CASE_START" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: CASE_START must be numeric, got: $CASE_START" >&2
-  exit 1
-fi
-
-if [[ -n "${CASE_END:-}" ]] && [[ ! "$CASE_END" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: CASE_END must be numeric when provided, got: $CASE_END" >&2
-  exit 1
-fi
-
-parse_sweep_variables "$SWEEP_FILE"
+SWEEP_VARS=()
+SWEEP_VALUES=()
+while IFS= read -r line || [[ -n "$line" ]]; do
+  line="${line%%#*}"
+  line="$(trim_string "$line")"
+  [[ -z "$line" || "$line" != *=* ]] && continue
+  key="$(trim_string "${line%%=*}")"
+  value="$(trim_string "${line#*=}")"
+  if [[ "$key" =~ ^SWEEP_([A-Za-z_][A-Za-z0-9_]*)$ ]]; then
+    [[ -n "$value" ]] || { printf 'ERROR: %s has no values\n' "$key" >&2; exit 2; }
+    SWEEP_VARS+=("${BASH_REMATCH[1]}")
+    SWEEP_VALUES+=("$value")
+  fi
+done < "$SWEEP_FILE"
+[[ ${#SWEEP_VARS[@]} -gt 0 ]] || { printf 'ERROR: no SWEEP_* values in %s\n' "$SWEEP_FILE" >&2; exit 2; }
 
 TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/hyphal-sweep.XXXXXX")"
 trap 'rm -rf "$TEMP_DIR"' EXIT
-
 PARAM_FILES=()
 COMBINATION_COUNT=0
-CURRENT_CASE_NO="$CASE_START"
-generate_combinations 0
+CURRENT_CASE=$((10#$CASE_START))
 
-if [[ "$COMBINATION_COUNT" -le 0 ]]; then
-  echo "ERROR: No parameter combinations generated." >&2
-  exit 1
-fi
+generate_combinations() {
+  local depth="$1"
+  shift
+  local current=("$@")
+  local index raw value case_file
+  local values=()
 
-if [[ -n "${CASE_END:-}" ]]; then
-  EXPECTED_COUNT=$((CASE_END - CASE_START + 1))
-  if [[ "$EXPECTED_COUNT" -ne "$COMBINATION_COUNT" ]]; then
-    echo "ERROR: CASE_START/CASE_END imply ${EXPECTED_COUNT} cases, but generated ${COMBINATION_COUNT} combinations." >&2
-    exit 1
+  if [[ "$depth" -eq "${#SWEEP_VARS[@]}" ]]; then
+    if ((CURRENT_CASE > 9999)); then
+      printf 'ERROR: generated CaseNo exceeds 9999\n' >&2
+      exit 2
+    fi
+    case_file="${TEMP_DIR}/case_$(printf '%04d' "$CURRENT_CASE").params"
+    cp "$BASE_CONFIG" "$case_file"
+    set_param_in_file CaseNo "$(printf '%04d' "$CURRENT_CASE")" "$case_file"
+    for index in "${!SWEEP_VARS[@]}"; do
+      set_param_in_file "${SWEEP_VARS[$index]}" "${current[$index]}" "$case_file"
+    done
+    PARAM_FILES+=("$case_file")
+    if [[ $DRY_RUN -eq 1 || $VERBOSE -eq 1 ]]; then
+      printf 'Case %04d:' "$CURRENT_CASE"
+      for index in "${!SWEEP_VARS[@]}"; do
+        printf ' %s=%s' "${SWEEP_VARS[$index]}" "${current[$index]}"
+      done
+      printf '\n'
+    fi
+    ((COMBINATION_COUNT += 1))
+    ((CURRENT_CASE += 1))
+    return
   fi
-else
-  CASE_END=$((CASE_START + COMBINATION_COUNT - 1))
+
+  IFS=',' read -r -a values <<< "${SWEEP_VALUES[$depth]}"
+  for raw in "${values[@]}"; do
+    value="$(trim_string "$raw")"
+    [[ -n "$value" ]] || continue
+    if [[ ${#current[@]} -gt 0 ]]; then
+      generate_combinations "$((depth + 1))" "${current[@]}" "$value"
+    else
+      generate_combinations "$((depth + 1))" "$value"
+    fi
+  done
+}
+
+generate_combinations 0
+((COMBINATION_COUNT > 0)) || { printf 'ERROR: no combinations generated\n' >&2; exit 2; }
+GENERATED_END=$((10#$CASE_START + COMBINATION_COUNT - 1))
+if [[ -n "$CASE_END" ]] && ((10#$CASE_END != GENERATED_END)); then
+  printf 'ERROR: CASE_START/CASE_END imply %d cases but %d combinations were generated\n' \
+    "$((10#$CASE_END - 10#$CASE_START + 1))" "$COMBINATION_COUNT" >&2
+  exit 2
 fi
 
-echo "========================================="
-echo "Hyphal Flow - Parameter Sweep"
-echo "========================================="
-echo "Sweep file: ${SWEEP_FILE}"
-echo "Source file: ${EXEC_CODE}"
-echo "Base config: ${BASE_CONFIG}"
-echo "Sweep variables: ${#SWEEP_VARS[@]}"
-echo "Cases: ${CASE_START}..${CASE_END} (${COMBINATION_COUNT})"
-if [[ $USE_MPI -eq 1 ]]; then
-  echo "Run mode: MPI (np=${MPI_CPUS})"
-else
-  echo "Run mode: Serial"
-fi
+printf 'Sweep: %d case(s), %04d..%04d, source=%s\n' \
+  "$COMBINATION_COUNT" "$((10#$CASE_START))" "$GENERATED_END" "$EXEC_CODE"
 if [[ $DRY_RUN -eq 1 ]]; then
-  echo "Mode: Dry run"
-fi
-echo "========================================="
-echo ""
-
-if [[ $DRY_RUN -eq 1 ]]; then
-  echo "Dry run complete. No simulations executed."
+  printf 'Dry run complete; no simulations executed.\n'
   exit 0
 fi
 
 SUCCESSFUL=0
 FAILED=0
-
 for param_file in "${PARAM_FILES[@]}"; do
-  case_no="$(awk -F '=' '
-    /^[[:space:]]*#/ { next }
-    {
-      k = $1
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
-      if (k == "CaseNo") {
-        v = $2
-        sub(/[[:space:]]*#.*/, "", v)
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
-        print v
-        exit
-      }
-    }
-  ' "$param_file")"
-
-  echo "-----------------------------------------"
-  echo "Running Case ${case_no}"
-  echo "-----------------------------------------"
-
-  run_cmd=(bash "$RUN_SIM_SCRIPT" "$param_file" --exec "$EXEC_CODE")
+  command=(bash "${SCRIPT_DIR}/runSimulation.sh" "$param_file"
+           --exec "$EXEC_CODE" --output-root "$OUTPUT_ROOT")
   if [[ $USE_MPI -eq 1 ]]; then
-    run_cmd+=(--mpi --CPUs "$MPI_CPUS")
+    command+=(--mpi --cpus "$MPI_CPUS")
   fi
-
-  if "${run_cmd[@]}"; then
+  if "${command[@]}"; then
     ((SUCCESSFUL += 1))
   else
     ((FAILED += 1))
-    echo "ERROR: Case ${case_no} failed." >&2
   fi
-  echo ""
 done
 
-echo "========================================="
-echo "Parameter Sweep Complete"
-echo "========================================="
-echo "Total cases: ${COMBINATION_COUNT}"
-echo "Successful: ${SUCCESSFUL}"
-echo "Failed: ${FAILED}"
-echo "Outputs: simulationCases/"
-echo "========================================="
-
-if [[ "$FAILED" -gt 0 ]]; then
-  exit 1
-fi
-
-exit 0
+printf 'Sweep complete: %d passed, %d failed.\n' "$SUCCESSFUL" "$FAILED"
+((FAILED == 0))

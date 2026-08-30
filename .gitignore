@@ -67,6 +67,11 @@ dkms.conf
 # Basilisk installation (local only)
 basilisk/
 **/.comphy-basilisk
+.docker_mode
+
+# Local Python and build environments
+.venv/
+/build/
 
 # Case folders (4-digit case numbers: 1000-9999)
 simulationCases/[0-9][0-9][0-9][0-9]/
@@ -107,4 +112,3 @@ reset_install_*.sh
 
 # Local CLAUDE.md (references AGENTS.md)
 CLAUDE.md
-

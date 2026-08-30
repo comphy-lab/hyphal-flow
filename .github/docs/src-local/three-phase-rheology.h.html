@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>src-local/three-phase-nonCoalescing-elastic.h | hyphal-flow</title>
+  <title>src-local/three-phase-rheology.h | Hyphal Flow</title>
 
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="Three-phase interfacial model where two liquid phases (f1, f2) are kept non-coalescing and the third phase (f1 = f2 = 0) is ambient fluid.">
+  <meta name="description" content="Three-material interfacial model for a viscoelastic drop, a Kelvin--Voigt outer solid and a viscoelastic carrier liquid. Separate VoF fields keep the drop an...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="elastic, filtered, noncoalescing, phase, three, vof.h">
+  <meta name="keywords" content="filtered, phase, rheology, three, vof.h">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -424,33 +424,36 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 
             <div class="page-content">
 
-                                <h1 class="page-title">src-local/three-phase-nonCoalescing-elastic.h</h1>
+                                <h1 class="page-title">src-local/three-phase-rheology.h</h1>
 
 
                                 <div class="raw-file-button-container">
-                    <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/src-local/three-phase-nonCoalescing-elastic.h" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/src-local/three-phase-rheology.h" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
 
                 <h1
-                id="three-phase-noncoalescing-elastic.h">three-phase-nonCoalescing-elastic.h</h1>
-                <p>Three-phase interfacial model where two liquid phases
-                (<code>f1</code>, <code>f2</code>) are kept
-                non-coalescing and the third phase
-                (<code>f1 = f2 = 0</code>) is ambient fluid.</p>
+                id="three-phase-rheology.h">three-phase-rheology.h</h1>
+                <p>Three-material interfacial model for a viscoelastic
+                drop, a Kelvin–Voigt outer solid and a viscoelastic
+                carrier liquid. Separate VoF fields keep the drop and
+                solid interfaces topologically distinct.</p>
                 <h2 id="physical-interpretation">Physical
                 Interpretation</h2>
                 <ul>
-                <li>Drop phase: <code>f1 = 1</code>,
-                <code>f2 = 0</code></li>
-                <li>Film/wall phase: <code>f2 = 1</code>,
+                <li>Drop: <code>f1 = 1</code>, <code>f2 = 0</code></li>
+                <li>Outer solid: <code>f2 = 1</code>,
                 <code>f1 = 0</code></li>
-                <li>Ambient phase: <code>f1 = f2 = 0</code></li>
+                <li>Carrier liquid: <code>f1 = f2 = 0</code></li>
                 </ul>
-                <p>The drop and film are represented by separate VoF
-                fields but may share material properties when
-                required.</p>
+                <p>The phase weights are normalised before any material
+                interpolation. This keeps density, viscosity and modulus
+                bounded if numerical smearing makes <code>f1 + f2</code>
+                slightly larger than one near contact. Relaxation is
+                mixed through the modulus-weighted relaxation rate, so
+                the solid’s very large relaxation time does not make an
+                entire interfacial cell artificially non-relaxing.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/vof.h" title="Link to Basilisk source for vof.h"><span class="im">"vof.h"</span></a></span></code></pre></div></div>
                 <p>Instead of one VoF tracer, we define two, f1 and
@@ -458,10 +461,11 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>scalar f1<span class="op">[],</span> f2<span class="op">[],</span> <span class="op">*</span>interfaces <span class="op">=</span> <span class="op">{</span>f1<span class="op">,</span> f2<span class="op">};</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="dt">const</span><span class="op">)</span> scalar Gp <span class="op">=</span> unity<span class="op">;</span> <span class="co">// elastic modulus</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> rho1 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho2 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho3 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> G1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// elastic moduli</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> TOLelastic <span class="op">=</span> <span class="fl">1e-1</span><span class="op">;</span> <span class="co">// tolerance for elastic modulus # </span><span class="al">TODO</span><span class="co">: FIX_ME, ideally we should not have to use such a large tolerance :(</span></span></code></pre></div></div>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="dt">const</span><span class="op">)</span> scalar lambda <span class="op">=</span> unity<span class="op">;</span> <span class="co">// relaxation time</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> rho1 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho2 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho3 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> G1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// elastic moduli</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> lambda1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// relaxation times</span></span></code></pre></div></div>
                 <p>Auxilliary fields are necessary to define the
                 (variable) specific volume <span
                 class="math inline">\(\alpha=1/\rho\)</span> as well as
@@ -470,11 +474,13 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>face vector alphav<span class="op">[];</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>scalar rhov<span class="op">[];</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>scalar Gpd<span class="op">[];</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>event defaults <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  alpha <span class="op">=</span> alphav<span class="op">;</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  rho <span class="op">=</span> rhov<span class="op">;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  Gp <span class="op">=</span> Gpd<span class="op">;</span></span></code></pre></div></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>scalar lambdapd<span class="op">[];</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>event defaults <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  alpha <span class="op">=</span> alphav<span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  rho <span class="op">=</span> rhov<span class="op">;</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  Gp <span class="op">=</span> Gpd<span class="op">;</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  lambda <span class="op">=</span> lambdapd<span class="op">;</span></span></code></pre></div></div>
                 <p>If the viscosity is non-zero, we need to allocate the
                 face-centered viscosity field.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
@@ -490,12 +496,61 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 \{\mu,\rho\}
                 \]</span></p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef rho</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define rho(f1, f2)  (clamp(f1,0.,1.)*rho1 + clamp(f2,0.,1.)*rho2 + clamp(1.-f1-f2,0.,1.)*rho3)</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef mu</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define mu(f1, f2)  (clamp(f1,0.,1.)*mu1 + clamp(f2,0.,1.)*mu2 + clamp(1.-f1-f2,0.,1.)*mu3)</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">void</span> phase_weights <span class="op">(</span><span class="dt">double</span> fdrop<span class="op">,</span> <span class="dt">double</span> fsolid<span class="op">,</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                  <span class="dt">double</span> <span class="op">*</span> wdrop<span class="op">,</span> <span class="dt">double</span> <span class="op">*</span> wsolid<span class="op">,</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                  <span class="dt">double</span> <span class="op">*</span> wliquid<span class="op">)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> wd <span class="op">=</span> clamp <span class="op">(</span>fdrop<span class="op">,</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> ws <span class="op">=</span> clamp <span class="op">(</span>fsolid<span class="op">,</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> wl <span class="op">=</span> clamp <span class="op">(</span><span class="fl">1.</span> <span class="op">-</span> wd <span class="op">-</span> ws<span class="op">,</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> total <span class="op">=</span> wd <span class="op">+</span> ws <span class="op">+</span> wl<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>total <span class="op">&lt;=</span> <span class="fl">1e-30</span><span class="op">)</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    wd <span class="op">=</span> ws <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> wl <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> total <span class="op">=</span> <span class="fl">1.</span><span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>wdrop <span class="op">=</span> wd<span class="op">/</span>total<span class="op">;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>wsolid <span class="op">=</span> ws<span class="op">/</span>total<span class="op">;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>wliquid <span class="op">=</span> wl<span class="op">/</span>total<span class="op">;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">double</span> phase_average <span class="op">(</span><span class="dt">double</span> fdrop<span class="op">,</span> <span class="dt">double</span> fsolid<span class="op">,</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                                    <span class="dt">double</span> drop_value<span class="op">,</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>                                    <span class="dt">double</span> solid_value<span class="op">,</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>                                    <span class="dt">double</span> liquid_value<span class="op">)</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> wd<span class="op">,</span> ws<span class="op">,</span> wl<span class="op">;</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  phase_weights <span class="op">(</span>fdrop<span class="op">,</span> fsolid<span class="op">,</span> <span class="op">&amp;</span>wd<span class="op">,</span> <span class="op">&amp;</span>ws<span class="op">,</span> <span class="op">&amp;</span>wl<span class="op">);</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> wd<span class="op">*</span>drop_value <span class="op">+</span> ws<span class="op">*</span>solid_value <span class="op">+</span> wl<span class="op">*</span>liquid_value<span class="op">;</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">void</span> phase_rheology <span class="op">(</span><span class="dt">double</span> fdrop<span class="op">,</span> <span class="dt">double</span> fsolid<span class="op">,</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                                   <span class="dt">double</span> <span class="op">*</span> modulus<span class="op">,</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>                                   <span class="dt">double</span> <span class="op">*</span> relaxation_time<span class="op">)</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> wd<span class="op">,</span> ws<span class="op">,</span> wl<span class="op">;</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  phase_weights <span class="op">(</span>fdrop<span class="op">,</span> fsolid<span class="op">,</span> <span class="op">&amp;</span>wd<span class="op">,</span> <span class="op">&amp;</span>ws<span class="op">,</span> <span class="op">&amp;</span>wl<span class="op">);</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> effective_modulus <span class="op">=</span> wd<span class="op">*</span>G1 <span class="op">+</span> ws<span class="op">*</span>G2 <span class="op">+</span> wl<span class="op">*</span>G3<span class="op">;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> relaxation_rate <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>G1 <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">&amp;&amp;</span> lambda1 <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    relaxation_rate <span class="op">+=</span> wd<span class="op">*</span>G1<span class="op">/</span>lambda1<span class="op">;</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>G2 <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">&amp;&amp;</span> lambda2 <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    relaxation_rate <span class="op">+=</span> ws<span class="op">*</span>G2<span class="op">/</span>lambda2<span class="op">;</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>G3 <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">&amp;&amp;</span> lambda3 <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    relaxation_rate <span class="op">+=</span> wl<span class="op">*</span>G3<span class="op">/</span>lambda3<span class="op">;</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>modulus <span class="op">=</span> effective_modulus<span class="op">;</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>relaxation_time <span class="op">=</span> effective_modulus <span class="op">&gt;</span> <span class="fl">0.</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span> <span class="op">(</span>relaxation_rate <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">?</span> effective_modulus<span class="op">/</span>relaxation_rate <span class="op">:</span> HUGE<span class="op">)</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">:</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef rho</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="pp"># define rho(fdrop, fsolid) phase_average (fdrop, fsolid, rho1, rho2, rho3)</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef mu</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a><span class="pp"># define mu(fdrop, fsolid) phase_average (fdrop, fsolid, mu1, mu2, mu3)</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
                 <p>We have the option of using some “smearing” of the
                 density/viscosity jump. It is modified to take into
                 account that there are two VoF tracers.</p>
@@ -526,18 +581,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="pp">#if dimension &lt;=</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            foreach<span class="op">(){</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>              sf<span class="op">[]</span> <span class="op">=</span> <span class="op">(</span><span class="fl">4.</span><span class="op">*</span>f<span class="op">[]</span> <span class="op">+</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                <span class="fl">2.</span><span class="op">*(</span>f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">])</span> <span class="op">+</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">])/</span><span class="fl">16.</span><span class="op">;</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                    <span class="fl">2.</span><span class="op">*(</span>f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">])</span> <span class="op">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                    f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">])/</span><span class="fl">16.</span><span class="op">;</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="pp">#else </span><span class="co">// dimension ==</span></span>
 <span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            foreach<span class="op">(){</span></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>              sf<span class="op">[]</span> <span class="op">=</span> <span class="op">(</span><span class="fl">8.</span><span class="op">*</span>f<span class="op">[]</span> <span class="op">+</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                <span class="fl">4.</span><span class="op">*(</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])</span> <span class="op">+</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                <span class="fl">2.</span><span class="op">*(</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])</span> <span class="op">+</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">])/</span><span class="fl">64.</span><span class="op">;</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>                    <span class="fl">4.</span><span class="op">*(</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])</span> <span class="op">+</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                    <span class="fl">2.</span><span class="op">*(</span>f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                        f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                        f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">0</span><span class="op">,-</span><span class="dv">1</span><span class="op">])</span> <span class="op">+</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>                    f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>                    f<span class="op">[</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">]</span> <span class="op">+</span> f<span class="op">[-</span><span class="dv">1</span><span class="op">,-</span><span class="dv">1</span><span class="op">,</span><span class="dv">1</span><span class="op">])/</span><span class="fl">64.</span><span class="op">;</span></span>
 <span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="pp">#endif</span></span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
@@ -547,46 +602,34 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="pp">#if TREE</span></span>
 <span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>scalar sf in smearInterfaces<span class="op">){</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      sf<span class="op">.</span>prolongation <span class="op">=</span> refine_bilinear<span class="op">;</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>      sf<span class="op">.</span>dirty <span class="op">=</span> true<span class="op">;</span> <span class="co">// boundary conditions need to be updated</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  <span class="pp">#endif</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>      set_prolongation <span class="op">(</span>sf<span class="op">,</span> refine_bilinear<span class="op">);</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>  <span class="pp">#endif</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>event properties <span class="op">(</span>i<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  foreach_face<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> ff1 <span class="op">=</span> <span class="op">(</span>sf1<span class="op">[]</span> <span class="op">+</span> sf1<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> ff2 <span class="op">=</span> <span class="op">(</span>sf2<span class="op">[]</span> <span class="op">+</span> sf2<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    alphav<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]/</span>rho<span class="op">(</span>ff1<span class="op">,</span> ff2<span class="op">);</span></span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    face vector muv <span class="op">=</span> mu<span class="op">;</span></span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>    muv<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]*</span>mu<span class="op">(</span>ff1<span class="op">,</span> ff2<span class="op">);</span></span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">(){</span></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>    rhov<span class="op">[]</span> <span class="op">=</span> cm<span class="op">[]*</span>rho<span class="op">(</span>sf1<span class="op">[],</span> sf2<span class="op">[]);</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>event properties <span class="op">(</span>i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  foreach_face<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> ff1 <span class="op">=</span> <span class="op">(</span>sf1<span class="op">[]</span> <span class="op">+</span> sf1<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="dt">double</span> ff2 <span class="op">=</span> <span class="op">(</span>sf2<span class="op">[]</span> <span class="op">+</span> sf2<span class="op">[-</span><span class="dv">1</span><span class="op">])/</span><span class="fl">2.</span><span class="op">;</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>    alphav<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]/</span>rho<span class="op">(</span>ff1<span class="op">,</span> ff2<span class="op">);</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>    face vector muv <span class="op">=</span> mu<span class="op">;</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>    muv<span class="op">.</span>x<span class="op">[]</span> <span class="op">=</span> fm<span class="op">.</span>x<span class="op">[]*</span>mu<span class="op">(</span>ff1<span class="op">,</span> ff2<span class="op">);</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  foreach<span class="op">(){</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>    rhov<span class="op">[]</span> <span class="op">=</span> cm<span class="op">[]*</span>rho<span class="op">(</span>sf1<span class="op">[],</span> sf2<span class="op">[]);</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    phase_rheology <span class="op">(</span>sf1<span class="op">[],</span> sf2<span class="op">[],</span> <span class="op">&amp;</span>Gpd<span class="op">[],</span> <span class="op">&amp;</span>lambdapd<span class="op">[]);</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>clamp<span class="op">(</span>sf1<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">)</span> <span class="op">&gt;</span> TOLelastic<span class="op">){</span></span>
-<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">+=</span> G1<span class="op">*</span>clamp<span class="op">(</span>sf1<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>clamp<span class="op">(</span>sf2<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">)</span> <span class="op">&gt;</span> TOLelastic<span class="op">){</span></span>
-<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">+=</span> G2<span class="op">*</span>clamp<span class="op">(</span>sf2<span class="op">[],</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>clamp<span class="op">((</span><span class="dv">1</span><span class="op">-</span>sf1<span class="op">[]-</span>sf2<span class="op">[]),</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">)</span> <span class="op">&gt;</span> TOLelastic<span class="op">){</span></span>
-<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>    Gpd<span class="op">[]</span> <span class="op">+=</span> G3<span class="op">*</span>clamp<span class="op">((</span><span class="dv">1</span><span class="op">-</span>sf1<span class="op">[]-</span>sf2<span class="op">[]),</span> <span class="fl">0.</span><span class="op">,</span> <span class="fl">1.</span><span class="op">);</span></span>
-<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="pp">#if TREE</span></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>scalar sf in smearInterfaces<span class="op">){</span></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a>    sf<span class="op">.</span>prolongation <span class="op">=</span> fraction_refine<span class="op">;</span></span>
-<span id="cb7-70"><a href="#cb7-70" aria-hidden="true" tabindex="-1"></a>    sf<span class="op">.</span>dirty <span class="op">=</span> true<span class="op">;</span> <span class="co">// boundary conditions need to be updated</span></span>
-<span id="cb7-71"><a href="#cb7-71" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb7-72"><a href="#cb7-72" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
-<span id="cb7-73"><a href="#cb7-73" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="pp">#if TREE</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span>scalar sf in smearInterfaces<span class="op">){</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>    set_prolongation <span class="op">(</span>sf<span class="op">,</span> fraction_refine<span class="op">);</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -628,12 +671,12 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
                 <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
               </a>
-              <a href="https://github.com/comphy-lab/hyphal-flow/edit/main/src-local/three-phase-nonCoalescing-elastic.h" class="edit-link" aria-label="Edit this page on GitHub">
+              <a href="https://github.com/comphy-lab/hyphal-flow/edit/main/src-local/three-phase-rheology.h" class="edit-link" aria-label="Edit this page on GitHub">
                 <i class="fa-brands fa-github"></i> Edit this page
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -661,17 +704,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -684,10 +727,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -700,7 +743,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -710,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

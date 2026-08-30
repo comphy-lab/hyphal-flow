@@ -1,13 +1,17 @@
 /**
-# log-conform-elastic.h
+# log-conformation-rheology.h
 
-Log-conformation formulation for the purely elastic limit used in the
-hyphal-flow simulations.
+Log-conformation formulation shared by the three rheological phases.
 
 ## Notes
 - Adapted from `http://basilisk.fr/src/log-conform.h`.
 - `conform_p` and `conform_qq` store conformation tensor components.
-- Stress is applied through the elastic modulus field `Gp`.
+- Finite positive `lambda` gives an Oldroyd-B-type relaxing material.
+- The practical `lambda -> infinity` limit removes relaxation. Combined
+  with the Newtonian viscosity in `three-phase-rheology.h`, this gives the
+  incompressible neo-Hookean Kelvin--Voigt solid used for the outer phase.
+- `lambda = 0` suppresses the extra stress; the phase then retains only its
+  Newtonian viscous stress.
 */
 
 #include "bcg.h"
@@ -39,7 +43,7 @@ event defaults (i = 0) {
     foreach_dimension(){
       if (s.boundary[left] != periodic_bc) {
         s[left] = neumann(0);
-	      s[right] = neumann(0);
+              s[right] = neumann(0);
       }
     }
   }
@@ -49,20 +53,20 @@ event defaults (i = 0) {
     foreach_dimension(){
       if (s.boundary[left] != periodic_bc) {
         s[left] = neumann(0);
-	      s[right] = neumann(0);
+              s[right] = neumann(0);
       }
     }
   }
 
 #if AXI
   scalar s1 = tau_p.x.y;
-  s1[bottom] = dirichlet (0.);  
-#endif 
+  s1[bottom] = dirichlet (0.);
+#endif
 
 #if AXI
   scalar s2 = conform_p.x.y;
-  s2[bottom] = dirichlet (0.);  
-#endif 
+  s2[bottom] = dirichlet (0.);
+#endif
 }
 
 /**
@@ -132,6 +136,11 @@ b) the advection term:
 $$
 \partial_t \Psi + \nabla \cdot (\Psi \mathbf{u}) = 0
 $$
+c) the model term (but set in terms of the conformation
+tensor $\mathbf{A}$). In an Oldroyd-B viscoelastic fluid, the model is
+$$
+\partial_t \mathbf{A} = -\frac{\mathbf{f}_r (\mathbf{A})}{\lambda}
+$$
 
 The implementation below assumes that the values of $\Psi$ and
 $\conform_p$ are never needed simultaneously. This means that $\conform_p$ can
@@ -169,8 +178,8 @@ event tracer_advection(i++)
        \tau_{p_{\theta \theta}})]$. */
 
 #if AXI
-      double Aqq = conform_qq[]; 
-      Psiqq[] = log (Aqq); 
+      double Aqq = conform_qq[];
+      Psiqq[] = log (Aqq);
 #endif
 
       /**
@@ -181,14 +190,26 @@ event tracer_advection(i++)
       pseudo_v Lambda;
       pseudo_t R;
       diagonalization_2D (&Lambda, &R, &A);
-      
+
+      if (!(Lambda.x > 0.) || !(Lambda.y > 0.) ||
+          !isfinite (Lambda.x) || !isfinite (Lambda.y)
+#if AXI
+          || !(Aqq > 0.) || !isfinite (Aqq)
+#endif
+          ) {
+        fprintf (stderr,
+                 "ERROR: non-SPD conformation at x=%g y=%g t=%g i=%d\n",
+                 x, y, t, i);
+        exit (3);
+      }
+
       /**
-      $\Psi = \log \mathbf{A}$ is easily obtained after diagonalization, 
+      $\Psi = \log \mathbf{A}$ is easily obtained after diagonalization,
       $\Psi = R \cdot \log(\Lambda) \cdot R^T$. */
-      
+
       Psi.x.y[] = R.x.x*R.y.x*log(Lambda.x) + R.y.y*R.x.y*log(Lambda.y);
       foreach_dimension()
-      	Psi.x.x[] = sq(R.x.x)*log(Lambda.x) + sq(R.x.y)*log(Lambda.y);
+        Psi.x.x[] = sq(R.x.x)*log(Lambda.x) + sq(R.x.y)*log(Lambda.y);
 
         /**
         We now compute the upper convective term $2 \mathbf{B} +
@@ -202,29 +223,29 @@ event tracer_advection(i++)
       pseudo_t B;
       double OM = 0.;
       if (fabs(Lambda.x - Lambda.y) <= 1e-20) {
-	B.x.y = (u.y[1,0] - u.y[-1,0] +
-		 u.x[0,1] - u.x[0,-1])/(4.*Delta); 
-	foreach_dimension() 
-	  B.x.x = (u.x[1,0] - u.x[-1,0])/(2.*Delta);
+        B.x.y = (u.y[1,0] - u.y[-1,0] +
+                 u.x[0,1] - u.x[0,-1])/(4.*Delta);
+        foreach_dimension()
+          B.x.x = (u.x[1,0] - u.x[-1,0])/(2.*Delta);
       }
       else {
-	pseudo_t M;
-	foreach_dimension() {
-	  M.x.x = (sq(R.x.x)*(u.x[1] - u.x[-1]) +
-		   sq(R.y.x)*(u.y[0,1] - u.y[0,-1]) +
-		   R.x.x*R.y.x*(u.x[0,1] - u.x[0,-1] + 
-				u.y[1] - u.y[-1]))/(2.*Delta);
-	  M.x.y = (R.x.x*R.x.y*(u.x[1] - u.x[-1]) + 
-		   R.x.y*R.y.x*(u.y[1] - u.y[-1]) +
-		   R.x.x*R.y.y*(u.x[0,1] - u.x[0,-1]) +
-		   R.y.x*R.y.y*(u.y[0,1] - u.y[0,-1]))/(2.*Delta);
-	}
-	double omega = (Lambda.y*M.x.y + Lambda.x*M.y.x)/(Lambda.y - Lambda.x);
-	OM = (R.x.x*R.y.y - R.x.y*R.y.x)*omega;
-	
-	B.x.y = M.x.x*R.x.x*R.y.x + M.y.y*R.y.y*R.x.y;
-	foreach_dimension()
-	  B.x.x = M.x.x*sq(R.x.x)+M.y.y*sq(R.x.y);	
+        pseudo_t M;
+        foreach_dimension() {
+          M.x.x = (sq(R.x.x)*(u.x[1] - u.x[-1]) +
+                   sq(R.y.x)*(u.y[0,1] - u.y[0,-1]) +
+                   R.x.x*R.y.x*(u.x[0,1] - u.x[0,-1] +
+                                u.y[1] - u.y[-1]))/(2.*Delta);
+          M.x.y = (R.x.x*R.x.y*(u.x[1] - u.x[-1]) +
+                   R.x.y*R.y.x*(u.y[1] - u.y[-1]) +
+                   R.x.x*R.y.y*(u.x[0,1] - u.x[0,-1]) +
+                   R.y.x*R.y.y*(u.y[0,1] - u.y[0,-1]))/(2.*Delta);
+        }
+        double omega = (Lambda.y*M.x.y + Lambda.x*M.y.x)/(Lambda.y - Lambda.x);
+        OM = (R.x.x*R.y.y - R.x.y*R.y.x)*omega;
+
+        B.x.y = M.x.x*R.x.x*R.y.x + M.y.y*R.y.y*R.x.y;
+        foreach_dimension()
+          B.x.x = M.x.x*sq(R.x.x)+M.y.y*sq(R.x.y);
       }
 
         /**
@@ -234,16 +255,16 @@ event tracer_advection(i++)
       double s = - Psi.x.y[];
       Psi.x.y[] += dt*(2.*B.x.y + OM*(Psi.y.y[] - Psi.x.x[]));
       foreach_dimension() {
-	s *= -1;
-	Psi.x.x[] += dt*2.*(B.x.x + s*OM);
+        s *= -1;
+        Psi.x.x[] += dt*2.*(B.x.x + s*OM);
       }
 
       /**
       In the axisymmetric case, the governing equation for $\Psi_{\theta
-      \theta}$ only involves that component, 
-      $$ 
-      \Psi_{\theta \theta}|_t - 2 L_{\theta \theta} = 
-      \frac{\mathbf{f}_r(e^{-\Psi_{\theta \theta}})}{\lambda} 
+      \theta}$ only involves that component,
+      $$
+      \Psi_{\theta \theta}|_t - 2 L_{\theta \theta} =
+      \frac{\mathbf{f}_r(e^{-\Psi_{\theta \theta}})}{\lambda}
       $$
       with $L_{\theta \theta} = u_y/y$. Therefore step (a) for
       $\Psi_{\theta \theta}$ is */
@@ -256,7 +277,7 @@ event tracer_advection(i++)
 
   /**
   ### Advection of $\Psi$
-  
+
   We proceed with step (b), the advection of the log of the
   conformation tensor $\Psi$. */
 
@@ -279,7 +300,13 @@ event tracer_advection(i++)
       pseudo_v Lambda;
       diagonalization_2D (&Lambda, &R, &A);
       Lambda.x = exp(Lambda.x), Lambda.y = exp(Lambda.y);
-      
+      if (!isfinite (Lambda.x) || !isfinite (Lambda.y)) {
+        fprintf (stderr,
+                 "ERROR: non-finite log-conformation update at x=%g y=%g "
+                 "t=%g i=%d\n", x, y, t, i);
+        exit (3);
+      }
+
       A.x.y = R.x.x*R.y.x*Lambda.x + R.y.y*R.x.y*Lambda.y;
       foreach_dimension()
         A.x.x = sq(R.x.x)*Lambda.x + sq(R.x.y)*Lambda.y;
@@ -288,9 +315,29 @@ event tracer_advection(i++)
 #endif
 
       /**
+      We perform now step (c) by integrating
+      $\mathbf{A}_t = -\mathbf{f}_r (\mathbf{A})/\lambda$ to obtain
+      $\mathbf{A}^{n+1}$. This step is analytic,
+      $$
+      \int_{t^n}^{t^{n+1}}\frac{d \mathbf{A}}{\mathbf{I}- \mathbf{A}} =
+      \frac{\Delta t}{\lambda}
+      $$
+      */
+
+     double intFactor = lambda[] != 0. ? exp(-dt/lambda[]): 0.;
+
+#if AXI
+      Aqq = (1. - intFactor) + intFactor*exp(Psiqq[]);
+#endif
+
+      A.x.y *= intFactor;
+      foreach_dimension()
+        A.x.x = (1. - intFactor) + A.x.x*intFactor;
+
+      /**
         Then the Conformation tensor $\mathcal{A}_p^{n+1}$ is restored from
-        $\mathbf{A}^{n+1}$.  */    
-        
+        $\mathbf{A}^{n+1}$.  */
+
       conform_p.x.y[] = A.x.y;
       tau_p.x.y[] = Gp[]*A.x.y;
 #if AXI
@@ -323,13 +370,27 @@ involved in the computation of shear. */
 
 event acceleration (i++)
 {
+  /**
+  `properties` has now rebuilt `Gp` from the advected VoF fields. Refresh the
+  stress from the current modulus before taking its divergence, rather than
+  carrying the previous step's diffuse-interface modulus into moving cells.
+  */
+  foreach() {
+    tau_p.x.y[] = Gp[]*conform_p.x.y[];
+    foreach_dimension()
+      tau_p.x.x[] = Gp[]*(conform_p.x.x[] - 1.);
+#if AXI
+    tau_qq[] = Gp[]*(conform_qq[] - 1.);
+#endif
+  }
+
   face vector av = a;
   foreach_face()
     if (fm.x[] > 1e-20) {
       double shear = (tau_p.x.y[0,1]*cm[0,1] + tau_p.x.y[-1,1]*cm[-1,1] -
-		      tau_p.x.y[0,-1]*cm[0,-1] - tau_p.x.y[-1,-1]*cm[-1,-1])/4.;
+                      tau_p.x.y[0,-1]*cm[0,-1] - tau_p.x.y[-1,-1]*cm[-1,-1])/4.;
       av.x[] += (shear + cm[]*tau_p.x.x[] - cm[-1]*tau_p.x.x[-1])*
-	alpha.x[]/(sq(fm.x[])*Delta);
+        alpha.x[]/(sq(fm.x[])*Delta);
     }
 #if AXI
   foreach_face(y)

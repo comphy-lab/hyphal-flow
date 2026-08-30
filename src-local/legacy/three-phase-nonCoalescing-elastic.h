@@ -1,5 +1,5 @@
 /**
-# three-phase-nonCoalescing-elastic.h
+# Legacy three-phase-nonCoalescing-elastic.h
 
 Three-phase interfacial model where two liquid phases (`f1`, `f2`) are
 kept non-coalescing and the third phase (`f1 = f2 = 0`) is ambient

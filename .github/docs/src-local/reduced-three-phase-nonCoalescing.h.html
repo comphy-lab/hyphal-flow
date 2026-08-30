@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>src-local/reduced-three-phase-nonCoalescing.h | hyphal-flow</title>
+  <title>src-local/reduced-three-phase-nonCoalescing.h | Hyphal Flow</title>
 
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -547,7 +547,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -575,17 +575,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -598,10 +598,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

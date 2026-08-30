@@ -62,7 +62,7 @@ import ast
 import inspect
 import os, subprocess, re, shutil, argparse, html, json
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 try:
     from nbconvert import HTMLExporter
     NBCONVERT_AVAILABLE = True
@@ -216,35 +216,35 @@ def parse_git_remote() -> Tuple[str, str]:
         A tuple of (organization, repository_name). If parsing fails or git remote is not configured,
         returns ("comphy-lab", "unknown-repo") as fallback defaults.
     """
+    def parse_url(remote_url: str) -> Optional[Tuple[str, str]]:
+        match = re.match(
+            r'(?:git@github\.com:|https://github\.com/)([^/]+)/(.+?)(?:\.git)?$',
+            remote_url,
+        )
+        return (match.group(1), match.group(2)) if match else None
+
     try:
+        override = os.environ.get("COMPHY_GITHUB_REPOSITORY") or os.environ.get("GITHUB_REPOSITORY")
+        if override and re.fullmatch(r"[^/]+/[^/]+", override):
+            return tuple(override.split("/", 1))
+
         result = subprocess.run(
-            ['git', 'remote', 'get-url', 'origin'],
-            capture_output=True,
-            text=True,
-            check=True,
+            ['git', 'remote', '-v'], capture_output=True, text=True, check=True,
             cwd=Path(__file__).parent.parent.parent
         )
-        remote_url = result.stdout.strip()
-        debug_print(f"Git remote URL: {remote_url}")
+        urls = [line.split()[1] for line in result.stdout.splitlines()
+                if len(line.split()) >= 2]
+        parsed = [(url, parse_url(url)) for url in urls]
+        for url, identity in parsed:
+            if identity and identity[0].lower() == "comphy-lab":
+                debug_print(f"Using CoMPhy Git remote: {url}")
+                return identity
+        for url, identity in parsed:
+            if identity:
+                debug_print(f"Using Git remote: {url}")
+                return identity
 
-        # Parse SSH format: git@github.com:org/repo.git
-        ssh_match = re.match(r'git@github\.com:([^/]+)/(.+?)(?:\.git)?$', remote_url)
-        if ssh_match:
-            org = ssh_match.group(1)
-            repo = ssh_match.group(2)
-            debug_print(f"Parsed from SSH format: org={org}, repo={repo}")
-            return (org, repo)
-
-        # Parse HTTPS format: https://github.com/org/repo.git
-        https_match = re.match(r'https://github\.com/([^/]+)/(.+?)(?:\.git)?$', remote_url)
-        if https_match:
-            org = https_match.group(1)
-            repo = https_match.group(2)
-            debug_print(f"Parsed from HTTPS format: org={org}, repo={repo}")
-            return (org, repo)
-
-        print(f"Warning: Could not parse git remote URL: {remote_url}")
-        print("Using fallback values: org=comphy-lab, repo=unknown-repo")
+        print("Warning: Could not parse a GitHub remote")
         return ("comphy-lab", "unknown-repo")
 
     except subprocess.CalledProcessError as e:
@@ -256,26 +256,41 @@ def parse_git_remote() -> Tuple[str, str]:
         print("Using fallback values: org=comphy-lab, repo=unknown-repo")
         return ("comphy-lab", "unknown-repo")
 
+def resolve_basilisk_root() -> Path:
+    """Resolve a user-owned Basilisk checkout without installing software."""
+    candidates = []
+    if os.environ.get('BASILISK'):
+        candidates.append(Path(os.environ['BASILISK']).expanduser())
+    candidates.append(Path(__file__).parent.parent.parent / 'basilisk')
+    qcc = shutil.which('qcc')
+    if qcc:
+        candidates.append(Path(qcc).resolve().parent)
+
+    for candidate in candidates:
+        root = candidate.parent if candidate.name == 'src' else candidate
+        if (root / 'src' / 'darcsit' / 'literate-c').is_file():
+            return root
+    return Path(__file__).parent.parent.parent / 'basilisk'
+
+
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent.parent
-SOURCE_DIRS = ['src-local', 'simulationCases', 'postProcess']
+SOURCE_DIRS = ['src-local', 'simulationCases', 'postProcess', 'smoke']
 DOCS_DIR = REPO_ROOT / '.github' / 'docs'
 DOCS_RELATIVE_PATH = DOCS_DIR.relative_to(REPO_ROOT).as_posix()
 DOCS_URL_FRAGMENT = f"/{DOCS_RELATIVE_PATH.strip('/')}/"
 README_PATH = REPO_ROOT / 'README.md'
 INDEX_PATH = DOCS_DIR / 'index.html'
-BASILISK_DIR = REPO_ROOT / 'basilisk'
+BASILISK_DIR = resolve_basilisk_root()
 DARCSIT_DIR = BASILISK_DIR / 'src' / 'darcsit'
 TEMPLATE_PATH = REPO_ROOT / '.github' / 'assets' / 'custom_template.html'
 LITERATE_C_SCRIPT = DARCSIT_DIR / 'literate-c'
 BASE_URL = "/"
 CSS_PATH = REPO_ROOT / '.github' / 'assets' / 'css' / 'custom_styles.css'
 
-# Get repository name from directory
-REPO_NAME = REPO_ROOT.name
-
 # Auto-detect GitHub organization and repository from git remote
 GITHUB_ORG, GITHUB_REPO = parse_git_remote()
+REPO_NAME = GITHUB_REPO
 debug_print(f"Auto-detected: GitHub org={GITHUB_ORG}, repo={GITHUB_REPO}")
 
 # GitHub Pages project site: org domain + repo path
@@ -322,55 +337,23 @@ def process_template_for_assets(template_path: Path) -> str:
         print(f"Error processing template: {e}")
         return ""
 
-def install_basilisk() -> bool:
-    """
-    Auto-install basilisk from comphy-lab/basilisk-C using mode=4 (ref-locked).
-
-    Downloads and runs the reset_install_basilisk.sh script with mode=4 to fetch
-    pre-built binaries from a specific release tag. Cleans up the install script
-    after successful installation.
-
-    Returns:
-        True if installation succeeded; False otherwise.
-    """
-    print("Basilisk not found. Installing from comphy-lab/basilisk-C...")
-
-    cmds = [
-        "curl -sLO https://raw.githubusercontent.com/comphy-lab/basilisk-C/main/reset_install_basilisk.sh",
-        "chmod +x reset_install_basilisk.sh",
-        "./reset_install_basilisk.sh --mode=4 --ref=v2026-01-13 --hard"
-    ]
-
-    for cmd in cmds:
-        result = subprocess.run(cmd, shell=True, cwd=REPO_ROOT)
-        if result.returncode != 0:
-            print(f"Failed to install basilisk: {cmd}")
-            return False
-
-    # Clean up install script
-    install_script = REPO_ROOT / "reset_install_basilisk.sh"
-    if install_script.exists():
-        install_script.unlink()
-
-    print("Basilisk installed successfully.")
-    return True
-
 def validate_config() -> bool:
     """
     Validates the existence of essential directories and files required for documentation generation.
 
     Checks for the presence of core directories and files, processes the HTML template for Pandoc, and creates a temporary template file for use during conversion. Updates the global template path if successful.
-    Auto-installs basilisk from comphy-lab/basilisk-C if not found.
+    The build is read-only with respect to the toolchain: Basilisk must already
+    be available through `$BASILISK`, a local `basilisk/`, or `qcc` on PATH.
 
     Returns:
         True if all required paths exist and the template is processed successfully; False otherwise.
     """
     global TEMPLATE_PATH
 
-    # Check if basilisk needs to be installed
     if not LITERATE_C_SCRIPT.is_file():
-        if not install_basilisk():
-            return False
+        print("Error: Basilisk literate-c was not found in $BASILISK, "
+              "basilisk/, or beside qcc")
+        return False
 
     essential_paths = [
         (BASILISK_DIR, "BASILISK_DIR"),
@@ -430,6 +413,8 @@ def find_source_files(root_dir: Path, source_dirs: List[str]) -> List[Path]:
         if src_path.is_dir():
             for f in src_path.rglob('*'):
                 if f.is_file():
+                    if 'legacy' in f.relative_to(root_dir).parts:
+                        continue
                     # Skip files in numeric case folders
                     if numeric_case_pattern.search(str(f)):
                         continue
@@ -441,6 +426,8 @@ def find_source_files(root_dir: Path, source_dirs: List[str]) -> List[Path]:
     # Search for .sh files and Makefiles in root directory
     for f in root_dir.iterdir():
         if f.is_file():
+            if f.name.startswith('reset_install_'):
+                continue
             if f.name in valid_names:
                 files.add(f)
             elif f.suffix in valid_exts and not f.name.endswith('.dat'):
@@ -1677,9 +1664,13 @@ def convert_directory_tree_to_html(readme_content: str) -> str:
         
         clean_line = line.replace('├── ', '').replace('└── ', '').replace('│   ', '')
         
-        parts = clean_line.strip().split(None, 1)
-        path = parts[0]
-        description = parts[1] if len(parts) > 1 else ''
+        item = clean_line.strip()
+        if ' - ' in item:
+            path, description = item.split(' - ', 1)
+        else:
+            parts = item.split(None, 1)
+            path = parts[0]
+            description = parts[1] if len(parts) > 1 else ''
         
         is_dir = path.endswith('/')
         
@@ -2360,14 +2351,14 @@ def patch_basilisk_js_assets(docs_assets_js_dir: Path) -> None:
             except Exception as e:
                 print(f"Warning: Could not write {file_path}: {e}")
 
-def main():
+def main() -> bool:
     """
     Generates the complete HTML documentation site for the project.
     
     Creates the documentation output directory, optionally cleans existing HTML files if force rebuild is enabled, copies all required assets, processes each supported source file into HTML with appropriate post-processing, generates index pages for directories and the main index from README.md, and creates robots.txt and sitemap.xml for search engines. Also copies additional JavaScript files required for Basilisk integration and cleans up temporary files.
     """
     if not validate_config():
-        return
+        return False
     
     try:
         # Create docs directory
@@ -2388,13 +2379,13 @@ def main():
         assets_dir = REPO_ROOT / '.github' / 'assets'
         if not copy_assets(assets_dir, DOCS_DIR):
             print("Failed to copy assets.")
-            return
+            return False
         
         # Find source files
         source_files = find_source_files(REPO_ROOT, SOURCE_DIRS)
         if not source_files:
             print("No source files found.")
-            return
+            return False
         
         # Dictionary for generated files
         generated_files = {}
@@ -2441,7 +2432,7 @@ def main():
         print("\nGenerating main index.html...")
         if not generate_index(README_PATH, INDEX_PATH, generated_files, DOCS_DIR, REPO_ROOT):
             print("Failed to generate index.html.")
-            return
+            return False
         
         # Generate robots.txt and sitemap
         print("\nGenerating robots.txt...")
@@ -2465,6 +2456,8 @@ def main():
                 print(f"Copied Basilisk JS file {src} to {dst}")
             else:
                 print(f"Warning: Basilisk JS file {src} not found")
+
+        return True
         
     finally:
         # Clean up temporary template
@@ -2477,4 +2470,4 @@ def main():
                 print(f"Warning: Could not delete temporary template file: {e}")
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(0 if main() else 1)

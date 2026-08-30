@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# Historical runner retained for provenance only. Use ../../runSimulation.sh.
 
 # check that CLI inputs are there. 1 is compulsory. if 2 is not there, use 4 (default)
 if [ $# -lt 1 ]; then

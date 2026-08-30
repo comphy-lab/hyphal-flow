@@ -18,6 +18,24 @@ time does not make an entire interfacial cell artificially non-relaxing.
 */
 
 #include "vof.h"
+
+/**
+Current Basilisk invalidates field stencils through `set_prolongation()`. Older
+CoMPhy installs expose the same operation through the scalar's `dirty` flag.
+The runner detects the installed API and defines `HYPHAL_LEGACY_BASILISK` only
+for the latter.
+*/
+#if TREE
+# ifdef HYPHAL_LEGACY_BASILISK
+#  define HYPHAL_SET_PROLONGATION(field, method) do { \
+     (field).prolongation = (method); \
+     (field).dirty = true; \
+   } while (0)
+# else
+#  define HYPHAL_SET_PROLONGATION(field, method) \
+     set_prolongation (field, method)
+# endif
+#endif
 /**
 Instead of one VoF tracer, we define two, f1 and f2.
 */
@@ -163,7 +181,7 @@ event tracer_advection (i++) {
 
   #if TREE
     for (scalar sf in smearInterfaces){
-      set_prolongation (sf, refine_bilinear);
+      HYPHAL_SET_PROLONGATION (sf, refine_bilinear);
     }
   #endif
 }
@@ -187,7 +205,7 @@ event properties (i++) {
 
 #if TREE
   for (scalar sf in smearInterfaces){
-    set_prolongation (sf, fraction_refine);
+    HYPHAL_SET_PROLONGATION (sf, fraction_refine);
   }
 #endif
 }

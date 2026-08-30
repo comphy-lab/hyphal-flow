@@ -38,6 +38,9 @@ tensors.
 - Bash, `awk` and `shasum` for the runners;
 - Python 3, NumPy and Matplotlib for post-processing; ffmpeg for video output.
 
+The runner detects the current `set_prolongation()` API and the older
+scalar-`dirty` API used by existing CoMPhy workstation installations.
+
 ## Quick start
 
 Inspect a clean-clone run without writing output:

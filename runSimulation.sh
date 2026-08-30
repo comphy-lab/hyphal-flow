@@ -107,6 +107,13 @@ else
   exit 2
 fi
 
+QCC_DIR="$(dirname "$QCC")"
+if grep -q 'void set_prolongation' "${QCC_DIR}/grid/multigrid-common.h" 2>/dev/null; then
+  BASILISK_API=modern
+else
+  BASILISK_API=legacy
+fi
+
 if [[ $USE_MPI -eq 1 ]]; then
   command -v mpicc >/dev/null 2>&1 || { printf 'ERROR: mpicc is required for --mpi\n' >&2; exit 2; }
   command -v mpirun >/dev/null 2>&1 || { printf 'ERROR: mpirun is required for --mpi\n' >&2; exit 2; }
@@ -151,6 +158,7 @@ if [[ -d "$CASE_DIR" && -n "$(find "$CASE_DIR" -mindepth 1 -maxdepth 1 -print -q
     grep -Fxq "params_sha256=${PARAM_HASH}" "$MANIFEST" &&
     grep -Fxq "mode=${RUN_MODE}" "$MANIFEST" &&
     grep -Fxq "cpus=${MANIFEST_CPUS}" "$MANIFEST" &&
+    grep -Fxq "basilisk_api=${BASILISK_API}" "$MANIFEST" &&
     [[ "$(shasum -a 256 "${CASE_DIR}/${EXEC_CODE}" | awk '{print $1}')" == "$SOURCE_FILE_HASH" ]] &&
     [[ "$(shasum -a 256 "${CASE_DIR}/case.params" | awk '{print $1}')" == "$PARAM_HASH" ]] || {
       printf 'ERROR: --resume inputs differ from the recorded case manifest\n' >&2
@@ -168,6 +176,7 @@ else
     printf 'case=%s\n' "$CASE_NO"
     printf 'mode=%s\n' "$RUN_MODE"
     printf 'cpus=%s\n' "$MANIFEST_CPUS"
+    printf 'basilisk_api=%s\n' "$BASILISK_API"
   } > "$MANIFEST"
 fi
 
@@ -181,6 +190,9 @@ fi
 cd "$CASE_DIR"
 compile=("$QCC" "-I${SCRIPT_DIR}/src-local" -Wall -O2 -disable-dimensions
          "$EXEC_CODE" -o hyphal-flow -lm)
+if [[ "$BASILISK_API" == legacy ]]; then
+  compile+=( -DHYPHAL_LEGACY_BASILISK=1 )
+fi
 printf 'Compiling %s\n' "$EXEC_CODE"
 if [[ $USE_MPI -eq 1 ]]; then
   CC99='mpicc -std=c99 -D_GNU_SOURCE=1' "${compile[@]:0:3}" -D_MPI=1 "${compile[@]:3}"

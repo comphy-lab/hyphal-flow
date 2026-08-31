@@ -20,7 +20,7 @@
 # Examples:
 #   sbatch runSingleCaseHamilton.sbatch
 #   sbatch runSingleCaseHamilton.sbatch default.params
-#   sbatch runSingleCaseHamilton.sbatch default.params --exec hypha.c
+#   sbatch runSingleCaseHamilton.sbatch default.params --exec hypha-capillary.c
 # ============================================================
 
 set -euo pipefail
@@ -38,12 +38,29 @@ Options:
 EOF
 }
 
+get_param_value() {
+  local key="$1"
+  local file="$2"
+  awk -F '=' -v key="$key" '
+    /^[[:space:]]*#/ { next }
+    {
+      k = $1
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
+      if (k == key) {
+        v = $2
+        sub(/[[:space:]]*#.*/, "", v)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+        print v
+        exit
+      }
+    }
+  ' "$file"
+}
+
 # ============================================================
 # Configuration
 # ============================================================
 SCRIPT_DIR="${SLURM_SUBMIT_DIR:-$(pwd)}"
-# shellcheck disable=SC1091
-source "${SCRIPT_DIR}/src-local/parse_params.sh"
 PARAM_FILE_ARG="default.params"
 EXEC_SOURCE_NAME="hypha.c"
 PARAM_FILE_SET=0
@@ -184,8 +201,7 @@ if [ ! -f "$SRC_FILE_ORIG" ]; then
   exit 1
 fi
 
-parse_param_file "$PARAM_FILE"
-CASE_NO="$(get_param CaseNo)"
+CASE_NO="$(get_param_value "CaseNo" "$PARAM_FILE")"
 if [[ -z "$CASE_NO" ]]; then
   echo "ERROR: CaseNo not found in parameter file: $PARAM_FILE" >&2
   exit 1

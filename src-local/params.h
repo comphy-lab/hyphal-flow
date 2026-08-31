@@ -1,29 +1,21 @@
 /**
 # params.h
 
-Hyphal-flow style runtime parameter accessors with defaults.
+Lightweight runtime parameter reader for hyphal-flow simulation cases.
 
-This header provides a lightweight API for simulation cases:
+Parameter files are plain `key=value` text files with optional `#` comments.
+Typical usage in a case file:
 
-1. Initialize parameter storage from `argv`:
-   `params_init_from_argv(argc, argv);`
-2. Read typed values with defaults:
-   - `param_int("MAXlevel", 12)`
-   - `param_double("tmax", 200.)`
-   - `param_bool("use_feature", false)`
-
-Invalid values do not abort immediately; instead a warning is printed and
-the provided default is returned.
-
-## Public API
-
-- `params_init_from_argv()`: Initialize runtime key/value storage.
-- `param_string()`: Access raw string values.
-- `param_int()`, `param_double()`, `param_bool()`: Typed accessors with defaults.
+```c
+#include "params.h"
+...
+params_init_from_argv(argc, argv);
+Ec_h = param_double("Ec_h", 0.0);
+```
 */
 
-#ifndef PARAMS_H
-#define PARAMS_H
+#ifndef HYPHAL_FLOW_PARAMS_H
+#define HYPHAL_FLOW_PARAMS_H
 
 #include <ctype.h>
 #include <errno.h>
@@ -31,74 +23,145 @@ the provided default is returned.
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "parse_params.h"
+#ifndef PARAMS_MAX_ENTRIES
+#define PARAMS_MAX_ENTRIES 256
+#endif
 
-/**
-### _param_str_ieq()
+#ifndef PARAMS_KEY_LEN
+#define PARAMS_KEY_LEN 128
+#endif
 
-Case-insensitive string equality helper used by `param_bool()`.
-*/
-static inline bool _param_str_ieq (const char * a, const char * b)
+#ifndef PARAMS_VALUE_LEN
+#define PARAMS_VALUE_LEN 256
+#endif
+
+typedef struct {
+  char key[PARAMS_KEY_LEN];
+  char value[PARAMS_VALUE_LEN];
+} ParamEntry;
+
+static ParamEntry _params_entries[PARAMS_MAX_ENTRIES];
+static int _params_count = 0;
+static bool _params_loaded = false;
+static bool _params_warned_missing = false;
+static char _params_file[PARAMS_VALUE_LEN] = "case.params";
+
+static inline char *_params_trim (char *s)
 {
-  if (!a || !b)
-    return false;
-  while (*a && *b) {
-    if (tolower((unsigned char) *a) != tolower((unsigned char) *b))
-      return false;
-    a++;
-    b++;
+  if (!s)
+    return s;
+  while (*s && isspace((unsigned char)*s))
+    s++;
+  size_t n = strlen(s);
+  while (n > 0 && isspace((unsigned char)s[n - 1]))
+    s[--n] = '\0';
+  return s;
+}
+
+static inline int _params_find_key (const char *key)
+{
+  for (int i = 0; i < _params_count; i++)
+    if (!strcmp(_params_entries[i].key, key))
+      return i;
+  return -1;
+}
+
+static inline void _params_set_value (const char *key, const char *value)
+{
+  int idx = _params_find_key(key);
+  if (idx < 0) {
+    if (_params_count >= PARAMS_MAX_ENTRIES) {
+      fprintf(stderr,
+              "WARNING: params.h entry limit reached (%d), skipping '%s'\n",
+              PARAMS_MAX_ENTRIES, key);
+      return;
+    }
+    idx = _params_count++;
+    strncpy(_params_entries[idx].key, key, PARAMS_KEY_LEN - 1);
+    _params_entries[idx].key[PARAMS_KEY_LEN - 1] = '\0';
   }
-  return (*a == '\0' && *b == '\0');
+  strncpy(_params_entries[idx].value, value, PARAMS_VALUE_LEN - 1);
+  _params_entries[idx].value[PARAMS_VALUE_LEN - 1] = '\0';
 }
 
-/**
-### params_init_from_argv()
-
-Initializes the parameter map from `argv[1]` when provided.
-If no file argument is given, falls back to `case.params`.
-
-#### Parameters
-- `argc`: Number of CLI arguments.
-- `argv`: Argument vector passed to `main()`.
-*/
-static inline void params_init_from_argv (int argc, const char * argv[])
+static inline int params_load (const char *filename)
 {
-  parse_params_init_from_argv(argc, argv);
+  _params_count = 0;
+  _params_loaded = true;
+
+  FILE *fp = fopen(filename, "r");
+  if (!fp) {
+    if (!_params_warned_missing) {
+      fprintf(stderr,
+              "WARNING: Parameter file '%s' not found. Using defaults.\n",
+              filename);
+      _params_warned_missing = true;
+    }
+    return -1;
+  }
+
+  char line[PARAMS_KEY_LEN + PARAMS_VALUE_LEN + 64];
+  while (fgets(line, sizeof(line), fp)) {
+    char *comment = strchr(line, '#');
+    if (comment)
+      *comment = '\0';
+
+    char *eq = strchr(line, '=');
+    if (!eq)
+      continue;
+
+    *eq = '\0';
+    char *key = _params_trim(line);
+    char *value = _params_trim(eq + 1);
+
+    if (!key || !value || !*key || !*value)
+      continue;
+
+    _params_set_value(key, value);
+  }
+
+  fclose(fp);
+  return 0;
 }
 
-/**
-### param_string()
-
-Returns string value for `key`, or `default_value` when key is missing.
-
-#### Returns
-- Raw string from the parameter map, or `default_value` if missing.
-*/
-static inline const char * param_string (const char * key,
-                                         const char * default_value)
+static inline void params_init_from_argv (int argc, const char *argv[])
 {
-  return parse_param_string(key, default_value);
+  if (argc > 1 && argv[1] && argv[1][0]) {
+    strncpy(_params_file, argv[1], PARAMS_VALUE_LEN - 1);
+    _params_file[PARAMS_VALUE_LEN - 1] = '\0';
+  } else {
+    strncpy(_params_file, "case.params", PARAMS_VALUE_LEN - 1);
+    _params_file[PARAMS_VALUE_LEN - 1] = '\0';
+  }
+  (void) params_load(_params_file);
 }
 
-/**
-### param_double()
-
-Returns a floating-point parameter with a default fallback.
-
-#### Returns
-- Parsed `double` value when valid, otherwise `default_value`.
-*/
-static inline double param_double (const char * key, double default_value)
+static inline void _params_ensure_loaded (void)
 {
-  const char * s = param_string(key, NULL);
+  if (!_params_loaded)
+    (void) params_load(_params_file);
+}
+
+static inline const char *param_string (const char *key,
+                                        const char *default_value)
+{
+  _params_ensure_loaded();
+  int idx = _params_find_key(key);
+  return idx >= 0 ? _params_entries[idx].value : default_value;
+}
+
+static inline double param_double (const char *key, double default_value)
+{
+  const char *s = param_string(key, NULL);
   if (!s)
     return default_value;
 
   errno = 0;
-  char * end = NULL;
-  double value = strtod(s, &end);
-  while (end && *end && isspace((unsigned char) *end))
+  char *end = NULL;
+  double v = strtod(s, &end);
+  while (end && *end && isspace((unsigned char)*end))
     end++;
 
   if (errno != 0 || end == s || (end && *end != '\0')) {
@@ -108,64 +171,43 @@ static inline double param_double (const char * key, double default_value)
     return default_value;
   }
 
-  return value;
+  return v;
 }
 
-/**
-### param_int()
-
-Returns an integer parameter with bounds and format validation.
-
-#### Returns
-- Parsed integer value when valid, otherwise `default_value`.
-*/
-static inline int param_int (const char * key, int default_value)
+static inline int param_int (const char *key, int default_value)
 {
-  const char * s = param_string(key, NULL);
+  const char *s = param_string(key, NULL);
   if (!s)
     return default_value;
 
   errno = 0;
-  char * end = NULL;
-  long value = strtol(s, &end, 10);
-  while (end && *end && isspace((unsigned char) *end))
+  char *end = NULL;
+  long v = strtol(s, &end, 10);
+  while (end && *end && isspace((unsigned char)*end))
     end++;
 
   if (errno != 0 || end == s || (end && *end != '\0') ||
-      value < INT_MIN || value > INT_MAX) {
+      v < INT_MIN || v > INT_MAX) {
     fprintf(stderr,
             "WARNING: Invalid int for '%s' ('%s'), using default %d\n",
             key, s, default_value);
     return default_value;
   }
 
-  return (int) value;
+  return (int) v;
 }
 
-/**
-### param_bool()
-
-Parses boolean-like values:
-- true: `1`, `true`, `yes`, `on`
-- false: `0`, `false`, `no`, `off`
-
-All matches are case-insensitive.
-
-#### Returns
-- Parsed boolean value when valid, otherwise `default_value`.
-*/
-static inline bool param_bool (const char * key, bool default_value)
+static inline bool param_bool (const char *key, bool default_value)
 {
-  const char * s = param_string(key, NULL);
+  const char *s = param_string(key, NULL);
   if (!s)
     return default_value;
 
-  if (_param_str_ieq(s, "1") || _param_str_ieq(s, "true") ||
-      _param_str_ieq(s, "yes") || _param_str_ieq(s, "on"))
+  if (!strcasecmp(s, "1") || !strcasecmp(s, "true") ||
+      !strcasecmp(s, "yes") || !strcasecmp(s, "on"))
     return true;
-
-  if (_param_str_ieq(s, "0") || _param_str_ieq(s, "false") ||
-      _param_str_ieq(s, "no") || _param_str_ieq(s, "off"))
+  if (!strcasecmp(s, "0") || !strcasecmp(s, "false") ||
+      !strcasecmp(s, "no") || !strcasecmp(s, "off"))
     return false;
 
   fprintf(stderr,
@@ -174,4 +216,4 @@ static inline bool param_bool (const char * key, bool default_value)
   return default_value;
 }
 
-#endif
+#endif // HYPHAL_FLOW_PARAMS_H

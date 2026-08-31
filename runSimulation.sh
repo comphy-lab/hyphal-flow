@@ -12,6 +12,7 @@
 #   bash runSimulation.sh
 #   bash runSimulation.sh default.params
 #   bash runSimulation.sh default.params --exec hypha.c
+#   bash runSimulation.sh --exec hypha-capillary.c default.params
 #   bash runSimulation.sh default.params --mpi
 #   bash runSimulation.sh default.params --mpi --CPUs 8
 
@@ -34,8 +35,24 @@ Options:
 EOF
 }
 
-# shellcheck disable=SC1091
-source "${SCRIPT_DIR}/src-local/parse_params.sh"
+get_param_value() {
+  local key="$1"
+  local file="$2"
+  awk -F '=' -v key="$key" '
+    /^[[:space:]]*#/ { next }
+    {
+      k = $1
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
+      if (k == key) {
+        v = $2
+        sub(/[[:space:]]*#.*/, "", v)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
+        print v
+        exit
+      }
+    }
+  ' "$file"
+}
 
 # Defaults
 EXEC_CODE="hypha.c"
@@ -123,13 +140,17 @@ if [[ ! "$PARAM_FILE" = /* ]]; then
   PARAM_FILE="${SCRIPT_DIR}/${PARAM_FILE}"
 fi
 
+# Source project configuration
 if [[ -f "${SCRIPT_DIR}/.project_config" ]]; then
   # shellcheck disable=SC1091
   source "${SCRIPT_DIR}/.project_config"
+else
+  echo "ERROR: .project_config not found at ${SCRIPT_DIR}/.project_config" >&2
+  exit 1
 fi
 
 if ! command -v qcc >/dev/null 2>&1; then
-  echo "ERROR: qcc not found in PATH. Install Basilisk or source .project_config." >&2
+  echo "ERROR: qcc not found in PATH after sourcing .project_config" >&2
   exit 1
 fi
 
@@ -155,8 +176,7 @@ if [[ ! -f "$SRC_FILE_ORIG" ]]; then
   exit 1
 fi
 
-parse_param_file "$PARAM_FILE"
-CASE_NO="$(get_param CaseNo)"
+CASE_NO="$(get_param_value "CaseNo" "$PARAM_FILE")"
 if [[ -z "$CASE_NO" ]]; then
   echo "ERROR: CaseNo not found in parameter file: $PARAM_FILE" >&2
   exit 1

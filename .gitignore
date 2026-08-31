@@ -67,7 +67,6 @@ dkms.conf
 # Basilisk installation (local only)
 basilisk/
 **/.comphy-basilisk
-.docker_mode
 
 # Case folders (4-digit case numbers: 1000-9999)
 simulationCases/[0-9][0-9][0-9][0-9]/

@@ -12,9 +12,11 @@ The supported model is `simulationCases/hyphal-flow.c`:
 - `1 - f1 - f2`: finite-relaxation Oldroyd-B carrier liquid.
 
 `Oh_*` is the Newtonian/solvent viscosity. For each relaxing phase the
-implied polymer viscosity is `Ec_* De_*`. The current solver uses one
-regularised conformation tensor with phase-weighted modulus and relaxation
-rate; it does not provide three independent interface tensors.
+implied polymer viscosity is `Ec_* De_*`. Conformation stress comes from
+MultiRheoFlow `log-conform-viscoelastic.h`, included before
+`three-phase-rheology.h`. The solver uses one regularised conformation
+tensor with phase-weighted modulus and modulus-weighted relaxation rate; it
+does not provide three independent interface tensors.
 
 Separate VoF tracers keep the drop and solid interfaces distinct. That alone
 does not prove a positive carrier-film thickness: inspect the overlap and

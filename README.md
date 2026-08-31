@@ -24,8 +24,9 @@ becoming one tracer, but does not by itself guarantee a resolved liquid film.
 Every run therefore logs VoF overlap, phase volumes and phase-weighted stress
 maxima.
 
-The current implementation uses one regularised conformation tensor with a
-phase-weighted modulus and modulus-weighted relaxation rate. It is a practical
+The constitutive update is the MultiRheoFlow tensor log-conform solver.
+One regularised conformation tensor is used, with a phase-weighted modulus
+and a modulus-weighted relaxation rate. That is a practical
 diffuse-interface approximation, not three independent material-history
 tensors.
 

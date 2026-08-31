@@ -15,6 +15,9 @@ keeps density, viscosity and modulus bounded if numerical smearing makes
 `f1 + f2` slightly larger than one near contact. Relaxation is mixed through
 the modulus-weighted relaxation rate, so the solid's very large relaxation
 time does not make an entire interfacial cell artificially non-relaxing.
+
+`Gp` and `lambda` are declared by the log-conform header; this file only
+rebuilds `Gpd` and `lambdapd` and rebinds those names.
 */
 
 #include "vof.h"
@@ -40,8 +43,6 @@ for the latter.
 Instead of one VoF tracer, we define two, f1 and f2.
 */
 scalar f1[], f2[], *interfaces = {f1, f2};
-(const) scalar Gp = unity; // elastic modulus
-(const) scalar lambda = unity; // relaxation time
 
 double rho1 = 1., mu1 = 0., rho2 = 1., mu2 = 0., rho3 = 1., mu3 = 0.;
 double G1 = 0., G2 = 0., G3 = 0.; // elastic moduli

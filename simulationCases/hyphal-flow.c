@@ -18,9 +18,9 @@ Vatsal Sanjay
 #include "axi.h"
 #include "params.h"
 #include "navier-stokes/centered.h"
+#include "log-conformation-rheology.h"
 #define FILTERED
 #include "three-phase-rheology.h"
-#include "log-conformation-rheology.h"
 #include "tension.h"
 #include "reduced-three-phase-nonCoalescing.h"
 

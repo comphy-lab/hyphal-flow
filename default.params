@@ -6,6 +6,15 @@ CaseNo=1000
 # Numerical controls
 MAXlevel=13
 tmax=200.0
+NanDetector=0
+StopOnDropExit=1
+
+# DriveMode=bond uses a periodic streamwise Bond force.
+# DriveMode=pressure uses open ends with Dirichlet PL, PR.
+DriveMode=bond
+Bond=1.0
+PL=1.0
+PR=0.0
 
 # Drop phase
 Ohd=1.0
@@ -16,6 +25,7 @@ De_d=0.0
 # Hypha phase
 Ohf=1.0
 hr=0.90
+RhoR_hc=1.0
 Ec_h=0.00
 De_h=1e30
 
@@ -24,6 +34,9 @@ Oh_c=0.01
 Ec_c=0.0
 De_c=0.0
 
-# Forcing and geometry
-Bond=1.0
+# Geometry
 Ldomain=80.0
+X0=-4.0
+width_gap=2.0
+clearance_gap=0.20
+x0tanh_gap=0.0

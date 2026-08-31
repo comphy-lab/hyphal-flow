@@ -13,7 +13,6 @@
 #   bash runParameterSweep.sh
 #   bash runParameterSweep.sh sweep.params
 #   bash runParameterSweep.sh sweep.params --exec hypha.c
-#   bash runParameterSweep.sh --exec hypha-capillary.c sweep.params
 #   bash runParameterSweep.sh sweep.params --mpi
 #   bash runParameterSweep.sh sweep.params --mpi --CPUs 16
 
@@ -38,24 +37,11 @@ Options:
 EOF
 }
 
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/src-local/parse_params.sh"
+
 trim() {
-  local s="$1"
-  s="${s#"${s%%[![:space:]]*}"}"
-  s="${s%"${s##*[![:space:]]}"}"
-  printf '%s' "$s"
-}
-
-set_param_in_file() {
-  local key="$1"
-  local value="$2"
-  local file="$3"
-
-  if grep -q "^${key}=" "$file"; then
-    sed -i'.bak' "s|^${key}=.*|${key}=${value}|" "$file"
-  else
-    printf '%s=%s\n' "$key" "$value" >> "$file"
-  fi
-  rm -f "${file}.bak"
+  trim_string "$1"
 }
 
 parse_sweep_variables() {
@@ -236,17 +222,13 @@ if [[ ! -f "$SWEEP_FILE" ]]; then
   exit 1
 fi
 
-# Source project configuration
 if [[ -f "${SCRIPT_DIR}/.project_config" ]]; then
   # shellcheck disable=SC1091
   source "${SCRIPT_DIR}/.project_config"
-else
-  echo "ERROR: .project_config not found at ${SCRIPT_DIR}/.project_config" >&2
-  exit 1
 fi
 
-if ! command -v qcc >/dev/null 2>&1; then
-  echo "ERROR: qcc not found in PATH after sourcing .project_config" >&2
+if [[ $DRY_RUN -eq 0 ]] && ! command -v qcc >/dev/null 2>&1; then
+  echo "ERROR: qcc not found in PATH. Install Basilisk or source .project_config." >&2
   exit 1
 fi
 

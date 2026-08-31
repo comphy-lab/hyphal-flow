@@ -21,7 +21,7 @@
 # Examples:
 #   sbatch runSweepHamilton-serial-128.sbatch
 #   sbatch runSweepHamilton-serial-128.sbatch sweep-128.params
-#   sbatch runSweepHamilton-serial-128.sbatch custom_sweep.params --exec hypha-capillary.c
+#   sbatch runSweepHamilton-serial-128.sbatch custom_sweep.params --exec hypha.c
 # ============================================================
 
 set -euo pipefail

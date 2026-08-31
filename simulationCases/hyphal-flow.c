@@ -283,7 +283,7 @@ event writingFiles (i++) {
 Write a terminal snapshot and stop the otherwise open-ended event loop at the
 configured physical time. This makes reduced smoke cases genuinely bounded.
 */
-event stop_at_tmax (i++) {
+event stop_at_tmax (i++; t <= HUGE) {
   if (t + 1e-12 < tmax)
     return 0;
   dump (file = "final");

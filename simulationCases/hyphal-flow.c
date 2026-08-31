@@ -251,7 +251,7 @@ event stop_when_drop_exits (t += log_interval) {
 
 Write periodic restart and snapshot files.
 */
-event writingFiles (t = 0, t += snapshot_interval; t <= tmax + snapshot_interval) {
+event writingFiles (t = 0; t += snapshot_interval; t <= tmax + snapshot_interval) {
   dump (file = "restart");
   char nameOut[80];
   sprintf (nameOut, "intermediate/snapshot-%5.4f", t);
@@ -274,7 +274,7 @@ event stop_at_tmax (t = tmax) {
 
 Log kinetic energy and droplet center-of-mass velocity.
 */
-event logWriting (t = 0, t += log_interval; t <= tmax + log_interval) {
+event logWriting (t = 0; t += log_interval; t <= tmax + log_interval) {
   double ke = 0., vcm = 0., wt = 0., overlap = 0.;
   double volume_drop = 0., volume_solid = 0., volume_liquid = 0.;
   double stress_drop = 0., stress_solid = 0., stress_liquid = 0.;

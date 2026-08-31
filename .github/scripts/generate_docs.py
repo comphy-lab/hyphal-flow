@@ -275,7 +275,7 @@ def resolve_basilisk_root() -> Path:
 
 # Configuration
 REPO_ROOT = Path(__file__).parent.parent.parent
-SOURCE_DIRS = ['src-local', 'simulationCases', 'postProcess', 'smoke']
+SOURCE_DIRS = ['src-local', 'simulationCases', 'postProcess']
 DOCS_DIR = REPO_ROOT / '.github' / 'docs'
 DOCS_RELATIVE_PATH = DOCS_DIR.relative_to(REPO_ROOT).as_posix()
 DOCS_URL_FRAGMENT = f"/{DOCS_RELATIVE_PATH.strip('/')}/"

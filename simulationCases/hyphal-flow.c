@@ -18,7 +18,7 @@ Vatsal Sanjay
 #include "axi.h"
 #include "params.h"
 #include "navier-stokes/centered.h"
-#include "log-conformation-rheology.h"
+#include "log-conform-viscoelastic.h"
 #define FILTERED
 #include "three-phase-rheology.h"
 #include "tension.h"
@@ -290,7 +290,7 @@ event writingFiles (i++) {
 ## stop_at_tmax()
 
 Write a terminal snapshot and stop the otherwise open-ended event loop at the
-configured physical time. This makes reduced smoke cases genuinely bounded.
+configured physical time. This makes reduced runs genuinely bounded.
 */
 event stop_at_tmax (i++; t <= HUGE) {
   if (t + 1e-12 < tmax)

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-
+      
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-
+      
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-
+    
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-
+        
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-
+        
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-
+    
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-
+      
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-
+      
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-
+    
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-
+    
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-
+    
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-
+    
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-
+    
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-
+    
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-
+    
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -172,7 +172,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
   <title>Hyphal Flow | Hyphal Flow</title>
-
+  
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-
+      
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-
+      
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-
+      
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -256,7 +256,7 @@
   <script defer src="./assets/js/main.js"></script>
   <script defer src="./assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-
+  
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-
+    
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-
+      
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-
+    
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-
+      
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-
+        
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-
+      
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,18 +421,21 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 
         <!-- Main content -->
         <main class="content">
-
+            
             <div class="page-content">
-
-
-
-
+                
+                                
+                                
+                
                 <h1 id="hyphal-flow">Hyphal Flow</h1>
-                <p><a
-                href="https://github.com/comphy-lab/hyphal-flow">Hyphal
-                Flow</a> is a CoMPhy Lab Basilisk project for an
-                axisymmetric viscoelastic drop transported through a
-                liquid-filled, deformable hypha.</p>
+                <p><a href="http://basilisk.fr"><img
+                src="https://img.shields.io/badge/Basilisk-C-blue"
+                alt="Basilisk" /></a> <a href="LICENSE"><img
+                src="https://img.shields.io/badge/License-GPLv3-blue.svg"
+                alt="License: GPL v3" /></a></p>
+                <p>Axisymmetric Basilisk simulations of a viscoelastic
+                drop transported through a liquid-filled, deformable
+                hypha.</p>
                 <h2 id="physical-model">Physical model</h2>
                 <p>The canonical case uses three material regions:</p>
                 <ul>
@@ -457,141 +460,160 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 not by itself guarantee a resolved liquid film. Every
                 run therefore logs VoF overlap, phase volumes and
                 phase-weighted stress maxima.</p>
-                <p>The current implementation uses one regularised
-                conformation tensor with a phase-weighted modulus and
-                modulus-weighted relaxation rate. It is a practical
+                <p>The constitutive update is the MultiRheoFlow tensor
+                log-conform solver. One regularised conformation tensor
+                is used, with a phase-weighted modulus and a
+                modulus-weighted relaxation rate. That is a practical
                 diffuse-interface approximation, not three independent
                 material-history tensors.</p>
-                <h2 id="requirements">Requirements</h2>
-                <ul>
-                <li>a current <a
-                href="https://github.com/comphy-lab/basilisk-C">Basilisk</a>
-                <code>qcc</code> on <code>PATH</code>, or an executable
-                <code>$BASILISK/qcc</code>;</li>
-                <li>a C compiler and <code>libm</code>;</li>
-                <li><code>mpicc</code> and <code>mpirun</code> for MPI
-                runs;</li>
-                <li>Bash, <code>awk</code> and <code>shasum</code> for
-                the runners;</li>
-                <li>Python 3, NumPy and Matplotlib for post-processing;
-                ffmpeg for video output.</li>
-                </ul>
-                <p>The runner detects the current
-                <code>set_prolongation()</code> API and the older
-                scalar-<code>dirty</code> API used by existing CoMPhy
-                workstation installations.</p>
-                <h2 id="quick-start">Quick start</h2>
-                <p>Inspect a clean-clone run without writing output:</p>
+                <h2 id="basilisk-required">Basilisk (required)</h2>
+                <p>This repository targets CoMPhy Basilisk
+                <code>v2026-08-30</code>. First-time install (or
+                reinstall):</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params <span class="at">--dry-run</span></span></code></pre></div></div>
-                <p>Compile and run one case into an explicit output
-                root:</p>
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sL</span> https://raw.githubusercontent.com/comphy-lab/basilisk-C/v2026-08-30/reset_install_basilisk-ref-locked.sh <span class="kw">|</span> <span class="fu">bash</span> <span class="at">-s</span> <span class="at">--</span> <span class="at">--ref</span><span class="op">=</span>v2026-08-30 <span class="at">--hard</span></span></code></pre></div></div>
+                <p>Subsequent runs (reuse the same checkout if the ref
+                matches):</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params <span class="at">--output-root</span> /path/to/run-root</span></code></pre></div></div>
-                <p>The runner creates
-                <code>&lt;output-root&gt;/&lt;CaseNo&gt;/</code>, copies
-                <code>case.params</code>, records source and parameter
-                hashes, compiles
-                <code>simulationCases/hyphal-flow.c</code>, and executes
-                the binary with <code>case.params</code> as
-                <code>argv[1]</code>. It refuses a non-empty case
-                directory unless <code>--resume</code> is supplied and
-                the recorded hashes match.</p>
-                <p>Parameter sweeps use the same case path:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--output-root</span> /path/to/run-root</span></code></pre></div></div>
-                <p><code>SWEEP_*</code> keys form a Cartesian product.
-                <code>CASE_START</code> and <code>CASE_END</code> must
-                match the generated count exactly.</p>
-                <h2 id="comphy-smoke-campaign">CoMPhy smoke
-                campaign</h2>
-                <p>The reduced smoke inputs exercise a Newtonian
-                control, the outer-solid branch, the two liquid-rheology
-                branches, and the complete requested model. The driver
-                also exercises a two-case sweep, two-rank MPI execution
-                and an input-matched restart:</p>
-                <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSmokeTests.sh <span class="at">--output-root</span> /path/to/smoke-root</span></code></pre></div></div>
-                <p>These are compile-and-run smoke checks. They
-                establish that the selected code paths advance,
-                terminate and emit finite diagnostics; they are not a
-                convergence study, numerical verification or physical
-                validation.</p>
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sL</span> https://raw.githubusercontent.com/comphy-lab/basilisk-C/v2026-08-30/reset_install_basilisk-ref-locked.sh <span class="kw">|</span> <span class="fu">bash</span> <span class="at">-s</span> <span class="at">--</span> <span class="at">--ref</span><span class="op">=</span>v2026-08-30</span></code></pre></div></div>
+                <p>When a newer stable release is available, replace
+                <code>v2026-08-30</code> in both the script URL and
+                <code>--ref</code> with the same <a
+                href="https://github.com/comphy-lab/basilisk-C/releases">release
+                tag</a>.</p>
+                <p>The runner also accepts a current <code>qcc</code> on
+                <code>PATH</code>, or <code>$BASILISK/qcc</code>, and
+                detects the current <code>set_prolongation()</code> API
+                versus the older scalar-<code>dirty</code> API.</p>
                 <h2 id="repository-structure">Repository structure</h2>
                 <div class="repository-structure">
                 <ul>
+                <li><strong><a href="src-local">src-local/</a></strong>
+                - project headers and runtime parameter API
+                <ul>
+                <li><strong><a
+                href="src-local/parse_params.h.html">parse_params.h</a></strong>
+                - low-level key=value loader</li>
+                <li><strong><a
+                href="src-local/params.h.html">params.h</a></strong> -
+                typed accessors (<code>param_int</code>,
+                <code>param_double</code>, …)</li>
+                <li><strong><a
+                href="src-local/parse_params.sh.html">parse_params.sh</a></strong>
+                - shared shell helper for runners</li>
+                <li><strong><a
+                href="src-local/log-conform-viscoelastic.h.html">log-conform-viscoelastic.h</a></strong>
+                - MultiRheoFlow tensor log-conform</li>
+                <li><strong><a
+                href="src-local/three-phase-rheology.h.html">three-phase-rheology.h</a></strong>
+                - normalised three-material properties</li>
+                <li><strong><a
+                href="src-local/reduced-three-phase-nonCoalescing.h.html">reduced-three-phase-nonCoalescing.h</a></strong>
+                - reduced gravity on f1 and f2</li>
+                </ul></li>
                 <li><strong><a
                 href="simulationCases">simulationCases/</a></strong> -
-                supported simulation entry points
+                solver entry point and generated case directories
                 <ul>
                 <li><strong><a
                 href="simulationCases/hyphal-flow.c.html">hyphal-flow.c</a></strong>
                 - canonical axisymmetric three-rheology case</li>
                 </ul></li>
-                <li><strong><a href="src-local">src-local/</a></strong>
-                - project-specific Basilisk and parameter modules
-                <ul>
-                <li><strong><a
-                href="src-local/parse_params.h.html">parse_params.h</a></strong>
-                - low-level C key-value parser</li>
-                <li><strong><a
-                href="src-local/params.h.html">params.h</a></strong> -
-                typed runtime parameter accessors</li>
-                <li><strong><a
-                href="src-local/parse_params.sh.html">parse_params.sh</a></strong>
-                - shared safe shell parser</li>
-                <li><strong><a
-                href="src-local/three-phase-rheology.h.html">three-phase-rheology.h</a></strong>
-                - normalised three-material properties</li>
-                <li><strong><a
-                href="src-local/log-conformation-rheology.h.html">log-conformation-rheology.h</a></strong>
-                - shared constitutive update</li>
-                <li><strong><a
-                href="src-local/reduced-three-phase-nonCoalescing.h.html">reduced-three-phase-nonCoalescing.h</a></strong>
-                - phase body-force potentials</li>
-                </ul></li>
-                <li><strong><a href="smoke">smoke/</a></strong> -
-                reduced execution-contract parameter files</li>
                 <li><strong><a
                 href="postProcess">postProcess/</a></strong> -
-                extraction, plotting and parallel video tools</li>
+                extraction, plotting and parallel video
+                <ul>
+                <li><strong><a
+                href="postProcess/getData-elastic-nonCoalescence.c.html">getData-elastic-nonCoalescence.c</a></strong>
+                - uniform-grid field sampler</li>
+                <li><strong><a
+                href="postProcess/getFacet-threePhase.c.html">getFacet-threePhase.c</a></strong>
+                - interface facet extraction</li>
+                <li><strong><a
+                href="postProcess/Video-hyphal-generic.py.html">Video-hyphal-generic.py</a></strong>
+                - parallel snapshot video</li>
+                <li><strong><a
+                href="postProcess/plot_vcm_vs_time.py.html">plot_vcm_vs_time.py</a></strong>
+                - drop centre-of-mass velocity</li>
+                <li><strong><a
+                href="postProcess/plot_vcm_vs_time-2.py.html">plot_vcm_vs_time-2.py</a></strong>
+                - alternate CoM velocity plot</li>
+                <li><strong><a
+                href="postProcess/plot_hypha_width_vs_time.py.html">plot_hypha_width_vs_time.py</a></strong>
+                - film height from hypha-def-log</li>
+                <li><strong><a
+                href="postProcess/plot_vcm_vs_Ec_H.py.html">plot_vcm_vs_Ec_H.py</a></strong>
+                - multi-case Ec comparison</li>
+                <li><strong><a
+                href="postProcess/requirements.txt.html">requirements.txt</a></strong>
+                - Python dependencies for plotting and video</li>
+                </ul></li>
+                <li><strong><a href=".github">.github/</a></strong> -
+                docs CI, issue templates and generated HTML</li>
                 <li><strong><a
                 href="runSimulation.sh.html">runSimulation.sh</a></strong>
-                - single-case compile, run and resume contract</li>
+                - single-case compile and run</li>
                 <li><strong><a
                 href="runParameterSweep.sh.html">runParameterSweep.sh</a></strong>
-                - Cartesian sweep expansion and execution</li>
-                <li><strong><a
-                href="runSmokeTests.sh.html">runSmokeTests.sh</a></strong>
-                - bounded CoMPhy smoke campaign</li>
-                <li><strong><a
-                href="runSingleCaseHamilton.sbatch.html">runSingleCaseHamilton.sbatch</a></strong>
-                - thin MPI scheduler wrapper</li>
-                <li><strong><a
-                href="runSweepHamilton.sbatch.html">runSweepHamilton.sbatch</a></strong>
-                - thin MPI sweep scheduler wrapper</li>
+                - Cartesian product of SWEEP_* keys</li>
                 <li><strong><a
                 href="default.params.html">default.params</a></strong> -
-                reference full-rheology configuration</li>
+                base runtime parameters</li>
                 <li><strong><a
                 href="sweep.params.html">sweep.params</a></strong> -
-                reference solid-modulus sweep</li>
+                default parameter sweep</li>
+                <li><strong><a
+                href="runSingleCaseHamilton.sbatch.html">runSingleCaseHamilton.sbatch</a></strong>
+                - site batch wrapper for one MPI case</li>
+                <li><strong><a
+                href="runSweepHamilton.sbatch.html">runSweepHamilton.sbatch</a></strong>
+                - site batch wrapper for an MPI sweep</li>
                 <li><strong><a
                 href="Makefile.html">Makefile</a></strong> - portable
-                canonical compile target</li>
+                compile of hyphal-flow.c</li>
+                <li><strong><a
+                href="AGENTS.md.html">AGENTS.md</a></strong> -
+                repository operating manual</li>
+                <li><strong><a href="LICENSE.html">LICENSE</a></strong>
+                - GPL-3.0</li>
                 </ul>
                 </div>
-                <p>Historical cases and headers are retained for
-                provenance but are excluded from the supported runner
-                and smoke claims.</p>
+                <h2 id="running-the-code">Running the code</h2>
+                <p>On a shared-HPC login node, use the repository batch
+                wrappers for compilation and execution. Login nodes are
+                for editing, status and submission only.</p>
+                <h3 id="scripts-recommended">Scripts (recommended)</h3>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params <span class="at">--dry-run</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params <span class="at">--mpi</span> <span class="at">--CPUs</span> 8</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params</span></code></pre></div></div>
+                <p>Each case runs in
+                <code>simulationCases/&lt;CaseNo&gt;/</code> unless
+                <code>--output-root</code> is set. The binary is invoked
+                with <code>case.params</code> as
+                <code>argv[1]</code>.</p>
+                <p><code>SWEEP_*</code> keys form a Cartesian product.
+                <code>CASE_START</code> and <code>CASE_END</code> must
+                match the generated count exactly.</p>
+                <h3 id="manual-compilation">Manual compilation</h3>
+                <p>These commands are for a local workstation or an
+                allocated compute node.</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">qcc</span> <span class="at">-O2</span> <span class="at">-Wall</span> <span class="at">-disable-dimensions</span> <span class="at">-I</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>/src-local simulationCases/hyphal-flow.c <span class="at">-o</span> hyphal-flow <span class="at">-lm</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./hyphal-flow</span> case.params</span></code></pre></div></div>
+                <p>MPI:</p>
+                <div class="code-block-container"><div class="code-block-container"><pre
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">CC99</span><span class="op">=</span><span class="st">&#39;mpicc -std=c99&#39;</span> <span class="ex">qcc</span> <span class="at">-Wall</span> <span class="at">-O2</span> <span class="at">-D_MPI</span><span class="op">=</span>1 <span class="at">-disable-dimensions</span> <span class="at">-I</span><span class="va">$(</span><span class="bu">pwd</span><span class="va">)</span>/src-local simulationCases/hyphal-flow.c <span class="at">-o</span> hyphal-flowMPI <span class="at">-lm</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mpirun</span> <span class="at">-np</span> 8 ./hyphal-flowMPI case.params</span></code></pre></div></div>
                 <h2 id="managed-compute">Managed compute</h2>
                 <p>Simulation output does not belong in the source
                 checkout. The Hamilton wrappers require a reserved
                 external <code>RUN_ROOT</code> and the site-provided
                 Basilisk/MPI environment:</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--export</span><span class="op">=</span>ALL,RUN_ROOT=/reserved/run/root runSingleCaseHamilton.sbatch default.params</span></code></pre></div></div>
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">sbatch</span> <span class="at">--export</span><span class="op">=</span>ALL,RUN_ROOT=/reserved/run/root runSingleCaseHamilton.sbatch default.params</span></code></pre></div></div>
                 <p>They do not install Basilisk or duplicate parameter
                 parsing inside the job.</p>
                 <h2
@@ -606,12 +628,12 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <p>Build the documentation site from the repository
                 root:</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">.github/scripts/build.sh</span> <span class="at">--force-rebuild</span></span></code></pre></div></div>
+                class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">.github/scripts/build.sh</span> <span class="at">--force-rebuild</span></span></code></pre></div></div>
                 <p>The generated site is written to
                 <code>.github/docs/</code> and deployed through GitHub
                 Pages.</p>
                 <h2 id="licence">Licence</h2>
-                <p>GPL-3.0. See <code>LICENSE</code>.</p>
+                <p>GPL-3.0. See <a href="LICENSE">LICENSE</a>.</p>
                 <h2 id="generated-documentation">Generated
                 Documentation</h2>
                 <h3 id="root-directory">Root Directory</h3>
@@ -626,11 +648,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <li><a
                 href="runSingleCaseHamilton.sbatch.html">runSingleCaseHamilton.sbatch</a></li>
                 <li><a
-                href="runSmokeTests.sh.html">runSmokeTests.sh</a></li>
-                <li><a
                 href="runSweepHamilton.sbatch.html">runSweepHamilton.sbatch</a></li>
-                <li><a
-                href="sweep-128.params.html">sweep-128.params</a></li>
                 <li><a href="sweep.params.html">sweep.params</a></li>
                 </ul>
                 <h3 id="postprocess">postProcess</h3>
@@ -655,25 +673,10 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <li><a
                 href="simulationCases/hyphal-flow.c.html">simulationCases/hyphal-flow.c</a></li>
                 </ul>
-                <h3 id="smoke">smoke</h3>
-                <ul>
-                <li><a
-                href="smoke/full.params.html">smoke/full.params</a></li>
-                <li><a
-                href="smoke/liquids-only.params.html">smoke/liquids-only.params</a></li>
-                <li><a
-                href="smoke/newtonian.params.html">smoke/newtonian.params</a></li>
-                <li><a
-                href="smoke/solid-only.params.html">smoke/solid-only.params</a></li>
-                <li><a
-                href="smoke/sweep.params.html">smoke/sweep.params</a></li>
-                </ul>
                 <h3 id="src-local">src-local</h3>
                 <ul>
                 <li><a
                 href="src-local/log-conform-viscoelastic.h.html">src-local/log-conform-viscoelastic.h</a></li>
-                <li><a
-                href="src-local/log-conformation-rheology.h.html">src-local/log-conformation-rheology.h</a></li>
                 <li><a
                 href="src-local/params.h.html">src-local/params.h</a></li>
                 <li><a
@@ -682,8 +685,6 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 href="src-local/parse_params.sh.html">src-local/parse_params.sh</a></li>
                 <li><a
                 href="src-local/reduced-three-phase-nonCoalescing.h.html">src-local/reduced-three-phase-nonCoalescing.h</a></li>
-                <li><a
-                href="src-local/three-phase-nonCoalescing-viscoelastic.h.html">src-local/three-phase-nonCoalescing-viscoelastic.h</a></li>
                 <li><a
                 href="src-local/three-phase-rheology.h.html">src-local/three-phase-rheology.h</a></li>
                 </ul>
@@ -733,7 +734,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -761,17 +762,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -784,10 +785,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -800,7 +801,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -810,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

@@ -66,11 +66,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/runSmokeTests.sh.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://comphy-lab.org/hyphal-flow/runSweepHamilton.sbatch.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -81,37 +76,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/smoke/full.params.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://comphy-lab.org/hyphal-flow/smoke/liquids-only.params.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://comphy-lab.org/hyphal-flow/smoke/newtonian.params.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://comphy-lab.org/hyphal-flow/smoke/solid-only.params.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://comphy-lab.org/hyphal-flow/smoke/sweep.params.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://comphy-lab.org/hyphal-flow/src-local/log-conform-viscoelastic.h.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comphy-lab.org/hyphal-flow/src-local/log-conformation-rheology.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -136,19 +101,9 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/src-local/three-phase-nonCoalescing-viscoelastic.h.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://comphy-lab.org/hyphal-flow/src-local/three-phase-rheology.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://comphy-lab.org/hyphal-flow/sweep-128.params.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://comphy-lab.org/hyphal-flow/sweep.params.html</loc>

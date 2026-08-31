@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -453,7 +453,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ex">TARGET</span> := <span class="dt">\$</span><span class="er">(</span><span class="ex">BUILD_DIR</span><span class="kw">)</span><span class="ex">/hyphal-flow</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ex">HEADERS</span> := <span class="dt">\$</span><span class="er">(</span><span class="ex">wildcard</span> src-local/<span class="pp">*</span>.h<span class="kw">)</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ex">.PHONY:</span> all compile-smoke help</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ex">.PHONY:</span> all compile-check help</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="ex">all:</span> <span class="dt">\$</span><span class="er">(</span><span class="ex">TARGET</span><span class="kw">)</span></span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
@@ -467,15 +467,15 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;</span><span class="dt">\$</span><span class="st">(QCC)&quot;</span> <span class="at">-I</span><span class="st">&quot;</span><span class="dt">\$</span><span class="st">(CURDIR)/src-local&quot;</span> <span class="at">-Wall</span> <span class="at">-O2</span> <span class="at">-disable-dimensions</span> <span class="dt">\$</span><span class="er">(</span><span class="ex">BASILISK_API_FLAG</span><span class="kw">)</span> <span class="dt">\</span></span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="dt">\$</span><span class="st">(SOURCE)&quot;</span> <span class="at">-o</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">@&quot;</span> <span class="at">-lm</span></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="ex">compile-smoke:</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="ex">@output_root=</span><span class="st">&quot;</span><span class="dt">\$\$</span><span class="st">(mktemp -d &quot;</span><span class="ex">\$\</span><span class="va">${TMPDIR</span><span class="op">:-</span>/tmp<span class="va">}</span><span class="ex">/hyphal-compile-smoke.XXXXXX</span><span class="st">&quot;)&quot;</span><span class="kw">;</span> <span class="dt">\</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="ex">compile-check:</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="ex">@output_root=</span><span class="st">&quot;</span><span class="dt">\$\$</span><span class="st">(mktemp -d &quot;</span><span class="ex">\$\</span><span class="va">${TMPDIR</span><span class="op">:-</span>/tmp<span class="va">}</span><span class="ex">/hyphal-compile-check.XXXXXX</span><span class="st">&quot;)&quot;</span><span class="kw">;</span> <span class="dt">\</span></span>
 <span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="bu">trap</span> <span class="st">&#39;rm -rf &quot;\$\$output_root&quot;&#39;</span> EXIT<span class="kw">;</span> <span class="dt">\</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bash</span> runSimulation.sh smoke/full.params <span class="at">--compile-only</span> <span class="dt">\</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">bash</span> runSimulation.sh default.params <span class="at">--compile-only</span> <span class="dt">\</span></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        <span class="at">--output-root</span> <span class="st">&quot;</span><span class="dt">\$\$</span><span class="st">output_root&quot;</span></span>
 <span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ex">help:</span></span>
 <span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="ex">@echo</span> <span class="st">&quot;make             Compile the canonical simulation into build/&quot;</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="ex">@echo</span> <span class="st">&quot;make compile-smoke  Exercise the clean-clone runner compile path&quot;</span></span></code></pre></div></div>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="ex">@echo</span> <span class="st">&quot;make compile-check  Compile default.params through runSimulation.sh --compile-only&quot;</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -522,7 +522,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -550,17 +550,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -573,10 +573,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -589,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -599,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

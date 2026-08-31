@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -205,7 +205,7 @@
   <meta name="description" content="Canonical single-branch hypha simulation. The outer phase is an incompressible finite-strain neo-Hookean Kelvin--Voigt-type solid, while the carrier liquid a...">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="axi.h, flow, hyphal, log-conformation-rheology.h, navier-stokes/centered.h, params.h, reduced-three-phase-noncoalescing.h, tension.h, three-phase-rheology.h">
+  <meta name="keywords" content="axi.h, flow, hyphal, log-conform-viscoelastic.h, navier-stokes/centered.h, params.h, reduced-three-phase-noncoalescing.h, tension.h, three-phase-rheology.h">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -452,18 +452,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/axi.h" title="Link to Basilisk source for axi.h"><span class="im">"axi.h"</span></a></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/params.h.html" title="Link to local documentation for params.h"><span class="im">"params.h"</span></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/navier-stokes/centered.h" title="Link to Basilisk source for navier-stokes/centered.h"><span class="im">"navier-stokes/centered.h"</span></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/three-phase-rheology.h.html" title="Link to local documentation for three-phase-rheology.h"><span class="im">"three-phase-rheology.h"</span></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/log-conformation-rheology.h.html" title="Link to local documentation for log-conformation-rheology.h"><span class="im">"log-conformation-rheology.h"</span></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/log-conform-viscoelastic.h.html" title="Link to local documentation for log-conform-viscoelastic.h"><span class="im">"log-conform-viscoelastic.h"</span></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define FILTERED</span><span class="dv">22</span><span class="pp"></span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/three-phase-rheology.h.html" title="Link to local documentation for three-phase-rheology.h"><span class="im">"three-phase-rheology.h"</span></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/tension.h" title="Link to Basilisk source for tension.h"><span class="im">"tension.h"</span></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="../src-local/reduced-three-phase-nonCoalescing.h.html" title="Link to local documentation for reduced-three-phase-nonCoalescing.h"><span class="im">"reduced-three-phase-nonCoalescing.h"</span></a><span class="pp"></span></span></code></pre></div></div>
                 <h2 id="numerical-tolerances">Numerical Tolerances</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define fErr (1e-3) </span><span class="co">// error tolerance in VOF</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define KErr (1e-4) </span><span class="co">// error tolerance in KAPPA</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define VelErr (1e-2) </span><span class="co">// error tolerances in velocity</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define AErr (1e-3) </span><span class="co">// error tolerance in Conformation tensor</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MINlevel</span><span class="co">// minimum level</span></span>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define fErr </span><span class="op">(</span><span class="fl">1e-3</span><span class="op">)</span><span class="pp"> </span><span class="co">// error tolerance in VOF</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define KErr </span><span class="op">(</span><span class="fl">1e-4</span><span class="op">)</span><span class="pp"> </span><span class="co">// error tolerance in KAPPA</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define VelErr </span><span class="op">(</span><span class="fl">1e-2</span><span class="op">)</span><span class="pp"> </span><span class="co">// error tolerances in velocity</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define AErr </span><span class="op">(</span><span class="fl">1e-3</span><span class="op">)</span><span class="pp"> </span><span class="co">// error tolerance in Conformation tensor</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define MINlevel </span><span class="dv">4</span><span class="pp"> </span><span class="co">// minimum level</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> MAXlevel<span class="op">;</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> tmax<span class="op">;</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> snapshot_interval<span class="op">;</span></span>
@@ -483,7 +483,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Oh_liquid<span class="op">,</span> rho_liquid<span class="op">,</span> Ec_liquid<span class="op">,</span> De_liquid<span class="op">;</span></span></code></pre></div></div>
                 <h2 id="geometry-helper">Geometry Helper</h2>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define gap(x,y,radius,width,x0,c0) (y - ((c0+1.) + 0.5*(radius - (c0+1.))*(1. + tanh(sq(x-x0)/width))))</span></span>
+                class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define gap</span><span class="op">(</span><span class="pp">x</span><span class="op">,</span><span class="pp">y</span><span class="op">,</span><span class="pp">radius</span><span class="op">,</span><span class="pp">width</span><span class="op">,</span><span class="pp">x0</span><span class="op">,</span><span class="pp">c0</span><span class="op">)</span><span class="pp"> </span><span class="op">(</span><span class="pp">y </span><span class="op">-</span><span class="pp"> </span><span class="op">((</span><span class="pp">c0</span><span class="op">+</span><span class="fl">1.</span><span class="op">)</span><span class="pp"> </span><span class="op">+</span><span class="pp"> </span><span class="fl">0.5</span><span class="op">*(</span><span class="pp">radius </span><span class="op">-</span><span class="pp"> </span><span class="op">(</span><span class="pp">c0</span><span class="op">+</span><span class="fl">1.</span><span class="op">))*(</span><span class="fl">1.</span><span class="pp"> </span><span class="op">+</span><span class="pp"> tanh</span><span class="op">(</span><span class="pp">sq</span><span class="op">(</span><span class="pp">x</span><span class="op">-</span><span class="pp">x0</span><span class="op">)/</span><span class="pp">width</span><span class="op">))))</span><span class="pp"></span><span class="dv">56</span><span class="pp"></span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> channel_radius<span class="op">;</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> Bond<span class="op">;</span></span>
@@ -504,13 +504,13 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(!</span>isfinite <span class="op">(</span>viscosity<span class="op">)</span> <span class="op">||</span> <span class="op">!</span>isfinite <span class="op">(</span>modulus<span class="op">)</span> <span class="op">||</span></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="op">!</span>isfinite <span class="op">(</span>relaxation_time<span class="op">)</span> <span class="op">||</span> viscosity <span class="op">&lt;=</span> <span class="fl">0.</span> <span class="op">||</span> modulus <span class="op">&lt;</span> <span class="fl">0.</span> <span class="op">||</span></span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>      relaxation_time <span class="op">&lt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;ERROR: %s viscosity must be positive and Ec/De non-negative</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span> <span class="st">&quot;ERROR: </span><span class="sc">%s</span><span class="st"> viscosity must be positive and Ec/De non-negative</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>             name<span class="op">);</span></span>
 <span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>modulus <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">)</span> <span class="op">!=</span> <span class="op">(</span>relaxation_time <span class="op">&gt;</span> <span class="fl">0.</span><span class="op">))</span> <span class="op">{</span></span>
 <span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>stderr<span class="op">,</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;ERROR: %s needs both Ec &gt; 0 and De &gt; 0, or Ec = De =</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;ERROR: </span><span class="sc">%s</span><span class="st"> needs both Ec &gt; 0 and De &gt; 0, or Ec = De =</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>             name<span class="op">);</span></span>
 <span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">-</span><span class="dv">1</span><span class="op">;</span></span>
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
@@ -521,11 +521,11 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>                        <span class="dt">double</span> interval<span class="op">)</span></span>
 <span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>current_time <span class="op">+</span> <span class="fl">1e-12</span> <span class="op">&lt;</span> <span class="op">*</span>next_time<span class="op">)</span></span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> false<span class="op">;</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
 <span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>  do</span>
 <span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>next_time <span class="op">+=</span> interval<span class="op">;</span></span>
 <span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(*</span>next_time <span class="op">&lt;=</span> current_time <span class="op">+</span> <span class="fl">1e-12</span><span class="op">);</span></span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> true<span class="op">;</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">true</span><span class="op">;</span></span>
 <span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="main">main()</h2>
                 <p>Initialize properties and forcing, then enter the
@@ -584,9 +584,9 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>             <span class="st">&quot;phase is relaxing viscoelastic rather than Kelvin--Voigt-type</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
 <span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  fprintf <span class="op">(</span>ferr<span class="op">,</span></span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;level=%d tmax=%g | drop: Oh=%g Ec=%g De=%g mu_p=%g | &quot;</span></span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;liquid: Oh=%g Ec=%g De=%g mu_p=%g | solid: Oh=%g Ec=%g &quot;</span></span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;De=%g | radius=%g Bond=%g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;level=</span><span class="sc">%d</span><span class="st"> tmax=</span><span class="sc">%g</span><span class="st"> | drop: Oh=</span><span class="sc">%g</span><span class="st"> Ec=</span><span class="sc">%g</span><span class="st"> De=</span><span class="sc">%g</span><span class="st"> mu_p=</span><span class="sc">%g</span><span class="st"> | &quot;</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;liquid: Oh=</span><span class="sc">%g</span><span class="st"> Ec=</span><span class="sc">%g</span><span class="st"> De=</span><span class="sc">%g</span><span class="st"> mu_p=</span><span class="sc">%g</span><span class="st"> | solid: Oh=</span><span class="sc">%g</span><span class="st"> Ec=</span><span class="sc">%g</span><span class="st"> &quot;</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;De=</span><span class="sc">%g</span><span class="st"> | radius=</span><span class="sc">%g</span><span class="st"> Bond=</span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>           MAXlevel<span class="op">,</span> tmax<span class="op">,</span></span>
 <span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>           Oh_drop<span class="op">,</span> Ec_drop<span class="op">,</span> De_drop<span class="op">,</span> Ec_drop<span class="op">*</span>De_drop<span class="op">,</span></span>
 <span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>           Oh_liquid<span class="op">,</span> Ec_liquid<span class="op">,</span> De_liquid<span class="op">,</span> Ec_liquid<span class="op">*</span>De_liquid<span class="op">,</span></span>
@@ -666,7 +666,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  scalar xpos<span class="op">[];</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  coord ex <span class="op">=</span> <span class="op">{</span><span class="fl">1.</span><span class="op">,</span> <span class="fl">0.</span><span class="op">};</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  coord z0 <span class="op">=</span> <span class="op">{</span><span class="fl">0.</span><span class="op">,</span> <span class="fl">0.</span><span class="op">};</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  position <span class="op">(</span>f1<span class="op">,</span> xpos<span class="op">,</span> ex<span class="op">,</span> z0<span class="op">,</span> add <span class="op">=</span> false<span class="op">);</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  position <span class="op">(</span>f1<span class="op">,</span> xpos<span class="op">,</span> ex<span class="op">,</span> z0<span class="op">,</span> add <span class="op">=</span> <span class="kw">false</span><span class="op">);</span></span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  stats sx <span class="op">=</span> statsf <span class="op">(</span>xpos<span class="op">);</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> xmax <span class="op">=</span> sx<span class="op">.</span>volume <span class="op">&gt;</span> <span class="fl">0.</span> <span class="op">?</span> sx<span class="op">.</span>max <span class="op">:</span> <span class="op">-</span>HUGE<span class="op">;</span></span>
@@ -678,14 +678,14 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">double</span> x_end <span class="op">=</span> X0 <span class="op">+</span> L0<span class="op">;</span></span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;drop front xmax = %.6f, x_end = %.6f</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> xmax<span class="op">,</span> x_end<span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    fprintf<span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;drop front xmax = </span><span class="sc">%.6f</span><span class="st">, x_end = </span><span class="sc">%.6f\n</span><span class="st">&quot;</span><span class="op">,</span> xmax<span class="op">,</span> x_end<span class="op">);</span></span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>xmax <span class="op">&gt;</span> x_end <span class="op">-</span> buffer<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>pid<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>      fprintf<span class="op">(</span>ferr<span class="op">,</span></span>
 <span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;</span><span class="sc">\n</span><span class="st">*** Drop leading edge reached end of domain ***</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;xmax = %.6f, domain end = %.6f</span><span class="sc">\n</span><span class="st">&quot;</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Stopping simulation at t = %.6g</span><span class="sc">\n\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;xmax = </span><span class="sc">%.6f</span><span class="st">, domain end = </span><span class="sc">%.6f\n</span><span class="st">&quot;</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;Stopping simulation at t = </span><span class="sc">%.6g\n\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>        xmax<span class="op">,</span> x_end<span class="op">,</span> t<span class="op">);</span></span>
 <span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    dump <span class="op">(</span>file <span class="op">=</span> <span class="st">&quot;final&quot;</span><span class="op">);</span></span>
@@ -701,14 +701,14 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  dump <span class="op">(</span>file <span class="op">=</span> <span class="st">&quot;restart&quot;</span><span class="op">);</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> nameOut<span class="op">[</span><span class="dv">80</span><span class="op">];</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  snprintf <span class="op">(</span>nameOut<span class="op">,</span> <span class="kw">sizeof</span> nameOut<span class="op">,</span> <span class="st">&quot;intermediate/snapshot-%5.4f&quot;</span><span class="op">,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  snprintf <span class="op">(</span>nameOut<span class="op">,</span> <span class="kw">sizeof</span> nameOut<span class="op">,</span> <span class="st">&quot;intermediate/snapshot-</span><span class="sc">%5.4f</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            next_snapshot <span class="op">-</span> snapshot_interval<span class="op">);</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  dump <span class="op">(</span>file <span class="op">=</span> nameOut<span class="op">);</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="stop_at_tmax">stop_at_tmax()</h2>
                 <p>Write a terminal snapshot and stop the otherwise
                 open-ended event loop at the configured physical time.
-                This makes reduced smoke cases genuinely bounded.</p>
+                This makes reduced runs genuinely bounded.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>event stop_at_tmax <span class="op">(</span>i<span class="op">++;</span> t <span class="op">&lt;=</span> HUGE<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>t <span class="op">+</span> <span class="fl">1e-12</span> <span class="op">&lt;</span> tmax<span class="op">)</span></span>
@@ -767,18 +767,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>        simulation_abort <span class="op">(</span><span class="dv">4</span><span class="op">);</span></span>
 <span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
 <span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>fp<span class="op">,</span> <span class="st">&quot;%d %g %g %g %5.4e %g %g %g %g %g %g %g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>fp<span class="op">,</span> <span class="st">&quot;</span><span class="sc">%d</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%5.4e</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>             i<span class="op">,</span> dt<span class="op">,</span> t<span class="op">,</span> ke<span class="op">,</span> vcm<span class="op">,</span> overlap<span class="op">,</span></span>
 <span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>             volume_drop<span class="op">,</span> volume_solid<span class="op">,</span> volume_liquid<span class="op">,</span></span>
 <span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a>             stress_drop<span class="op">,</span> stress_solid<span class="op">,</span> stress_liquid<span class="op">);</span></span>
 <span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>    fclose<span class="op">(</span>fp<span class="op">);</span></span>
-<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;%d %g %g %g %5.4e %g %g %g %g %g %g %g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>    fprintf <span class="op">(</span>ferr<span class="op">,</span> <span class="st">&quot;</span><span class="sc">%d</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%5.4e</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a>             i<span class="op">,</span> dt<span class="op">,</span> t<span class="op">,</span> ke<span class="op">,</span> vcm<span class="op">,</span> overlap<span class="op">,</span></span>
 <span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a>             volume_drop<span class="op">,</span> volume_solid<span class="op">,</span> volume_liquid<span class="op">,</span></span>
 <span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a>             stress_drop<span class="op">,</span> stress_solid<span class="op">,</span> stress_liquid<span class="op">);</span></span>
 <span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>overlap <span class="op">&gt;</span> <span class="fl">1e-3</span><span class="op">)</span></span>
 <span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>      fprintf <span class="op">(</span>ferr<span class="op">,</span></span>
-<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;WARNING: VoF overlap=%g; carrier-film separation is under-resolved</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;WARNING: VoF overlap=</span><span class="sc">%g</span><span class="st">; carrier-film separation is under-resolved</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span></span>
 <span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>               overlap<span class="op">);</span></span>
 <span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a>    assert<span class="op">(</span>ke <span class="op">&gt;</span> <span class="op">-</span><span class="fl">1e-10</span><span class="op">);</span></span>
@@ -842,7 +842,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>fh<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>      fprintf<span class="op">(</span>fh<span class="op">,</span> <span class="st">&quot;%g %g</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">,</span> t<span class="op">,</span> y_if_max<span class="op">);</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>      fprintf<span class="op">(</span>fh<span class="op">,</span> <span class="st">&quot;</span><span class="sc">%g</span><span class="st"> </span><span class="sc">%g\n</span><span class="st">&quot;</span><span class="op">,</span> t<span class="op">,</span> y_if_max<span class="op">);</span></span>
 <span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>      fflush<span class="op">(</span>fh<span class="op">);</span></span>
 <span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
 <span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
@@ -893,7 +893,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -921,17 +921,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -944,10 +944,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -960,7 +960,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -970,7 +970,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

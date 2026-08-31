@@ -9,9 +9,6 @@ reviews:
     - "!docs/**"
     - "!.github/docs/**"
     - "!basilisk/**"
-    - "!simulationCases/legacy/**"
-    - "!src-local/legacy/**"
-    - "!scripts/legacy/**"
     - "!**/reference-data/**"
     - "!**/*.tsv"
     - "!**/*.csv"
@@ -35,10 +32,6 @@ reviews:
       instructions: |
         Review quoting, fail-closed case-directory behaviour, resume manifest
         matching, clean-clone qcc resolution and output-root containment.
-    - path: "smoke/**"
-      instructions: |
-        Reduced execution contracts only. Do not mislabel them as numerical
-        verification or physical validation.
     - path: "postProcess/**"
       instructions: |
         Check reproducible field extraction, deterministic frames, parallel

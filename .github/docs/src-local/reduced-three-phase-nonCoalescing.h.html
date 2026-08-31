@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -485,18 +485,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>phi1<span class="op">.</span>i<span class="op">)</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f1<span class="op">,</span> phi1<span class="op">,</span> Gf1<span class="op">,</span> Z1<span class="op">,</span> add <span class="op">=</span> true<span class="op">);</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f1<span class="op">,</span> phi1<span class="op">,</span> Gf1<span class="op">,</span> Z1<span class="op">,</span> add <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="op">{</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    phi1 <span class="op">=</span> new scalar<span class="op">;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f1<span class="op">,</span> phi1<span class="op">,</span> Gf1<span class="op">,</span> Z1<span class="op">,</span> add <span class="op">=</span> false<span class="op">);</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f1<span class="op">,</span> phi1<span class="op">,</span> Gf1<span class="op">,</span> Z1<span class="op">,</span> add <span class="op">=</span> <span class="kw">false</span><span class="op">);</span></span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    f1<span class="op">.</span>phi <span class="op">=</span> phi1<span class="op">;</span></span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>phi2<span class="op">.</span>i<span class="op">)</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f2<span class="op">,</span> phi2<span class="op">,</span> Gf2<span class="op">,</span> Z2<span class="op">,</span> add <span class="op">=</span> true<span class="op">);</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f2<span class="op">,</span> phi2<span class="op">,</span> Gf2<span class="op">,</span> Z2<span class="op">,</span> add <span class="op">=</span> <span class="kw">true</span><span class="op">);</span></span>
 <span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="op">{</span></span>
 <span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    phi2 <span class="op">=</span> new scalar<span class="op">;</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f2<span class="op">,</span> phi2<span class="op">,</span> Gf2<span class="op">,</span> Z2<span class="op">,</span> add <span class="op">=</span> false<span class="op">);</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    position <span class="op">(</span>f2<span class="op">,</span> phi2<span class="op">,</span> Gf2<span class="op">,</span> Z2<span class="op">,</span> add <span class="op">=</span> <span class="kw">false</span><span class="op">);</span></span>
 <span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    f2<span class="op">.</span>phi <span class="op">=</span> phi2<span class="op">;</span></span>
 <span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
@@ -547,7 +547,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -575,17 +575,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -598,10 +598,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -614,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

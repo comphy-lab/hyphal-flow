@@ -241,7 +241,7 @@ else
 fi
 
 if [[ $COMPILE_ONLY -eq 1 ]]; then
-  printf 'Compile smoke passed: %s\n' "$EXECUTABLE"
+  printf 'Compile succeeded: %s\n' "$EXECUTABLE"
   exit 0
 fi
 
@@ -276,4 +276,4 @@ if grep -Ein '(^|[^[:alnum:]_])(nan|[-+]?inf(inity)?)([^[:alnum:]_]|$)|ERROR: no
   exit 1
 fi
 
-printf 'Simulation smoke passed: %s\n' "$CASE_DIR"
+printf 'Simulation completed: %s\n' "$CASE_DIR"

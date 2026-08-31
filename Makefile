@@ -16,7 +16,7 @@ SOURCE := simulationCases/hyphal-flow.c
 TARGET := $(BUILD_DIR)/hyphal-flow
 HEADERS := $(wildcard src-local/*.h)
 
-.PHONY: all compile-smoke help
+.PHONY: all compile-check help
 
 all: $(TARGET)
 
@@ -30,12 +30,12 @@ $(TARGET): $(SOURCE) $(HEADERS)
 	"$(QCC)" -I"$(CURDIR)/src-local" -Wall -O2 -disable-dimensions $(BASILISK_API_FLAG) \
 		"$(SOURCE)" -o "$@" -lm
 
-compile-smoke:
-	@output_root="$$(mktemp -d "$${TMPDIR:-/tmp}/hyphal-compile-smoke.XXXXXX")"; \
+compile-check:
+	@output_root="$$(mktemp -d "$${TMPDIR:-/tmp}/hyphal-compile-check.XXXXXX")"; \
 	trap 'rm -rf "$$output_root"' EXIT; \
-	bash runSimulation.sh smoke/full.params --compile-only \
+	bash runSimulation.sh default.params --compile-only \
 		--output-root "$$output_root"
 
 help:
 	@echo "make             Compile the canonical simulation into build/"
-	@echo "make compile-smoke  Exercise the clean-clone runner compile path"
+	@echo "make compile-check  Compile default.params through runSimulation.sh --compile-only"

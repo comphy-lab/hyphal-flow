@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-
+      
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-
+      
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-
+    
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-
+        
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-
+        
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-
+    
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-
+      
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-
+      
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-
+    
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-
+    
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-
+    
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-
+    
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-
+    
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-
+    
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-
+    
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -172,7 +172,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
   <title>postProcess/Video-hyphal-generic.py | Hyphal Flow</title>
-
+  
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-
+      
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-
+      
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-
+      
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -205,7 +205,7 @@
   <meta name="description" content="Create a mirrored-axis video from Basilisk snapshot- states for three-phase hyphal-flow runs.">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="default_cmap_for_field, default_limits_for_field, format_fps, get_field_grid, list_snapshots, main, math.h, run_capture, snapshot_argument, utils.h">
+  <meta name="keywords" content="grid_extent, hyphal, list_snapshots, main, map_segments_xy_to_rz, parse_facet_segments, render_frame, render_single_snapshot, render_snapshots, video">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -256,7 +256,7 @@
   <script defer src="../assets/js/main.js"></script>
   <script defer src="../assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-
+  
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-
+    
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-
+      
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-
+    
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-
+      
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-
+        
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-
+      
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,18 +421,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 
         <!-- Main content -->
         <main class="content">
-
+            
             <div class="page-content">
-
+                
                                 <h1 class="page-title">postProcess/Video-hyphal-generic.py</h1>
-
-
+                
+                                
                                 <div class="raw-file-button-container">
                     <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/postProcess/Video-hyphal-generic.py" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
-
+                
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span></code></pre></div></div>
                 <h1
@@ -519,47 +519,47 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>FIELD_INDEX <span class="op">=</span> {<span class="st">&quot;d2c&quot;</span>: <span class="dv">2</span>, <span class="st">&quot;vel&quot;</span>: <span class="dv">3</span>, <span class="st">&quot;trA&quot;</span>: <span class="dv">4</span>}</span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>FIELD_LABEL <span class="op">=</span> {</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;d2c&quot;</span>: <span class="vs">r&quot;$\log_</span><span class="sc">{10}</span><span class="vs">\!\left(\left|\mathbf</span><span class="sc">{D}</span><span class="vs">\right|\right)$&quot;</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;vel&quot;</span>: <span class="vs">r&quot;$\left|\mathbf</span><span class="sc">{u}</span><span class="vs">\right|$&quot;</span>,</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;trA&quot;</span>: <span class="vs">r&quot;$\log_</span><span class="sc">{10}</span><span class="vs">\!\left(\mathrm</span><span class="sc">{tr}</span><span class="vs">(\mathbf</span><span class="sc">{A}</span><span class="vs">)/3\right)$&quot;</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;d2c&quot;</span>: <span class="vs">r&quot;</span><span class="dv">$</span><span class="er">\</span><span class="vs">log_</span><span class="op">{10}</span><span class="ch">\!</span><span class="er">\</span><span class="vs">left</span><span class="kw">(</span><span class="er">\</span><span class="vs">left</span><span class="cf">|</span><span class="dv">\m</span><span class="vs">athbf{D}</span><span class="ch">\r</span><span class="vs">ight</span><span class="cf">|</span><span class="ch">\r</span><span class="vs">ight</span><span class="kw">)</span><span class="dv">$</span><span class="vs">&quot;</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;vel&quot;</span>: <span class="vs">r&quot;</span><span class="dv">$</span><span class="er">\</span><span class="vs">left</span><span class="cf">|</span><span class="dv">\m</span><span class="vs">athbf{u}</span><span class="ch">\r</span><span class="vs">ight</span><span class="cf">|</span><span class="dv">$</span><span class="vs">&quot;</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;trA&quot;</span>: <span class="vs">r&quot;</span><span class="dv">$</span><span class="er">\</span><span class="vs">log_</span><span class="op">{10}</span><span class="ch">\!</span><span class="er">\</span><span class="vs">left</span><span class="kw">(</span><span class="dv">\m</span><span class="vs">athrm{tr}</span><span class="kw">(</span><span class="dv">\m</span><span class="vs">athbf{A}</span><span class="kw">)</span><span class="vs">/3</span><span class="ch">\r</span><span class="vs">ight</span><span class="kw">)</span><span class="dv">$</span><span class="vs">&quot;</span>,</span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>COM_HELPER_C <span class="op">=</span> <span class="vs">r&quot;&quot;&quot;</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &quot;axi.h&quot;</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &quot;utils.h&quot;</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &lt;math.h&gt;</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co">#include &quot;axi.h&quot;</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co">#include &quot;utils.h&quot;</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co">#include &lt;math.h&gt;</span></span>
 <span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="vs">scalar f1[], f2[];</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="vs">scalar f1</span><span class="pp">[], f2[]</span><span class="vs">;</span></span>
 <span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="vs">int main (int argc, char const *argv[]) {</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (argc &lt; 2) {</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf (stderr, &quot;Usage: </span><span class="sc">%s</span><span class="vs"> snapshot\n&quot;, argv[0]);</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="vs">int main </span><span class="kw">(</span><span class="vs">int argc, char const </span><span class="op">*</span><span class="vs">argv</span><span class="pp">[]) {</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="pp">  if (argc &lt; 2) {</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="pp">    fprintf (stderr, &quot;Usage: %s snapshot</span><span class="ch">\n</span><span class="pp">&quot;, argv[0]</span><span class="kw">)</span><span class="vs">;</span></span>
 <span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 1;</span></span>
 <span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
 <span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (!restore (file = argv[1])) {</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf (stderr, &quot;Failed to restore snapshot: </span><span class="sc">%s</span><span class="vs">\n&quot;, argv[1]);</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="vs">  if </span><span class="kw">(</span><span class="vs">!restore </span><span class="kw">(</span><span class="vs">file = argv</span><span class="pp">[1]</span><span class="kw">))</span><span class="vs"> {</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf </span><span class="kw">(</span><span class="vs">stderr, &quot;Failed to restore snapshot: %s</span><span class="ch">\n</span><span class="vs">&quot;, argv</span><span class="pp">[1]</span><span class="kw">)</span><span class="vs">;</span></span>
 <span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 2;</span></span>
 <span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
 <span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="vs">  double wt = 0., xcm = 0., ycm = 0.;</span></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="vs">  foreach (reduction(+:wt) reduction(+:xcm) reduction(+:ycm)) {</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="vs">    double w = f1[]*dv();</span></span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="vs">    wt += w;</span></span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="vs">    xcm += x*w;</span></span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="vs">    ycm += y*w;</span></span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="vs">  double wt = 0</span><span class="dv">.</span><span class="vs">, xcm = 0</span><span class="dv">.</span><span class="vs">, ycm = 0</span><span class="dv">.</span><span class="vs">;</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="vs">  foreach </span><span class="kw">(</span><span class="vs">reduction</span><span class="kw">(</span><span class="op">+</span><span class="vs">:wt</span><span class="kw">)</span><span class="vs"> reduction</span><span class="kw">(</span><span class="op">+</span><span class="vs">:xcm</span><span class="kw">)</span><span class="vs"> reduction</span><span class="kw">(</span><span class="op">+</span><span class="vs">:ycm</span><span class="kw">))</span><span class="vs"> {</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="vs">    double w = f1</span><span class="pp">[]*dv();</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="pp">    wt += w;</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="pp">    xcm += x*w;</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="pp">    ycm += y*w;</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="pp">  }</span></span>
 <span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (wt &lt;= 0.) {</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="vs">    printf (&quot;nan nan\n&quot;);</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 0;</span></span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="pp">  if (wt &lt;= 0.) {</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="pp">    printf (&quot;nan nan</span><span class="ch">\n</span><span class="pp">&quot;);</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="pp">    return 0;</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="pp">  }</span></span>
 <span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="vs">  xcm /= wt;</span></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="vs">  ycm /= wt;</span></span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="vs">  printf (&quot;</span><span class="sc">%.16g</span><span class="vs"> </span><span class="sc">%.16g</span><span class="vs">\n&quot;, xcm, ycm);</span></span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="vs">  return 0;</span></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="pp">  xcm /= wt;</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="pp">  ycm /= wt;</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="pp">  printf (&quot;%.16g %.16g</span><span class="ch">\n</span><span class="pp">&quot;, xcm, ycm);</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="pp">  return 0;</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="pp">}</span></span>
 <span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="vs">&quot;&quot;&quot;</span></span>
 <span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a></span>
@@ -727,7 +727,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  _matplotlib: Any <span class="op">|</span> <span class="va">None</span> <span class="op">=</span> <span class="va">None</span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">try</span>:</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> numpy <span class="im">as</span> _np</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> ModuleNotFoundError:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> <span class="pp">ModuleNotFoundError</span>:</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    missing.append(<span class="st">&quot;numpy&quot;</span>)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    _np <span class="op">=</span> <span class="va">None</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
@@ -736,7 +736,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    _matplotlib.use(<span class="st">&quot;Agg&quot;</span>)</span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="im">import</span> matplotlib.pyplot <span class="im">as</span> _plt</span>
 <span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> matplotlib.collections <span class="im">import</span> LineCollection <span class="im">as</span> _LineCollection</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> ModuleNotFoundError:</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> <span class="pp">ModuleNotFoundError</span>:</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    missing.append(<span class="st">&quot;matplotlib&quot;</span>)</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    _plt <span class="op">=</span> <span class="va">None</span></span>
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    _LineCollection <span class="op">=</span> <span class="va">None</span></span>
@@ -1181,7 +1181,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>    spine.set_linewidth(<span class="fl">2.5</span>)</span>
 <span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a>  ax.set_title(</span>
-<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>    <span class="vs">rf&quot;$t=</span><span class="sc">{</span>t<span class="sc">:0.4f}</span><span class="vs">,\ \mathrm</span><span class="ch">{{</span><span class="vs">CoM</span><span class="ch">}}</span><span class="vs">(f_1):\ z=</span><span class="sc">{</span>xcm<span class="sc">:0.4f}</span><span class="vs">$&quot;</span>,</span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>    <span class="vs">rf&quot;</span><span class="dv">$</span><span class="vs">t=</span><span class="sc">{</span>t<span class="sc">:0.4f}</span><span class="vs">,</span><span class="ch">\ </span><span class="dv">\m</span><span class="vs">athrm</span><span class="ch">{{</span><span class="vs">CoM</span><span class="ch">}}</span><span class="kw">(</span><span class="vs">f_1</span><span class="kw">)</span><span class="vs">:</span><span class="ch">\ </span><span class="vs">z=</span><span class="sc">{</span>xcm<span class="sc">:0.4f}</span><span class="dv">$</span><span class="vs">&quot;</span>,</span>
 <span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a>    fontsize<span class="op">=</span><span class="dv">32</span>,</span>
 <span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>    pad<span class="op">=</span><span class="dv">16</span>,</span>
 <span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a>  )</span>
@@ -1633,7 +1633,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -1661,17 +1661,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1684,10 +1684,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -1700,7 +1700,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -1710,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

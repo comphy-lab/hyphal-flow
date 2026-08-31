@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -454,6 +454,10 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 mixed through the modulus-weighted relaxation rate, so
                 the solid’s very large relaxation time does not make an
                 entire interfacial cell artificially non-relaxing.</p>
+                <p><code>Gp</code> and <code>lambda</code> are declared
+                by the log-conform header; this file only rebuilds
+                <code>Gpd</code> and <code>lambdapd</code> and rebinds
+                those names.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><a href="https://basilisk.fr/src/vof.h" title="Link to Basilisk source for vof.h"><span class="im">"vof.h"</span></a><span class="pp"></span></span></code></pre></div></div>
                 <p>Current Basilisk invalidates field stencils through
@@ -466,12 +470,12 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#if TREE</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp"># ifdef HYPHAL_LEGACY_BASILISK</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#  define HYPHAL_SET_PROLONGATION(field, method) do { \</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#  define HYPHAL_SET_PROLONGATION</span><span class="op">(</span><span class="pp">field</span><span class="op">,</span><span class="pp"> method</span><span class="op">)</span><span class="pp"> </span><span class="cf">do</span><span class="pp"> </span><span class="op">{</span><span class="pp"> \</span><span class="dv">33</span><span class="pp"></span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>     <span class="op">(</span>field<span class="op">).</span>prolongation <span class="op">=</span> <span class="op">(</span>method<span class="op">);</span> \</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>     <span class="op">(</span>field<span class="op">).</span>dirty <span class="op">=</span> true<span class="op">;</span> \</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>     <span class="op">(</span>field<span class="op">).</span>dirty <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> \</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>   <span class="op">}</span> <span class="cf">while</span> <span class="op">(</span><span class="dv">0</span><span class="op">)</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="pp"># else</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#  define HYPHAL_SET_PROLONGATION(field, method) \</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="pp">#  define HYPHAL_SET_PROLONGATION</span><span class="op">(</span><span class="pp">field</span><span class="op">,</span><span class="pp"> method</span><span class="op">)</span><span class="pp"> \</span><span class="dv">38</span><span class="pp"></span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>     set_prolongation <span class="op">(</span>field<span class="op">,</span> method<span class="op">)</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="pp"># endif</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
@@ -479,12 +483,10 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 f2.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>scalar f1<span class="op">[],</span> f2<span class="op">[],</span> <span class="op">*</span>interfaces <span class="op">=</span> <span class="op">{</span>f1<span class="op">,</span> f2<span class="op">};</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="dt">const</span><span class="op">)</span> scalar Gp <span class="op">=</span> unity<span class="op">;</span> <span class="co">// elastic modulus</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="dt">const</span><span class="op">)</span> scalar lambda <span class="op">=</span> unity<span class="op">;</span> <span class="co">// relaxation time</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> rho1 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho2 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho3 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> G1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// elastic moduli</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> lambda1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// relaxation times</span></span></code></pre></div></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> rho1 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho2 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> rho3 <span class="op">=</span> <span class="fl">1.</span><span class="op">,</span> mu3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> G1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> G3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// elastic moduli</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">double</span> lambda1 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda2 <span class="op">=</span> <span class="fl">0.</span><span class="op">,</span> lambda3 <span class="op">=</span> <span class="fl">0.</span><span class="op">;</span> <span class="co">// relaxation times</span></span></code></pre></div></div>
                 <p>Auxilliary fields are necessary to define the
                 (variable) specific volume <span
                 class="math inline">\(\alpha=1/\rho\)</span> as well as
@@ -565,10 +567,10 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef rho</span></span>
-<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a><span class="pp"># define rho(fdrop, fsolid) phase_average (fdrop, fsolid, rho1, rho2, rho3)</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a><span class="pp"># define rho</span><span class="op">(</span><span class="pp">fdrop</span><span class="op">,</span><span class="pp"> fsolid</span><span class="op">)</span><span class="pp"> phase_average </span><span class="op">(</span><span class="pp">fdrop</span><span class="op">,</span><span class="pp"> fsolid</span><span class="op">,</span><span class="pp"> rho1</span><span class="op">,</span><span class="pp"> rho2</span><span class="op">,</span><span class="pp"> rho3</span><span class="op">)</span><span class="pp"></span><span class="dv">129</span><span class="pp"></span></span>
 <span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
 <span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef mu</span></span>
-<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a><span class="pp"># define mu(fdrop, fsolid) phase_average (fdrop, fsolid, mu1, mu2, mu3)</span></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a><span class="pp"># define mu</span><span class="op">(</span><span class="pp">fdrop</span><span class="op">,</span><span class="pp"> fsolid</span><span class="op">)</span><span class="pp"> phase_average </span><span class="op">(</span><span class="pp">fdrop</span><span class="op">,</span><span class="pp"> fsolid</span><span class="op">,</span><span class="pp"> mu1</span><span class="op">,</span><span class="pp"> mu2</span><span class="op">,</span><span class="pp"> mu3</span><span class="op">)</span><span class="pp"></span><span class="dv">132</span><span class="pp"></span></span>
 <span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span></code></pre></div></div>
                 <p>We have the option of using some “smearing” of the
                 density/viscosity jump. It is modified to take into
@@ -577,8 +579,8 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifdef FILTERED</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>scalar sf1<span class="op">[],</span> sf2<span class="op">[],</span> <span class="op">*</span>smearInterfaces <span class="op">=</span> <span class="op">{</span>sf1<span class="op">,</span> sf2<span class="op">};</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#else</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sf1 f1</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sf2 f2</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sf1 f1</span><span class="dv">142</span><span class="pp"></span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sf2 f2</span><span class="dv">143</span><span class="pp"></span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>scalar <span class="op">*</span>smearInterfaces <span class="op">=</span> <span class="op">{</span>sf1<span class="op">,</span> sf2<span class="op">};</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -695,7 +697,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -723,17 +725,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -746,10 +748,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -762,7 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -772,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

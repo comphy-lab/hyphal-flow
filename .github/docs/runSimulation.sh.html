@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!--
+  <!-- 
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-
+      
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-
+      
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-
+    
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-
+        
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-
+        
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-
+    
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-
+      
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-
+      
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-
+    
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-
+    
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-
+    
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-
+    
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-
+    
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-
+    
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-
+    
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -172,7 +172,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
   <title>runSimulation.sh | Hyphal Flow</title>
-
+  
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-
+      
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-
+      
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-
+      
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -256,7 +256,7 @@
   <script defer src="./assets/js/main.js"></script>
   <script defer src="./assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-
+  
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-
+    
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-
+      
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-
+    
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-
+      
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-
+        
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-
+      
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,18 +421,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 
         <!-- Main content -->
         <main class="content">
-
+            
             <div class="page-content">
-
+                
                                 <h1 class="page-title">runSimulation.sh</h1>
-
-
+                
+                                
                                 <div class="raw-file-button-container">
                     <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/runSimulation.sh" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
-
+                
                 <h1 id="runsimulation.sh">runSimulation.sh</h1>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env bash</span></span>
@@ -599,7 +599,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb1-162"><a href="#cb1-162" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grep</span> <span class="at">-Fxq</span> <span class="st">&quot;mode=</span><span class="dt">\$</span><span class="st">{RUN_MODE}&quot;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">MANIFEST&quot;</span> <span class="kw">&amp;&amp;</span></span>
 <span id="cb1-163"><a href="#cb1-163" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grep</span> <span class="at">-Fxq</span> <span class="st">&quot;cpus=</span><span class="dt">\$</span><span class="st">{MANIFEST_CPUS}&quot;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">MANIFEST&quot;</span> <span class="kw">&amp;&amp;</span></span>
 <span id="cb1-164"><a href="#cb1-164" aria-hidden="true" tabindex="-1"></a>    <span class="fu">grep</span> <span class="at">-Fxq</span> <span class="st">&quot;basilisk_api=</span><span class="dt">\$</span><span class="st">{BASILISK_API}&quot;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">MANIFEST&quot;</span> <span class="kw">&amp;&amp;</span></span>
-<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">(shasum -a 256 &quot;</span><span class="dt">\$</span>{CASE_DIR}/\${EXEC_CODE}<span class="st">&quot; | awk &#39;{print </span><span class="dt">\$</span><span class="st">1}&#39;)&quot;</span> <span class="ot">==</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">SOURCE_FILE_HASH&quot;</span> <span class="kw">]]</span> <span class="kw">&amp;&amp;</span></span>
+<span id="cb1-165"><a href="#cb1-165" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">(shasum -a 256 &quot;</span><span class="dt">\$</span>{CASE_DIR}/<span class="dt">\$</span>{EXEC_CODE}<span class="st">&quot; | awk &#39;{print </span><span class="dt">\$</span><span class="st">1}&#39;)&quot;</span> <span class="ot">==</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">SOURCE_FILE_HASH&quot;</span> <span class="kw">]]</span> <span class="kw">&amp;&amp;</span></span>
 <span id="cb1-166"><a href="#cb1-166" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[[</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">(shasum -a 256 &quot;</span><span class="dt">\$</span>{CASE_DIR}/case.params<span class="st">&quot; | awk &#39;{print </span><span class="dt">\$</span><span class="st">1}&#39;)&quot;</span> <span class="ot">==</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">PARAM_HASH&quot;</span> <span class="kw">]]</span></span>
 <span id="cb1-167"><a href="#cb1-167" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
 <span id="cb1-168"><a href="#cb1-168" aria-hidden="true" tabindex="-1"></a></span>
@@ -678,7 +678,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb1-241"><a href="#cb1-241" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-242"><a href="#cb1-242" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-243"><a href="#cb1-243" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="dt">\$</span>COMPILE_ONLY <span class="ot">-eq</span> 1 <span class="kw">]];</span> <span class="cf">then</span></span>
-<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">&#39;Compile smoke passed: %s\n&#39;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">EXECUTABLE&quot;</span></span>
+<span id="cb1-244"><a href="#cb1-244" aria-hidden="true" tabindex="-1"></a>  <span class="bu">printf</span> <span class="st">&#39;Compile succeeded: %s\n&#39;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">EXECUTABLE&quot;</span></span>
 <span id="cb1-245"><a href="#cb1-245" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 0</span>
 <span id="cb1-246"><a href="#cb1-246" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-247"><a href="#cb1-247" aria-hidden="true" tabindex="-1"></a></span>
@@ -713,7 +713,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb1-276"><a href="#cb1-276" aria-hidden="true" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
 <span id="cb1-277"><a href="#cb1-277" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span>
 <span id="cb1-278"><a href="#cb1-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">&#39;Simulation smoke passed: %s\n&#39;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_DIR&quot;</span></span></code></pre></div></div>
+<span id="cb1-279"><a href="#cb1-279" aria-hidden="true" tabindex="-1"></a><span class="bu">printf</span> <span class="st">&#39;Simulation completed: %s\n&#39;</span> <span class="st">&quot;</span><span class="dt">\$</span><span class="st">CASE_DIR&quot;</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -760,7 +760,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>
+    </div>  
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -788,17 +788,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-
+        
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-
+        
         // Add the button to the container
         container.appendChild(button);
-
+        
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-
+            
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -811,10 +811,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-
+                    
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-
+                    
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -827,7 +827,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -837,7 +837,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-
+        
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

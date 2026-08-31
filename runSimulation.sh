@@ -188,11 +188,11 @@ if [[ $RESUME -eq 1 && -f "${CASE_DIR}/log" ]]; then
 fi
 
 cd "$CASE_DIR"
-compile=("$QCC" "-I${SCRIPT_DIR}/src-local" -Wall -O2 -disable-dimensions
-         "$EXEC_CODE" -o hyphal-flow -lm)
+compile=("$QCC" "-I${SCRIPT_DIR}/src-local" -Wall -O2 -disable-dimensions)
 if [[ "$BASILISK_API" == legacy ]]; then
   compile+=( -DHYPHAL_LEGACY_BASILISK=1 )
 fi
+compile+=( "$EXEC_CODE" -o hyphal-flow -lm )
 printf 'Compiling %s\n' "$EXEC_CODE"
 if [[ $USE_MPI -eq 1 ]]; then
   CC99='mpicc -std=c99 -D_GNU_SOURCE=1' "${compile[@]:0:3}" -D_MPI=1 "${compile[@]:3}"

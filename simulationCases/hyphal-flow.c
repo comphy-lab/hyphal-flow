@@ -78,6 +78,17 @@ static int validate_phase (const char * name, double viscosity,
   return 0;
 }
 
+static bool output_due (double current_time, double * next_time,
+                        double interval)
+{
+  if (current_time + 1e-12 < *next_time)
+    return false;
+  do
+    *next_time += interval;
+  while (*next_time <= current_time + 1e-12);
+  return true;
+}
+
 /**
 ## main()
 
@@ -214,7 +225,11 @@ event adapt(i++){
 
 Stop the run when the leading drop edge approaches the domain outlet.
 */
-event stop_when_drop_exits (t += log_interval) {
+event stop_when_drop_exits (i++) {
+
+  static double next_check = 0.;
+  if (!output_due (t, &next_check, log_interval))
+    return 0;
 
   scalar xpos[];
   coord ex = {1., 0.};
@@ -251,10 +266,14 @@ event stop_when_drop_exits (t += log_interval) {
 
 Write periodic restart and snapshot files.
 */
-event writingFiles (t = 0; t += snapshot_interval; t <= tmax + snapshot_interval) {
+event writingFiles (i++) {
+  static double next_snapshot = 0.;
+  if (!output_due (t, &next_snapshot, snapshot_interval))
+    return 0;
   dump (file = "restart");
   char nameOut[80];
-  sprintf (nameOut, "intermediate/snapshot-%5.4f", t);
+  sprintf (nameOut, "intermediate/snapshot-%5.4f",
+           next_snapshot - snapshot_interval);
   dump (file = nameOut);
 }
 
@@ -264,7 +283,9 @@ event writingFiles (t = 0; t += snapshot_interval; t <= tmax + snapshot_interval
 Write a terminal snapshot and stop the otherwise open-ended event loop at the
 configured physical time. This makes reduced smoke cases genuinely bounded.
 */
-event stop_at_tmax (t = tmax) {
+event stop_at_tmax (i++) {
+  if (t + 1e-12 < tmax)
+    return 0;
   dump (file = "final");
   return 1;
 }
@@ -274,7 +295,10 @@ event stop_at_tmax (t = tmax) {
 
 Log kinetic energy and droplet center-of-mass velocity.
 */
-event logWriting (t = 0; t += log_interval; t <= tmax + log_interval) {
+event logWriting (i++) {
+  static double next_log = 0.;
+  if (!output_due (t, &next_log, log_interval))
+    return 0;
   double ke = 0., vcm = 0., wt = 0., overlap = 0.;
   double volume_drop = 0., volume_solid = 0., volume_liquid = 0.;
   double stress_drop = 0., stress_solid = 0., stress_liquid = 0.;
@@ -336,8 +360,11 @@ event logWriting (t = 0; t += log_interval; t <= tmax + log_interval) {
 Track maximum hypha interface height using a sub-cell estimate of the
 `f2 = 0.5` contour.
 */
-event log_hypha_deformation (t = 0; t += log_interval;
-                             t <= tmax + snapshot_interval) {
+event log_hypha_deformation (i++) {
+
+  static double next_deformation_log = 0.;
+  if (!output_due (t, &next_deformation_log, log_interval))
+    return 0;
 
   const double f_eps = 1e-6;
   const double dy_eps = 1e-12;

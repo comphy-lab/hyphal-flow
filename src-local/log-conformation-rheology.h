@@ -21,6 +21,15 @@ symmetric tensor conform_p[], tau_p[];
 scalar conform_qq[], tau_qq[];
 #endif
 
+static void rheology_abort (int status)
+{
+#if _MPI
+  MPI_Abort (MPI_COMM_WORLD, status);
+#else
+  exit (status);
+#endif
+}
+
 event defaults (i = 0) {
   if (is_constant (a.x))
     a = new face vector;
@@ -200,7 +209,7 @@ event tracer_advection(i++)
         fprintf (stderr,
                  "ERROR: non-SPD conformation at x=%g y=%g t=%g i=%d\n",
                  x, y, t, i);
-        exit (3);
+        rheology_abort (3);
       }
 
       /**
@@ -304,7 +313,7 @@ event tracer_advection(i++)
         fprintf (stderr,
                  "ERROR: non-finite log-conformation update at x=%g y=%g "
                  "t=%g i=%d\n", x, y, t, i);
-        exit (3);
+        rheology_abort (3);
       }
 
       A.x.y = R.x.x*R.y.x*Lambda.x + R.y.y*R.x.y*Lambda.y;

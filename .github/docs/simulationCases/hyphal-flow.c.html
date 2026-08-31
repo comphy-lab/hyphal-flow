@@ -692,8 +692,8 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  dump <span class="op">(</span>file <span class="op">=</span> <span class="st">&quot;restart&quot;</span><span class="op">);</span></span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> nameOut<span class="op">[</span><span class="dv">80</span><span class="op">];</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  sprintf <span class="op">(</span>nameOut<span class="op">,</span> <span class="st">&quot;intermediate/snapshot-%5.4f&quot;</span><span class="op">,</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>           next_snapshot <span class="op">-</span> snapshot_interval<span class="op">);</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  snprintf <span class="op">(</span>nameOut<span class="op">,</span> <span class="kw">sizeof</span> nameOut<span class="op">,</span> <span class="st">&quot;intermediate/snapshot-%5.4f&quot;</span><span class="op">,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            next_snapshot <span class="op">-</span> snapshot_interval<span class="op">);</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  dump <span class="op">(</span>file <span class="op">=</span> nameOut<span class="op">);</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
                 <h2 id="stop_at_tmax">stop_at_tmax()</h2>

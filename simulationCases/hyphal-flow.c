@@ -272,8 +272,8 @@ event writingFiles (i++) {
     return 0;
   dump (file = "restart");
   char nameOut[80];
-  sprintf (nameOut, "intermediate/snapshot-%5.4f",
-           next_snapshot - snapshot_interval);
+  snprintf (nameOut, sizeof nameOut, "intermediate/snapshot-%5.4f",
+            next_snapshot - snapshot_interval);
   dump (file = nameOut);
 }
 

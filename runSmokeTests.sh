@@ -20,12 +20,19 @@ The output root must be outside the source checkout for managed compute runs.
 EOF
 }
 
+require_value() {
+  if [[ $# -lt 2 || -z "${2:-}" ]]; then
+    printf 'ERROR: %s requires a value\n' "$1" >&2
+    exit 2
+  fi
+}
+
 OUTPUT_ROOT=""
 SKIP_MPI=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help) usage; exit 0 ;;
-    --output-root) OUTPUT_ROOT="${2:-}"; shift 2 ;;
+    --output-root) require_value "$1" "${2:-}"; OUTPUT_ROOT="$2"; shift 2 ;;
     --output-root=*) OUTPUT_ROOT="${1#*=}"; shift ;;
     --skip-mpi) SKIP_MPI=1; shift ;;
     *) printf 'ERROR: unknown argument: %s\n' "$1" >&2; usage; exit 2 ;;
@@ -35,6 +42,15 @@ done
 [[ -n "$OUTPUT_ROOT" ]] || { printf 'ERROR: --output-root is required\n' >&2; exit 2; }
 [[ "$OUTPUT_ROOT" = /* ]] || OUTPUT_ROOT="${PWD}/${OUTPUT_ROOT}"
 mkdir -p "$OUTPUT_ROOT"
+SCRIPT_REAL="$(cd "$SCRIPT_DIR" && pwd -P)"
+OUTPUT_REAL="$(cd "$OUTPUT_ROOT" && pwd -P)"
+case "${OUTPUT_REAL}/" in
+  "${SCRIPT_REAL}/"*)
+    printf 'ERROR: --output-root must be outside the source checkout\n' >&2
+    exit 2
+    ;;
+esac
+OUTPUT_ROOT="$OUTPUT_REAL"
 
 for case_name in newtonian solid-only liquids-only full; do
   bash "${SCRIPT_DIR}/runSimulation.sh" \

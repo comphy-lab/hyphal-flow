@@ -92,6 +92,16 @@ static inline int params_load (const char * filename)
 
   char line[PARAMS_KEY_LEN + PARAMS_VALUE_LEN + 64];
   while (fgets (line, sizeof line, stream)) {
+    size_t length = strlen (line);
+    if (length > 0 && line[length - 1] != '\n') {
+      int next = fgetc (stream);
+      if (next != '\n' && next != EOF) {
+        while ((next = fgetc (stream)) != '\n' && next != EOF)
+          ;
+        fprintf (stderr, "WARNING: overlong parameter line ignored\n");
+        continue;
+      }
+    }
     char * comment = strchr (line, '#');
     if (comment)
       *comment = '\0';

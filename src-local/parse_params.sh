@@ -82,7 +82,7 @@ set_param_in_file() {
   local key="${1:-}"
   local value="${2:-}"
   local file="${3:-}"
-  local temporary
+  local temporary mode
   valid_param_key "$key" || { printf 'ERROR: invalid parameter key: %s\n' "$key" >&2; return 1; }
   [[ -f "$file" ]] || { printf 'ERROR: parameter file not found: %s\n' "$file" >&2; return 1; }
   [[ "$value" != *$'\n'* && "$value" != *$'\r'* ]] || {
@@ -90,8 +90,11 @@ set_param_in_file() {
     return 1
   }
 
-  temporary="$(mktemp "${TMPDIR:-/tmp}/hyphal-param.XXXXXX")"
-  awk -v wanted="$key" -v replacement="$value" '
+  temporary="$(mktemp "${file}.XXXXXX")" || {
+    printf 'ERROR: cannot create temporary file for %s\n' "$file" >&2
+    return 1
+  }
+  if ! awk -v wanted="$key" -v replacement="$value" '
     BEGIN { replaced = 0 }
     {
       line = $0
@@ -107,7 +110,19 @@ set_param_in_file() {
       else print line
     }
     END { if (!replaced) print wanted "=" replacement }
-  ' "$file" > "$temporary"
+  ' "$file" > "$temporary"; then
+    command rm -f "$temporary"
+    printf 'ERROR: failed to rewrite parameter file: %s\n' "$file" >&2
+    return 1
+  fi
+  if ! mode="$(stat -f '%Lp' "$file" 2>/dev/null)"; then
+    mode="$(stat -c '%a' "$file")"
+  fi
+  chmod "$mode" "$temporary" || {
+    command rm -f "$temporary"
+    printf 'ERROR: failed to preserve mode for: %s\n' "$file" >&2
+    return 1
+  }
   mv "$temporary" "$file"
 }
 

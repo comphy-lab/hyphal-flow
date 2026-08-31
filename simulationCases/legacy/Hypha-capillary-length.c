@@ -1,8 +1,8 @@
 /**
-# Hypha-capillary-length.c
+# Legacy Hypha-capillary-length.c
 
-Pressure-driven drop transport through a hypha branch with additional
-runtime stability diagnostics and deformation tracking.
+Unsupported historical pressure-driven case retained for provenance. Its
+ad hoc drag/shear closures are not part of the canonical constitutive model.
 
 ## Authors
 - Vatsal Sanjay

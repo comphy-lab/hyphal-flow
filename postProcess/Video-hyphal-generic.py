@@ -67,12 +67,13 @@ WORKER_ENV_PID: int | None = None
 
 FIELD_INDEX = {"d2c": 2, "vel": 3, "trA": 4}
 FIELD_LABEL = {
-  "d2c": r"$\log_{10}\!\left(\lVert\boldsymbol{\mathcal{D}}\rVert\right)$",
-  "vel": r"$\lvert \mathbf{u} \rvert$",
+  "d2c": r"$\log_{10}\!\left(\left|\mathbf{D}\right|\right)$",
+  "vel": r"$\left|\mathbf{u}\right|$",
   "trA": r"$\log_{10}\!\left(\mathrm{tr}(\mathbf{A})/3\right)$",
 }
 
 COM_HELPER_C = r"""
+#include "axi.h"
 #include "utils.h"
 #include <math.h>
 
@@ -91,7 +92,7 @@ int main (int argc, char const *argv[]) {
 
   double wt = 0., xcm = 0., ycm = 0.;
   foreach (reduction(+:wt) reduction(+:xcm) reduction(+:ycm)) {
-    double w = f1[]*sq(Delta);
+    double w = f1[]*dv();
     wt += w;
     xcm += x*w;
     ycm += y*w;
@@ -293,13 +294,14 @@ def ensure_python_dependencies() -> None:
       "Install them (e.g. `pip install numpy matplotlib`)."
     )
 
-  # Publication-style defaults with LaTeX typography.
+  # Process-safe publication typography. External LaTeX can deadlock when
+  # several frame workers render concurrently, so batch frames use Computer
+  # Modern mathtext instead.
   assert _matplotlib is not None
   _matplotlib.rcParams["font.family"] = "serif"
   _matplotlib.rcParams["font.serif"] = ["Computer Modern Roman", "DejaVu Serif"]
   _matplotlib.rcParams["mathtext.fontset"] = "cm"
-  _matplotlib.rcParams["text.usetex"] = True
-  _matplotlib.rcParams["text.latex.preamble"] = r"\usepackage{amsmath}"
+  _matplotlib.rcParams["text.usetex"] = False
   _matplotlib.rcParams["axes.linewidth"] = 2.5
 
   np = _np

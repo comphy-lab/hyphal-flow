@@ -1,8 +1,8 @@
 /**
-# hypha-capillary.c
+# Legacy hypha-capillary.c
 
-Pressure-driven transport of a drop through a single hypha branch with
-three-phase non-coalescing viscoelastic physics.
+Unsupported historical pressure-driven case retained for provenance. It is
+not part of the runtime-parameter or smoke contract.
 
 ## Author
 Vatsal Sanjay

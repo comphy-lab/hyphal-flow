@@ -1,5 +1,5 @@
 /**
-# log-conform-elastic.h
+# Legacy log-conform-elastic.h
 
 Log-conformation formulation for the purely elastic limit used in the
 hyphal-flow simulations.

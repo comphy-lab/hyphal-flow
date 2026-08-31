@@ -1,230 +1,135 @@
-#!/bin/bash
-# parse_params.sh
-#
-# Shell helper library for hyphal-flow parameter files and sweeps.
-# Source this file in scripts that need parameter parsing utilities.
-#
-# Usage:
-#   source src-local/parse_params.sh
-#
-# Provides:
-# - parse_param_file <file>
-# - get_param <key> [default]
-# - set_param_in_file <key> <value> <file>
-# - generate_sweep_cases <sweep_file>
-# - validate_required_params <key> [key...]
-# - print_params
+#!/usr/bin/env bash
+
+# Shared shell-side parser for trusted key=value parameter and sweep files.
+# Keys are allowlisted before becoming environment-variable names; values are
+# treated as data and are never evaluated or sourced as shell code.
 
 trim_string() {
-  local s="$1"
-  s="${s#"${s%%[![:space:]]*}"}"
-  s="${s%"${s##*[![:space:]]}"}"
-  printf '%s' "$s"
+  local value="${1:-}"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  printf '%s' "$value"
+}
+
+valid_param_key() {
+  [[ "${1:-}" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]
 }
 
 clear_loaded_params() {
-  local var
-  for var in $(compgen -v PARAM_); do
-    unset "$var"
-  done
+  local variable
+  while IFS= read -r variable; do
+    [[ "$variable" == PARAM_* ]] && unset "$variable"
+  done < <(compgen -v PARAM_ || true)
 }
 
-# Parse key=value parameters and export as PARAM_<key> environment variables.
-# Usage: parse_param_file <file>
 parse_param_file() {
-  local param_file="$1"
+  local file="${1:-}"
   local line key value
-
-  if [[ ! -f "$param_file" ]]; then
-    echo "ERROR: Parameter file not found: $param_file" >&2
-    return 1
-  fi
-
+  [[ -f "$file" ]] || { printf 'ERROR: parameter file not found: %s\n' "$file" >&2; return 1; }
   clear_loaded_params
 
   while IFS= read -r line || [[ -n "$line" ]]; do
     line="${line%%#*}"
     line="$(trim_string "$line")"
-    [[ -z "$line" ]] && continue
-    [[ "$line" != *=* ]] && continue
-
-    key="${line%%=*}"
-    value="${line#*=}"
-    key="$(trim_string "$key")"
-    value="$(trim_string "$value")"
-
-    [[ -z "$key" ]] && continue
-    [[ -z "$value" ]] && continue
-
+    [[ -z "$line" || "$line" != *=* ]] && continue
+    key="$(trim_string "${line%%=*}")"
+    value="$(trim_string "${line#*=}")"
+    valid_param_key "$key" || {
+      printf 'ERROR: invalid parameter key: %s\n' "$key" >&2
+      return 1
+    }
+    [[ -n "$value" ]] || continue
     export "PARAM_${key}=${value}"
-  done < "$param_file"
-
-  return 0
+  done < "$file"
 }
 
-# Get loaded parameter value with optional default.
-# Usage: get_param <key> [default]
 get_param() {
-  local key="$1"
-  local default="${2:-}"
-  local var_name="PARAM_${key}"
-  printf '%s\n' "${!var_name:-$default}"
+  local key="${1:-}"
+  local default_value="${2:-}"
+  local variable="PARAM_${key}"
+  valid_param_key "$key" || return 1
+  printf '%s\n' "${!variable:-$default_value}"
 }
 
-# Set/update key=value inside a parameter file.
-# Usage: set_param_in_file <key> <value> <file>
+# Print the last value for a key, matching the C parser's duplicate-key rule.
+get_param_value() {
+  local key="${1:-}"
+  local file="${2:-}"
+  local default_value="${3:-}"
+  valid_param_key "$key" || { printf 'ERROR: invalid parameter key: %s\n' "$key" >&2; return 1; }
+  [[ -f "$file" ]] || { printf 'ERROR: parameter file not found: %s\n' "$file" >&2; return 1; }
+
+  awk -F '=' -v wanted="$key" -v fallback="$default_value" '
+    {
+      line = $0
+      sub(/[[:space:]]*#.*/, "", line)
+      separator = index(line, "=")
+      if (!separator) next
+      key = substr(line, 1, separator - 1)
+      value = substr(line, separator + 1)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      if (key == wanted && value != "") {
+        found = 1
+        result = value
+      }
+    }
+    END { print found ? result : fallback }
+  ' "$file"
+}
+
 set_param_in_file() {
-  local key="$1"
-  local value="$2"
-  local file="$3"
-
-  if [[ ! -f "$file" ]]; then
-    echo "ERROR: Parameter file not found: $file" >&2
+  local key="${1:-}"
+  local value="${2:-}"
+  local file="${3:-}"
+  local temporary mode
+  valid_param_key "$key" || { printf 'ERROR: invalid parameter key: %s\n' "$key" >&2; return 1; }
+  [[ -f "$file" ]] || { printf 'ERROR: parameter file not found: %s\n' "$file" >&2; return 1; }
+  [[ "$value" != *$'\n'* && "$value" != *$'\r'* ]] || {
+    printf 'ERROR: parameter values may not contain newlines\n' >&2
     return 1
-  fi
-
-  if grep -q "^${key}=" "$file"; then
-    sed -i'.bak' "s|^${key}=.*|${key}=${value}|" "$file"
-  else
-    printf '%s=%s\n' "$key" "$value" >> "$file"
-  fi
-  rm -f "${file}.bak"
-  return 0
-}
-
-# Generate sweep case files from a sweep config.
-# Usage: generate_sweep_cases <sweep_file>
-# Output: prints temp directory path containing case_*.params and cases.list
-generate_sweep_cases() {
-  local sweep_file="$1"
-  local config_dir base_config case_start case_end expected_count
-  local line var_name var_values
-  local -a sweep_vars=()
-  local -a sweep_values=()
-  local -a generated_files=()
-  local temp_dir case_num combination_count
-
-  if [[ ! -f "$sweep_file" ]]; then
-    echo "ERROR: Sweep file not found: $sweep_file" >&2
-    return 1
-  fi
-
-  # shellcheck disable=SC1090
-  source "$sweep_file"
-
-  config_dir="$(cd "$(dirname "$sweep_file")" && pwd)"
-  base_config="${BASE_CONFIG:-default.params}"
-  case_start="${CASE_START:-1000}"
-  case_end="${CASE_END:-}"
-
-  if [[ "$base_config" != /* ]]; then
-    base_config="${config_dir}/${base_config}"
-  fi
-
-  if [[ ! -f "$base_config" ]]; then
-    echo "ERROR: Base config not found: $base_config" >&2
-    return 1
-  fi
-
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    line="${line%%#*}"
-    line="$(trim_string "$line")"
-    [[ -z "$line" ]] && continue
-
-    if [[ "$line" =~ ^SWEEP_([^=]+)=(.*)$ ]]; then
-      var_name="${BASH_REMATCH[1]}"
-      var_values="$(trim_string "${BASH_REMATCH[2]}")"
-      if [[ -z "$var_values" ]]; then
-        echo "ERROR: Empty sweep values for SWEEP_${var_name}" >&2
-        return 1
-      fi
-      sweep_vars+=("$var_name")
-      sweep_values+=("$var_values")
-    fi
-  done < "$sweep_file"
-
-  if [[ ${#sweep_vars[@]} -eq 0 ]]; then
-    echo "ERROR: No SWEEP_* variables found in $sweep_file" >&2
-    return 1
-  fi
-
-  temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/hyphal-sweep.XXXXXX")"
-  case_num="$case_start"
-  combination_count=0
-
-  _generate_recursive() {
-    local depth="$1"
-    shift || true
-    local -a current_values=("$@")
-    local case_file i raw_val trimmed_val
-    local -a value_list=()
-
-    if [[ "$depth" -eq "${#sweep_vars[@]}" ]]; then
-      case_file="${temp_dir}/case_$(printf '%04d' "$case_num").params"
-      cp "$base_config" "$case_file"
-      set_param_in_file "CaseNo" "$case_num" "$case_file"
-
-      for i in "${!sweep_vars[@]}"; do
-        set_param_in_file "${sweep_vars[$i]}" "${current_values[$i]}" "$case_file"
-      done
-
-      generated_files+=("$case_file")
-      ((case_num += 1))
-      ((combination_count += 1))
-      return
-    fi
-
-    IFS=',' read -r -a value_list <<< "${sweep_values[$depth]}"
-    for raw_val in "${value_list[@]}"; do
-      trimmed_val="$(trim_string "$raw_val")"
-      [[ -z "$trimmed_val" ]] && continue
-      if [[ ${#current_values[@]} -gt 0 ]]; then
-        _generate_recursive "$((depth + 1))" "${current_values[@]}" "$trimmed_val"
-      else
-        _generate_recursive "$((depth + 1))" "$trimmed_val"
-      fi
-    done
   }
 
-  _generate_recursive 0
-
-  if [[ -n "$case_end" ]]; then
-    expected_count=$((case_end - case_start + 1))
-    if [[ "$expected_count" -ne "$combination_count" ]]; then
-      echo "ERROR: CASE_START/CASE_END imply ${expected_count} cases, generated ${combination_count}" >&2
-      rm -rf "$temp_dir"
-      return 1
-    fi
+  temporary="$(mktemp "${file}.XXXXXX")" || {
+    printf 'ERROR: cannot create temporary file for %s\n' "$file" >&2
+    return 1
+  }
+  if ! awk -v wanted="$key" -v replacement="$value" '
+    BEGIN { replaced = 0 }
+    {
+      line = $0
+      plain = line
+      sub(/[[:space:]]*#.*/, "", plain)
+      separator = index(plain, "=")
+      candidate = separator ? substr(plain, 1, separator - 1) : ""
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", candidate)
+      if (candidate == wanted) {
+        if (!replaced) print wanted "=" replacement
+        replaced = 1
+      }
+      else print line
+    }
+    END { if (!replaced) print wanted "=" replacement }
+  ' "$file" > "$temporary"; then
+    command rm -f "$temporary"
+    printf 'ERROR: failed to rewrite parameter file: %s\n' "$file" >&2
+    return 1
   fi
-
-  printf '%s\n' "${generated_files[@]}" > "${temp_dir}/cases.list"
-  printf '%s\n' "$temp_dir"
-  return 0
+  if ! mode="$(stat -f '%Lp' "$file" 2>/dev/null)"; then
+    mode="$(stat -c '%a' "$file")"
+  fi
+  chmod "$mode" "$temporary" || {
+    command rm -f "$temporary"
+    printf 'ERROR: failed to preserve mode for: %s\n' "$file" >&2
+    return 1
+  }
+  mv "$temporary" "$file"
 }
 
-# Validate that required parameters exist in the loaded PARAM_* set.
-# Usage: validate_required_params <key> [key...]
-validate_required_params() {
-  local missing=0
-  local key var_name
-
-  for key in "$@"; do
-    var_name="PARAM_${key}"
-    if [[ -z "${!var_name:-}" ]]; then
-      echo "ERROR: Required parameter '${key}' not found" >&2
-      missing=1
-    fi
-  done
-
-  return "$missing"
-}
-
-# Print currently loaded PARAM_* variables.
 print_params() {
-  local var key
-  echo "Loaded parameters:"
-  while IFS= read -r var; do
-    key="${var#PARAM_}"
-    printf '  %s = %s\n' "$key" "${!var}"
+  local variable
+  while IFS= read -r variable; do
+    [[ "$variable" == PARAM_* ]] || continue
+    printf '%s=%s\n' "${variable#PARAM_}" "${!variable}"
   done < <(compgen -v PARAM_ | sort)
 }

@@ -54,8 +54,17 @@ cd "$PROJECT_ROOT"
 # Documentation output directory
 DOCS_DIR="$PROJECT_ROOT/.github/docs"
 
-# Auto-detect GitHub organization from git remote
-GITHUB_ORG=$(git remote get-url origin 2>/dev/null | sed -n 's|.*[:/]\([^/]*\)/.*|\1|p')
+# Auto-detect GitHub organization, preferring the canonical CoMPhy remote.
+if [ -n "${GITHUB_REPOSITORY:-}" ]; then
+    GITHUB_ORG="${GITHUB_REPOSITORY%%/*}"
+else
+    GITHUB_ORG=$(git remote -v 2>/dev/null | sed -n \
+      's|.*github\.com[:/]\(comphy-lab\)/.*|\1|p' | head -n 1)
+    if [ -z "$GITHUB_ORG" ]; then
+        GITHUB_ORG=$(git remote -v 2>/dev/null | sed -n \
+          's|.*github\.com[:/]\([^/]*\)/.*|\1|p' | head -n 1)
+    fi
+fi
 if [ -z "$GITHUB_ORG" ]; then
     echo "Warning: Could not detect GitHub organization from git remote. Using fallback: comphy-lab"
     GITHUB_ORG="comphy-lab"
@@ -67,15 +76,17 @@ echo "Detected GitHub organization: $GITHUB_ORG"
 SEARCH_REPO="${SEARCH_REPO:-comphy-search}"
 echo "Attempting to clone search database from ${GITHUB_ORG}/${SEARCH_REPO}..."
 
-if git clone --depth=1 "https://github.com/${GITHUB_ORG}/${SEARCH_REPO}.git" 2>/dev/null; then
+SEARCH_TMP="$(mktemp -d "${TMPDIR:-/tmp}/hyphal-docs-search.XXXXXX")"
+trap 'rm -rf "$SEARCH_TMP"' EXIT
+if git clone --depth=1 "https://github.com/${GITHUB_ORG}/${SEARCH_REPO}.git" \
+    "$SEARCH_TMP/repository" 2>/dev/null; then
     mkdir -p "$DOCS_DIR/assets/js"
-    if [ -f "${SEARCH_REPO}/search_db.json" ]; then
-        cp "${SEARCH_REPO}/search_db.json" "$DOCS_DIR/assets/js/search_db.json"
+    if [ -f "$SEARCH_TMP/repository/search_db.json" ]; then
+        cp "$SEARCH_TMP/repository/search_db.json" "$DOCS_DIR/assets/js/search_db.json"
         echo "Search database copied successfully"
     else
         echo "Warning: search_db.json not found in ${SEARCH_REPO} repository"
     fi
-    rm -rf "$SEARCH_REPO"
 else
     echo "Warning: Could not clone ${GITHUB_ORG}/${SEARCH_REPO}. Search functionality may be limited."
     echo "This is expected if the search repository doesn't exist for your organization."
@@ -103,6 +114,7 @@ if [ -f "$PROJECT_ROOT/.github/scripts/requirements.txt" ]; then
   fi
 
   # Activate the virtual environment
+  # shellcheck source=/dev/null
   source "$VENV_DIR/bin/activate"
 
   log_message "Installing Python dependencies in virtual environment..."
@@ -125,12 +137,6 @@ fi
 # Using fix_empty_anchors.py which is more targeted and preserves icons and other content
 log_message "Cleaning HTML files to remove empty anchor tags..."
 python3 "$PROJECT_ROOT/.github/scripts/fix_empty_anchors.py" "$DOCS_DIR"
-
-
-if [ $? -ne 0 ]; then
-    log_message "Documentation generation failed."
-    exit 1
-fi
 
 log_message "Documentation generated successfully in $DOCS_DIR"
 

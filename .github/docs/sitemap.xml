@@ -6,6 +6,11 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/hyphal-flow/Makefile.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/hyphal-flow/default.params.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -61,7 +66,7 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/runSweepHamilton-serial-128.sbatch.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/runSmokeTests.sh.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -71,34 +76,34 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/simulationCases/Hypha-capillary-length.c.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/simulationCases/hyphal-flow.c.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/simulationCases/Makefile.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/smoke/full.params.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/simulationCases/hypha-capillary.c.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/smoke/liquids-only.params.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/simulationCases/hypha.c.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/smoke/newtonian.params.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/simulationCases/runCodesInParallel.sh.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/smoke/solid-only.params.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/src-local/log-conform-elastic.h.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/smoke/sweep.params.html</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://comphy-lab.org/hyphal-flow/src-local/log-conform-viscoelastic.h.html</loc>
@@ -106,7 +111,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/hyphal-flow/src-local/log-conformation-rheology.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/hyphal-flow/src-local/params.h.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://comphy-lab.org/hyphal-flow/src-local/parse_params.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -121,12 +136,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/src-local/three-phase-nonCoalescing-elastic.h.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/src-local/three-phase-nonCoalescing-viscoelastic.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://comphy-lab.org/hyphal-flow/src-local/three-phase-nonCoalescing-viscoelastic.h.html</loc>
+    <loc>https://comphy-lab.org/hyphal-flow/src-local/three-phase-rheology.h.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -1,255 +1,279 @@
-#!/bin/bash
-# runSimulation.sh
-#
-# Run a single hyphal-flow simulation from the repository root.
-# The script creates simulationCases/<CaseNo>/, copies the parameter file and
-# source file, compiles the selected case, and runs it.
-#
-# Usage:
-#   bash runSimulation.sh [params_file] [--exec exec_code] [--mpi] [--CPUs N]
-#
-# Examples:
-#   bash runSimulation.sh
-#   bash runSimulation.sh default.params
-#   bash runSimulation.sh default.params --exec hypha.c
-#   bash runSimulation.sh --exec hypha-capillary.c default.params
-#   bash runSimulation.sh default.params --mpi
-#   bash runSimulation.sh default.params --mpi --CPUs 8
+#!/usr/bin/env bash
+
+# Compile and run one canonical hyphal-flow case. Runtime output is isolated
+# from source; an existing case is never reused without an explicit,
+# input-matched --resume.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=src-local/parse_params.sh
+source "${SCRIPT_DIR}/src-local/parse_params.sh"
 
 usage() {
-  cat <<'EOF'
-Usage: bash runSimulation.sh [params_file] [--exec exec_code] [OPTIONS]
-
-Arguments:
-  params_file Parameter file path (default: default.params)
+  command cat <<'EOF'
+Usage: bash runSimulation.sh [params_file] [OPTIONS]
 
 Options:
-  --exec FILE   C source file in simulationCases/ (default: hypha.c)
-  --mpi         Compile/run with MPI (qcc + mpicc wrapper, mpirun)
-  --CPUs N      MPI process count for --mpi (default: 4)
-  -h, --help    Show this help message
+  --exec FILE       Simulation source (only hyphal-flow.c is supported)
+  --output-root DIR Case-output root (default: simulationCases)
+  --compile-only    Compile the case but do not execute it
+  --dry-run         Validate and print the intended compile/run without writes
+  --resume          Resume only when source and parameter hashes match
+  --mpi             Compile and execute with MPI
+  --cpus N          MPI process count (alias: --CPUs; default: 4)
+  -h, --help        Show this help
 EOF
 }
 
-get_param_value() {
-  local key="$1"
-  local file="$2"
-  awk -F '=' -v key="$key" '
-    /^[[:space:]]*#/ { next }
-    {
-      k = $1
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", k)
-      if (k == key) {
-        v = $2
-        sub(/[[:space:]]*#.*/, "", v)
-        gsub(/^[[:space:]]+|[[:space:]]+$/, "", v)
-        print v
-        exit
-      }
-    }
-  ' "$file"
+require_value() {
+  if [[ $# -lt 2 || -z "${2:-}" ]]; then
+    printf 'ERROR: %s requires a value\n' "$1" >&2
+    exit 2
+  fi
 }
 
-# Defaults
-EXEC_CODE="hypha.c"
+EXEC_CODE="hyphal-flow.c"
 PARAM_FILE="default.params"
 PARAM_FILE_SET=0
+OUTPUT_ROOT="${SCRIPT_DIR}/simulationCases"
+COMPILE_ONLY=0
+DRY_RUN=0
+RESUME=0
 USE_MPI=0
 MPI_CPUS=4
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    --exec)
-      if [[ -z "${2:-}" ]]; then
-        echo "ERROR: --exec requires a file name." >&2
-        usage
-        exit 1
-      fi
-      EXEC_CODE="$2"
-      shift 2
-      ;;
-    --exec=*)
-      EXEC_CODE="${1#*=}"
-      shift
-      ;;
-    --mpi)
-      USE_MPI=1
-      shift
-      ;;
-    --CPUs|--cpus)
-      if [[ -z "${2:-}" ]]; then
-        echo "ERROR: $1 requires a positive integer value." >&2
-        usage
-        exit 1
-      fi
-      MPI_CPUS="$2"
-      shift 2
-      ;;
-    --CPUs=*|--cpus=*)
-      MPI_CPUS="${1#*=}"
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
-    -*)
-      echo "ERROR: Unknown option: $1" >&2
-      usage
-      exit 1
-      ;;
+    -h|--help) usage; exit 0 ;;
+    --exec) require_value "$1" "${2:-}"; EXEC_CODE="$2"; shift 2 ;;
+    --exec=*) EXEC_CODE="${1#*=}"; shift ;;
+    --output-root) require_value "$1" "${2:-}"; OUTPUT_ROOT="$2"; shift 2 ;;
+    --output-root=*) OUTPUT_ROOT="${1#*=}"; shift ;;
+    --compile-only) COMPILE_ONLY=1; shift ;;
+    --dry-run) DRY_RUN=1; shift ;;
+    --resume) RESUME=1; shift ;;
+    --mpi) USE_MPI=1; shift ;;
+    --cpus|--CPUs) require_value "$1" "${2:-}"; MPI_CPUS="$2"; shift 2 ;;
+    --cpus=*|--CPUs=*) MPI_CPUS="${1#*=}"; shift ;;
+    --) shift; break ;;
+    -*) printf 'ERROR: unknown option: %s\n' "$1" >&2; usage; exit 2 ;;
     *)
-      if [[ $PARAM_FILE_SET -eq 0 ]]; then
-        PARAM_FILE="$1"
-        PARAM_FILE_SET=1
-        shift
-      else
-        echo "ERROR: Unexpected argument: $1" >&2
-        usage
-        exit 1
+      if [[ $PARAM_FILE_SET -ne 0 ]]; then
+        printf 'ERROR: unexpected argument: %s\n' "$1" >&2
+        exit 2
       fi
+      PARAM_FILE="$1"
+      PARAM_FILE_SET=1
+      shift
       ;;
   esac
 done
 
 if [[ $# -gt 0 ]]; then
-  echo "ERROR: Unexpected trailing arguments: $*" >&2
-  usage
-  exit 1
+  printf 'ERROR: unexpected trailing arguments: %s\n' "$*" >&2
+  exit 2
 fi
-
+if [[ "$EXEC_CODE" != "hyphal-flow.c" ]]; then
+  printf 'ERROR: only simulationCases/hyphal-flow.c accepts the runtime contract; got %s\n' "$EXEC_CODE" >&2
+  exit 2
+fi
+if [[ -z "$OUTPUT_ROOT" ]]; then
+  printf 'ERROR: --output-root may not be empty\n' >&2
+  exit 2
+fi
 if [[ ! "$MPI_CPUS" =~ ^[1-9][0-9]*$ ]]; then
-  echo "ERROR: --CPUs must be a positive integer, got: $MPI_CPUS" >&2
-  exit 1
+  printf 'ERROR: --cpus must be a positive integer; got %s\n' "$MPI_CPUS" >&2
+  exit 2
 fi
 
-# Accept --exec names without .c extension
-if [[ "$EXEC_CODE" != *.c ]]; then
-  EXEC_CODE="${EXEC_CODE}.c"
+[[ "$PARAM_FILE" = /* ]] || PARAM_FILE="${SCRIPT_DIR}/${PARAM_FILE}"
+[[ "$OUTPUT_ROOT" = /* ]] || OUTPUT_ROOT="${SCRIPT_DIR}/${OUTPUT_ROOT}"
+SOURCE_FILE="${SCRIPT_DIR}/simulationCases/${EXEC_CODE}"
+
+[[ -f "$PARAM_FILE" ]] || { printf 'ERROR: parameter file not found: %s\n' "$PARAM_FILE" >&2; exit 2; }
+[[ -f "$SOURCE_FILE" ]] || { printf 'ERROR: source file not found: %s\n' "$SOURCE_FILE" >&2; exit 2; }
+
+CASE_NO="$(get_param_value CaseNo "$PARAM_FILE")"
+if [[ ! "$CASE_NO" =~ ^[0-9]{4}$ ]] || ((10#$CASE_NO < 1000 || 10#$CASE_NO > 9999)); then
+  printf 'ERROR: CaseNo must be a four-digit value from 1000 to 9999; got %s\n' "${CASE_NO:-<missing>}" >&2
+  exit 2
 fi
 
-if [[ ! "$PARAM_FILE" = /* ]]; then
-  PARAM_FILE="${SCRIPT_DIR}/${PARAM_FILE}"
-fi
-
-# Source project configuration
+# A local configuration may add qcc to PATH, but a clean clone does not need it.
 if [[ -f "${SCRIPT_DIR}/.project_config" ]]; then
   # shellcheck disable=SC1091
   source "${SCRIPT_DIR}/.project_config"
+fi
+if command -v qcc >/dev/null 2>&1; then
+  QCC="$(command -v qcc)"
+elif [[ -n "${BASILISK:-}" && -x "${BASILISK}/qcc" ]]; then
+  QCC="${BASILISK}/qcc"
 else
-  echo "ERROR: .project_config not found at ${SCRIPT_DIR}/.project_config" >&2
-  exit 1
+  printf 'ERROR: qcc is not available in PATH or BASILISK/qcc\n' >&2
+  exit 2
 fi
 
-if ! command -v qcc >/dev/null 2>&1; then
-  echo "ERROR: qcc not found in PATH after sourcing .project_config" >&2
-  exit 1
+if [[ -n "${BASILISK:-}" && -f "${BASILISK}/grid/multigrid-common.h" ]]; then
+  BASILISK_API_HEADER="${BASILISK}/grid/multigrid-common.h"
+elif [[ -n "${BASILISK:-}" && -f "${BASILISK}/src/grid/multigrid-common.h" ]]; then
+  BASILISK_API_HEADER="${BASILISK}/src/grid/multigrid-common.h"
+else
+  QCC_DIR="$(dirname "$QCC")"
+  BASILISK_API_HEADER="${QCC_DIR}/grid/multigrid-common.h"
+fi
+[[ -f "$BASILISK_API_HEADER" ]] || {
+  printf 'ERROR: cannot locate Basilisk grid headers; set BASILISK to the source tree\n' >&2
+  exit 2
+}
+if grep -q 'void set_prolongation' "$BASILISK_API_HEADER"; then
+  BASILISK_API=modern
+else
+  BASILISK_API=legacy
 fi
 
 if [[ $USE_MPI -eq 1 ]]; then
-  if ! command -v mpicc >/dev/null 2>&1; then
-    echo "ERROR: mpicc not found in PATH (required for --mpi)" >&2
-    exit 1
-  fi
-  if ! command -v mpirun >/dev/null 2>&1; then
-    echo "ERROR: mpirun not found in PATH (required for --mpi)" >&2
-    exit 1
-  fi
+  command -v mpicc >/dev/null 2>&1 || { printf 'ERROR: mpicc is required for --mpi\n' >&2; exit 2; }
+  command -v mpirun >/dev/null 2>&1 || { printf 'ERROR: mpirun is required for --mpi\n' >&2; exit 2; }
 fi
+command -v shasum >/dev/null 2>&1 || { printf 'ERROR: shasum is required for input manifests\n' >&2; exit 2; }
 
-if [[ ! -f "$PARAM_FILE" ]]; then
-  echo "ERROR: Parameter file not found: $PARAM_FILE" >&2
-  exit 1
-fi
-
-SRC_FILE_ORIG="${SCRIPT_DIR}/simulationCases/${EXEC_CODE}"
-if [[ ! -f "$SRC_FILE_ORIG" ]]; then
-  echo "ERROR: Source file not found: $SRC_FILE_ORIG" >&2
-  exit 1
-fi
-
-CASE_NO="$(get_param_value "CaseNo" "$PARAM_FILE")"
-if [[ -z "$CASE_NO" ]]; then
-  echo "ERROR: CaseNo not found in parameter file: $PARAM_FILE" >&2
-  exit 1
-fi
-
-if [[ ! "$CASE_NO" =~ ^[0-9]+$ ]]; then
-  echo "ERROR: CaseNo must be numeric, got: $CASE_NO" >&2
-  exit 1
-fi
-
-CASE_DIR="${SCRIPT_DIR}/simulationCases/${CASE_NO}"
-SRC_FILE_LOCAL="${EXEC_CODE}"
-EXECUTABLE_NAME="${EXEC_CODE%.c}"
-
-echo "========================================="
-echo "Hyphal Flow - Single Case Runner"
-echo "========================================="
-echo "Source file: ${EXEC_CODE}"
-echo "Parameter file: ${PARAM_FILE}"
-echo "CaseNo: ${CASE_NO}"
-echo "Case directory: ${CASE_DIR}"
+CASE_DIR="${OUTPUT_ROOT}/${CASE_NO}"
+EXECUTABLE="${CASE_DIR}/hyphal-flow"
+SOURCE_HASH="$(shasum -a 256 "$SOURCE_FILE" "${SCRIPT_DIR}"/src-local/*.h \
+  "${SCRIPT_DIR}/runSimulation.sh" | awk '{print $1}' | shasum -a 256 | awk '{print $1}')"
+SOURCE_FILE_HASH="$(shasum -a 256 "$SOURCE_FILE" | awk '{print $1}')"
+PARAM_HASH="$(shasum -a 256 "$PARAM_FILE" | awk '{print $1}')"
+MANIFEST="${CASE_DIR}/run-manifest.txt"
 if [[ $USE_MPI -eq 1 ]]; then
-  echo "Run mode: MPI (np=${MPI_CPUS})"
+  RUN_MODE=mpi
+  MANIFEST_CPUS="$MPI_CPUS"
 else
-  echo "Run mode: Serial"
+  RUN_MODE=serial
+  MANIFEST_CPUS=1
 fi
-echo "========================================="
-echo ""
 
-mkdir -p "$CASE_DIR"
-cp "$PARAM_FILE" "$CASE_DIR/case.params"
-cp "$SRC_FILE_ORIG" "$CASE_DIR/$SRC_FILE_LOCAL"
+manifest_matches() {
+  [[ -f "$MANIFEST" && -f "${CASE_DIR}/${EXEC_CODE}" &&
+     -f "${CASE_DIR}/case.params" ]] || return 1
+  grep -Fxq "source_sha256=${SOURCE_HASH}" "$MANIFEST" &&
+    grep -Fxq "source_file_sha256=${SOURCE_FILE_HASH}" "$MANIFEST" &&
+    grep -Fxq "params_sha256=${PARAM_HASH}" "$MANIFEST" &&
+    grep -Fxq "mode=${RUN_MODE}" "$MANIFEST" &&
+    grep -Fxq "cpus=${MANIFEST_CPUS}" "$MANIFEST" &&
+    grep -Fxq "basilisk_api=${BASILISK_API}" "$MANIFEST" &&
+    [[ "$(shasum -a 256 "${CASE_DIR}/${EXEC_CODE}" | awk '{print $1}')" == "$SOURCE_FILE_HASH" ]] &&
+    [[ "$(shasum -a 256 "${CASE_DIR}/case.params" | awk '{print $1}')" == "$PARAM_HASH" ]]
+}
+
+compile_only_case() {
+  [[ ! -e "${CASE_DIR}/restart" && ! -e "${CASE_DIR}/final" &&
+     ! -e "${CASE_DIR}/log" && ! -d "${CASE_DIR}/intermediate" ]] || return 1
+  [[ -z "$(find "$CASE_DIR" -mindepth 1 -maxdepth 1 \
+    ! -name case.params ! -name "$EXEC_CODE" ! -name run-manifest.txt \
+    ! -name hyphal-flow -print -quit)" ]]
+}
+
+printf 'Case %s: %s\n' "$CASE_NO" "$CASE_DIR"
+printf 'Source: %s\n' "$SOURCE_FILE"
+printf 'Parameters: %s\n' "$PARAM_FILE"
+printf 'Mode: %s\n' "$([[ $USE_MPI -eq 1 ]] && printf 'MPI (%s ranks)' "$MPI_CPUS" || printf 'serial')"
+
+if [[ $DRY_RUN -eq 1 ]]; then
+  printf 'Dry run: would compile with %s and %s the case.\n' "$QCC" "$([[ $COMPILE_ONLY -eq 1 ]] && printf 'not execute' || printf 'execute')"
+  exit 0
+fi
+
+if [[ -d "$CASE_DIR" && -n "$(find "$CASE_DIR" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
+  if [[ $RESUME -eq 1 ]]; then
+    [[ -f "${CASE_DIR}/restart" ]] || {
+      printf 'ERROR: --resume requires run-manifest.txt and restart\n' >&2
+      exit 2
+    }
+    manifest_matches || {
+      printf 'ERROR: --resume inputs differ from the recorded case manifest\n' >&2
+      exit 2
+    }
+  elif manifest_matches && compile_only_case; then
+    printf 'Reusing exact compile-only case inputs: %s\n' "$CASE_DIR"
+  else
+    printf 'ERROR: case directory is non-empty; use a new CaseNo or an input-matched --resume: %s\n' "$CASE_DIR" >&2
+    exit 2
+  fi
+else
+  mkdir -p "$CASE_DIR"
+  cp "$PARAM_FILE" "${CASE_DIR}/case.params"
+  cp "$SOURCE_FILE" "${CASE_DIR}/${EXEC_CODE}"
+  {
+    printf 'source_sha256=%s\n' "$SOURCE_HASH"
+    printf 'source_file_sha256=%s\n' "$SOURCE_FILE_HASH"
+    printf 'params_sha256=%s\n' "$PARAM_HASH"
+    printf 'source=%s\n' "$EXEC_CODE"
+    printf 'case=%s\n' "$CASE_NO"
+    printf 'mode=%s\n' "$RUN_MODE"
+    printf 'cpus=%s\n' "$MANIFEST_CPUS"
+    printf 'basilisk_api=%s\n' "$BASILISK_API"
+  } > "$MANIFEST"
+fi
+
+LOG_LINES_BEFORE=0
+LAST_TIME_BEFORE=-1
+if [[ $RESUME -eq 1 && -f "${CASE_DIR}/log" ]]; then
+  LOG_LINES_BEFORE="$(wc -l < "${CASE_DIR}/log")"
+  LAST_TIME_BEFORE="$(awk 'NR > 1 { value=$3 } END { print value + 0 }' "${CASE_DIR}/log")"
+fi
 
 cd "$CASE_DIR"
-
-echo "Compiling ${SRC_FILE_LOCAL} ..."
+compile=("$QCC" "-I${SCRIPT_DIR}/src-local" -Wall -O2 -disable-dimensions)
+if [[ "$BASILISK_API" == legacy ]]; then
+  compile+=( -DHYPHAL_LEGACY_BASILISK=1 )
+fi
+compile+=( "$EXEC_CODE" -o hyphal-flow -lm )
+printf 'Compiling %s\n' "$EXEC_CODE"
 if [[ $USE_MPI -eq 1 ]]; then
-  CC99='mpicc -std=c99 -D_GNU_SOURCE=1' qcc -I../../src-local \
-    -Wall -O2 -D_MPI=1 -disable-dimensions \
-    "$SRC_FILE_LOCAL" -o "$EXECUTABLE_NAME" -lm
+  MPI_CC99='mpicc -std=c99'
+  if [[ "$(uname -s)" != Darwin ]]; then
+    MPI_CC99+=' -D_GNU_SOURCE=1'
+  fi
+  CC99="$MPI_CC99" "${compile[@]:0:3}" -D_MPI=1 "${compile[@]:3}"
 else
-  qcc -I../../src-local -Wall -O2 -disable-dimensions \
-    "$SRC_FILE_LOCAL" -o "$EXECUTABLE_NAME" -lm
+  "${compile[@]}"
 fi
-echo "Compilation successful: $EXECUTABLE_NAME"
-echo ""
 
-if [[ -f "restart" ]]; then
-  echo "Restart file found - simulation will resume from checkpoint."
+if [[ $COMPILE_ONLY -eq 1 ]]; then
+  printf 'Compile smoke passed: %s\n' "$EXECUTABLE"
+  exit 0
 fi
 
 if [[ $USE_MPI -eq 1 ]]; then
-  echo "Running: mpirun -np ${MPI_CPUS} ./${EXECUTABLE_NAME} case.params"
-  if mpirun -np "$MPI_CPUS" ./"$EXECUTABLE_NAME" case.params; then
-    EXIT_CODE=0
-  else
-    EXIT_CODE=$?
-  fi
+  run_command=(mpirun -np "$MPI_CPUS" ./hyphal-flow case.params)
 else
-  echo "Running: ./${EXECUTABLE_NAME} case.params"
-  if ./"$EXECUTABLE_NAME" case.params; then
-    EXIT_CODE=0
-  else
-    EXIT_CODE=$?
+  run_command=(./hyphal-flow case.params)
+fi
+printf 'Running case %s\n' "$CASE_NO"
+"${run_command[@]}"
+
+[[ -s log && -s restart && -s final ]] || {
+  printf 'ERROR: run exited without non-empty log, restart and final outputs\n' >&2
+  exit 1
+}
+if [[ $RESUME -eq 1 ]]; then
+  LOG_LINES_AFTER="$(wc -l < log)"
+  LAST_TIME_AFTER="$(awk 'NR > 1 { value=$3 } END { print value + 0 }' log)"
+  if ((LOG_LINES_AFTER <= LOG_LINES_BEFORE)) ||
+     ! awk -v before="$LAST_TIME_BEFORE" -v after="$LAST_TIME_AFTER" \
+       'BEGIN { exit(after > before ? 0 : 1) }'; then
+    printf 'ERROR: resumed simulation produced no forward log progress\n' >&2
+    exit 1
   fi
 fi
-
-echo ""
-if [[ $EXIT_CODE -eq 0 ]]; then
-  echo "Simulation completed successfully."
-  echo "Output location: simulationCases/${CASE_NO}/"
-else
-  echo "Simulation failed with exit code: $EXIT_CODE"
+awk 'NR > 1 && $3 > 0 { found=1 } END { exit(found ? 0 : 1) }' log || {
+  printf 'ERROR: log contains no positive simulation time\n' >&2
+  exit 1
+}
+if grep -Ein '(^|[^[:alnum:]_])(nan|[-+]?inf(inity)?)([^[:alnum:]_]|$)|ERROR: non-' log >/dev/null 2>&1; then
+  printf 'ERROR: numerical failure signature found in log\n' >&2
+  exit 1
 fi
 
-exit "$EXIT_CODE"
+printf 'Simulation smoke passed: %s\n' "$CASE_DIR"

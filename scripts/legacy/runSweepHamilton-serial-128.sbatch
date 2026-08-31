@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+# Historical bulk launcher retained for provenance only. It predates the
+# canonical runner and must not be submitted.
 #SBATCH --job-name=hyphaEcSweepSerial128
 #SBATCH -N 1
 #SBATCH -n 1

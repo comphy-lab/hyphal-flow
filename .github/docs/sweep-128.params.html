@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-      
+
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-      
+
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-    
+
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-        
+
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-        
+
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-    
+
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-      
+
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-      
+
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-    
+
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-    
+
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-    
+
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-    
+
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-    
+
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-    
+
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-    
+
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -171,8 +171,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>sweep-128.params | hyphal-flow</title>
-  
+  <title>sweep-128.params | Hyphal Flow</title>
+
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-      
+
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-      
+
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-      
+
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -256,7 +256,7 @@
   <script defer src="./assets/js/main.js"></script>
   <script defer src="./assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-  
+
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-    
+
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-      
+
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-    
+
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-      
+
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-        
+
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-      
+
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,57 +421,58 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 
         <!-- Main content -->
         <main class="content">
-            
+
             <div class="page-content">
-                
+
                                 <h1 class="page-title">sweep-128.params</h1>
-                
-                                
+
+
                                 <div class="raw-file-button-container">
                     <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/sweep-128.params" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
-                
+
                 <h1 id="sweep-128.params">sweep-128.params</h1>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode ini"><code class="sourceCode ini"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sweep-128.params</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Parameter sweep configuration for batch simulations.</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Used by runSweepHamilton-serial-128.sbatch by default.</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep: Ec_h only (128 cases), logarithmically spaced from 0.01 to 10 (inclusive)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Base Configuration</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Start from this parameter file and override sweep variables</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">BASE_CONFIG</span><span class="ot">=</span><span class="st">default.params</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: simulation source file in simulationCases/</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># SOURCE_FILE_NAME=hypha.c</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Case Number Range</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Starting case number (4-digit: 1000-9999)</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_START</span><span class="ot">=</span><span class="dv">1506</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Ending case number (inclusive)</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># 128 cases =&gt; CASE_END = CASE_START + 127</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_END</span><span class="ot">=</span><span class="dv">1633</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep Variables</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Format: SWEEP_&lt;variable&gt;=value1,value2,value3,...</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we sweep only Ec_h, so there are exactly 128 combinations.</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_Ec_h</span><span class="ot">=</span><span class="st">0.01,0.0105589819443,0.0111492099701,0.0117724306768,0.0124304882957,0.0131253301474,0.0138590124039,0.0146337061739,0.0154517039269,0.0163154262774,0.0172274291477,0.0181904113318,0.0192072224812,0.020280871538,0.0214145356385,0.0226115695154,0.0238755154246,0.025210113628,0.0266193134613,0.0281072850208,0.0296784315039,0.0313374022386,0.033089106442,0.0349387277475,0.0368917395444,0.0389539211744,0.0411313750342,0.0434305446332,0.0458582336614,0.048421626123,0.0511283075948,0.0539862876738,0.057004023679,0.0601904456781,0.0635549829136,0.0671075917058,0.0708587849149,0.0748196630514,0.0790019471241,0.0834180133251,0.0880809296532,0.0930044945848,0.0982032779063,0.103692663829,0.109488896513,0.115609128138,0.122071469661,0.128895044407,0.136100044661,0.14370779142,0.151740797486,0.160222834088,0.16917900122,0.178635801925,0.188621220713,0.199164806383,0.210297759455,0.222053024502,0.23446538764,0.247571579466,0.261410383751,0.276022752209,0.29145192568,0.30774356209,0.324945871559,0.343109759068,0.362288975092,0.382540274663,0.403923585315,0.426502184423,0.450342886455,0.475516240683,0.502096739961,0.530163041156,0.559798197912,0.591089906423,0.62413076494,0.65901854779,0.69585649471,0.734753616349,0.775825016857,0.819192234495,0.864983601298,0.913334622825,0.964388379154,1.01829594828,1.07521685319,1.13531953391,1.19878184596,1.26579158667,1.33654705089,1.41125761781,1.49014437053,1.57344075029,1.66139324727,1.75426213004,1.85232221567,1.95586368304,2.06519293148,2.18063348751,2.30252696218,2.431234062,2.56713565631,2.71063390436,2.86215344539,3.02214265518,3.19107497292,3.36945030221,3.55779649034,3.75667089031,3.96666201016,4.18839125446,4.42251476316,4.66972535328,4.93075456903,5.20637484663,5.4974018001,5.80469663481,6.12916869593,6.47177815941,6.83353887329,7.2155213579,7.6188559737,8.04473626628,8.49442249826,8.96924537867,9.47061000077,10</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Output Configuration</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Output folders are created in simulationCases/&lt;CaseNo&gt;/</span></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># CaseNo auto-increments from CASE_START for each parameter value</span></span></code></pre></div></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Submit with: sbatch runSweepHamilton.sbatch sweep-128.params</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># scripts/legacy/runSweepHamilton-serial-128.sbatch is provenance only.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep: Ec_solid only (128 cases), logarithmically spaced from 0.01 to 10 (inclusive)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Base Configuration</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Start from this parameter file and override sweep variables</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dt">BASE_CONFIG</span><span class="ot">=</span><span class="st">default.params</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: simulation source file in simulationCases/</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># SOURCE_FILE_NAME=hyphal-flow.c</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Case Number Range</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Starting case number (4-digit: 1000-9999)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_START</span><span class="ot">=</span><span class="dv">2000</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Ending case number (inclusive)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># 128 cases =&gt; CASE_END = CASE_START + 127</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_END</span><span class="ot">=</span><span class="dv">2127</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep Variables</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Format: SWEEP_&lt;variable&gt;=value1,value2,value3,...</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Here we sweep only Ec_solid, so there are exactly 128 combinations.</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_Ec_solid</span><span class="ot">=</span><span class="st">0.01,0.0105589819443,0.0111492099701,0.0117724306768,0.0124304882957,0.0131253301474,0.0138590124039,0.0146337061739,0.0154517039269,0.0163154262774,0.0172274291477,0.0181904113318,0.0192072224812,0.020280871538,0.0214145356385,0.0226115695154,0.0238755154246,0.025210113628,0.0266193134613,0.0281072850208,0.0296784315039,0.0313374022386,0.033089106442,0.0349387277475,0.0368917395444,0.0389539211744,0.0411313750342,0.0434305446332,0.0458582336614,0.048421626123,0.0511283075948,0.0539862876738,0.057004023679,0.0601904456781,0.0635549829136,0.0671075917058,0.0708587849149,0.0748196630514,0.0790019471241,0.0834180133251,0.0880809296532,0.0930044945848,0.0982032779063,0.103692663829,0.109488896513,0.115609128138,0.122071469661,0.128895044407,0.136100044661,0.14370779142,0.151740797486,0.160222834088,0.16917900122,0.178635801925,0.188621220713,0.199164806383,0.210297759455,0.222053024502,0.23446538764,0.247571579466,0.261410383751,0.276022752209,0.29145192568,0.30774356209,0.324945871559,0.343109759068,0.362288975092,0.382540274663,0.403923585315,0.426502184423,0.450342886455,0.475516240683,0.502096739961,0.530163041156,0.559798197912,0.591089906423,0.62413076494,0.65901854779,0.69585649471,0.734753616349,0.775825016857,0.819192234495,0.864983601298,0.913334622825,0.964388379154,1.01829594828,1.07521685319,1.13531953391,1.19878184596,1.26579158667,1.33654705089,1.41125761781,1.49014437053,1.57344075029,1.66139324727,1.75426213004,1.85232221567,1.95586368304,2.06519293148,2.18063348751,2.30252696218,2.431234062,2.56713565631,2.71063390436,2.86215344539,3.02214265518,3.19107497292,3.36945030221,3.55779649034,3.75667089031,3.96666201016,4.18839125446,4.42251476316,4.66972535328,4.93075456903,5.20637484663,5.4974018001,5.80469663481,6.12916869593,6.47177815941,6.83353887329,7.2155213579,7.6188559737,8.04473626628,8.49442249826,8.96924537867,9.47061000077,10</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Output Configuration</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Output folders are created in simulationCases/&lt;CaseNo&gt;/</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="co"># CaseNo auto-increments from CASE_START for each parameter value</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -518,7 +519,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -546,17 +547,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -569,10 +570,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -585,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -595,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

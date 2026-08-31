@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="no-js">
 <head>
-  <!-- 
+  <!--
     IMPORTANT: DO NOT place empty anchor tags <a></a> in this template!
     They cause JavaScript syntax errors when they appear inside script blocks.
   -->
@@ -59,20 +59,20 @@
       --color-primary: #0066cc;
       --color-secondary: #036;
       --color-accent: #0099ff;
-      
+
       /* UI elements */
       --color-header-bg: #f5f5f5;
       --color-footer-bg: #2d2e33;
       --color-border: #e0e0e0;
       --color-input-bg: #f9f9f9;
-      
+
       /* Component colors */
       --color-preloader-bg: #ffffff;
       --color-loader: #0066cc;
       --color-card-bg: #ffffff;
       --color-code-bg: #f5f5f5;
     }
-    
+
     /* Dark theme variables applied via media query when JS is disabled */
     @media (prefers-color-scheme: dark) {
       :root:not(.theme-set) {
@@ -82,13 +82,13 @@
         --color-primary: #4d9fff;
         --color-secondary: #88ccff;
         --color-accent: #00bfff;
-        
+
         /* UI elements - dark mode */
         --color-header-bg: #121212;
         --color-footer-bg: #121212;
         --color-border: #333;
         --color-input-bg: #2d2d2d;
-        
+
         /* Component colors - dark mode */
         --color-preloader-bg: #1a1a1a;
         --color-loader: #4d9fff;
@@ -96,7 +96,7 @@
         --color-code-bg: #2d2d2d;
       }
     }
-    
+
     /* When JS sets the theme explicitly via data attribute */
     [data-theme="dark"] {
       /* Base colors - dark mode */
@@ -105,36 +105,36 @@
       --color-primary: #4d9fff;
       --color-secondary: #88ccff;
       --color-accent: #00bfff;
-      
+
       /* UI elements - dark mode */
       --color-header-bg: #121212;
       --color-footer-bg: #121212;
       --color-border: #333;
       --color-input-bg: #2d2d2d;
-      
+
       /* Component colors - dark mode */
       --color-preloader-bg: #1a1a1a;
       --color-loader: #4d9fff;
       --color-card-bg: #222;
       --color-code-bg: #2d2d2d;
     }
-    
+
     /* Prevent transition flashes during initial load */
     html:not(.transitions-enabled) * {
       transition: none !important;
     }
-    
+
     /* Apply theme to preloader and early elements */
     #preloader {
       background-color: var(--color-preloader-bg);
       color: var(--color-text);
     }
-    
+
     #loader {
       border-color: var(--color-loader);
       border-top-color: transparent;
     }
-    
+
     /* Noscript warning */
     .noscript-warning {
       background-color: var(--color-primary);
@@ -147,7 +147,7 @@
       right: 0;
       z-index: 1000;
     }
-    
+
     /* Theme indicator for no-JS */
     .theme-indicator {
       padding: 5px 10px;
@@ -156,12 +156,12 @@
       color: var(--color-text);
       text-align: center;
     }
-    
+
     /* Hide JS-only elements when no JS */
     .no-js .js-only {
       display: none !important;
     }
-    
+
     /* Show no-JS alternatives */
     .js .no-js-only {
       display: none !important;
@@ -171,8 +171,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>postProcess/Video-hyphal-generic.py | hyphal-flow</title>
-  
+  <title>postProcess/Video-hyphal-generic.py | Hyphal Flow</title>
+
   <!-- Critical CSS for fastest paint -->
   <style>
       .s-intro__title {
@@ -182,19 +182,19 @@
       .s-header {
           visibility: visible;
       }
-      
+
       /* Ensure theme toggle properly styled immediately */
       .theme-toggle {
           background-color: var(--color-background);
           color: var(--color-text);
       }
-      
+
       /* Control SVG visibility based on theme */
       [data-theme="dark"] .theme-toggle-icon.sun,
       :root:not([data-theme="dark"]) .theme-toggle-icon.moon {
           display: block;
       }
-      
+
       [data-theme="dark"] .theme-toggle-icon.moon,
       :root:not([data-theme="dark"]) .theme-toggle-icon.sun {
           display: none;
@@ -205,7 +205,7 @@
   <meta name="description" content="Create a mirrored-axis video from Basilisk snapshot- states for three-phase hyphal-flow runs.">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="configure_worker_environment, default_cmap_for_field, default_limits_for_field, format_fps, main, map_segments_xy_to_rz, mirror_field_xy_to_rz, parse_facet_segments, precompile_get_helpers, video">
+  <meta name="keywords" content="default_cmap_for_field, default_limits_for_field, format_fps, get_field_grid, list_snapshots, main, math.h, run_capture, snapshot_argument, utils.h">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -256,7 +256,7 @@
   <script defer src="../assets/js/main.js"></script>
   <script defer src="../assets/js/theme-toggle.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
-  
+
   <!-- Optimize page load performance -->
   <script>
     // Preconnect to critical domains
@@ -264,21 +264,21 @@
       'https://cdnjs.cloudflare.com',
       'https://cdn.jsdelivr.net'
     ];
-    
+
     preconnectDomains.forEach(domain => {
       const link = document.createElement('link');
       link.rel = 'preconnect';
       link.href = domain;
       link.crossOrigin = 'anonymous';
       document.head.appendChild(link);
-      
+
       // Also add DNS prefetch as fallback
       const dnsLink = document.createElement('link');
       dnsLink.rel = 'dns-prefetch';
       dnsLink.href = domain;
       document.head.appendChild(dnsLink);
     });
-    
+
     // Detect when document is fully loaded to remove preloader
     window.addEventListener('load', function() {
       const preloader = document.getElementById('preloader');
@@ -305,11 +305,11 @@
         document.head.appendChild(link);
         return link;
       }
-      
+
       // Check if we're on localhost
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         // Use hardcoded version numbers for reliable loading
-        
+
         // Load Font Awesome using multiple CDNs to maximize reliability for local development
         loadStylesheet('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css');
         // Backup CDN if the first one fails
@@ -330,7 +330,7 @@
       // Mark page as JS-enabled and manage transitions
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
-      
+
       // Allow CSS transitions after initial load to prevent transition flashes
       window.addEventListener('DOMContentLoaded', () => {
           setTimeout(() => {
@@ -421,18 +421,18 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 
         <!-- Main content -->
         <main class="content">
-            
+
             <div class="page-content">
-                
+
                                 <h1 class="page-title">postProcess/Video-hyphal-generic.py</h1>
-                
-                                
+
+
                                 <div class="raw-file-button-container">
                     <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/postProcess/Video-hyphal-generic.py" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
-                
+
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env python3</span></span></code></pre></div></div>
                 <h1
@@ -474,9 +474,12 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <code>vel</code></li>
                 <li>Domain window:
                 <ul>
-                <li>Basilisk <code>x</code> in <code>0 +- 2</code></li>
+                <li>Basilisk <code>x</code> in
+                <code>x_CoM(f1) + x_center +- x_half_width</code>
+                (co-moving)</li>
                 <li>Basilisk <code>y</code> in
-                <code>y_CoM(f1) +- 4</code></li>
+                <code>0 +- y_half_width</code> (mirrored to
+                <code>r &lt; 0</code> and <code>r &gt; 0</code>)</li>
                 </ul></li>
                 <li>Default duration: <code>10 s</code> with
                 <code>fps = N_frames / duration</code> when
@@ -516,50 +519,51 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>FIELD_INDEX <span class="op">=</span> {<span class="st">&quot;d2c&quot;</span>: <span class="dv">2</span>, <span class="st">&quot;vel&quot;</span>: <span class="dv">3</span>, <span class="st">&quot;trA&quot;</span>: <span class="dv">4</span>}</span>
 <span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>FIELD_LABEL <span class="op">=</span> {</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;d2c&quot;</span>: <span class="vs">r&quot;$\log_</span><span class="sc">{10}</span><span class="vs">\!\left(\lVert\boldsymbol{\mathcal</span><span class="sc">{D}</span><span class="vs">}\rVert\right)$&quot;</span>,</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;vel&quot;</span>: <span class="vs">r&quot;$\lvert \mathbf</span><span class="sc">{u}</span><span class="vs"> \rvert$&quot;</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;d2c&quot;</span>: <span class="vs">r&quot;$\log_</span><span class="sc">{10}</span><span class="vs">\!\left(\left|\mathbf</span><span class="sc">{D}</span><span class="vs">\right|\right)$&quot;</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;vel&quot;</span>: <span class="vs">r&quot;$\left|\mathbf</span><span class="sc">{u}</span><span class="vs">\right|$&quot;</span>,</span>
 <span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;trA&quot;</span>: <span class="vs">r&quot;$\log_</span><span class="sc">{10}</span><span class="vs">\!\left(\mathrm</span><span class="sc">{tr}</span><span class="vs">(\mathbf</span><span class="sc">{A}</span><span class="vs">)/3\right)$&quot;</span>,</span>
 <span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>COM_HELPER_C <span class="op">=</span> <span class="vs">r&quot;&quot;&quot;</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &quot;utils.h&quot;</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &lt;math.h&gt;</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="vs">scalar f1[], f2[];</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="vs">int main (int argc, char const *argv[]) {</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (argc &lt; 2) {</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf (stderr, &quot;Usage: </span><span class="sc">%s</span><span class="vs"> snapshot\n&quot;, argv[0]);</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 1;</span></span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (!restore (file = argv[1])) {</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf (stderr, &quot;Failed to restore snapshot: </span><span class="sc">%s</span><span class="vs">\n&quot;, argv[1]);</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 2;</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="vs">  double wt = 0., xcm = 0., ycm = 0.;</span></span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="vs">  foreach (reduction(+:wt) reduction(+:xcm) reduction(+:ycm)) {</span></span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="vs">    double w = f1[]*sq(Delta);</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="vs">    wt += w;</span></span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="vs">    xcm += x*w;</span></span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="vs">    ycm += y*w;</span></span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (wt &lt;= 0.) {</span></span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="vs">    printf (&quot;nan nan\n&quot;);</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 0;</span></span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a><span class="vs">  xcm /= wt;</span></span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="vs">  ycm /= wt;</span></span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="vs">  printf (&quot;</span><span class="sc">%.16g</span><span class="vs"> </span><span class="sc">%.16g</span><span class="vs">\n&quot;, xcm, ycm);</span></span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="vs">  return 0;</span></span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="vs">&quot;&quot;&quot;</span></span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &quot;axi.h&quot;</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &quot;utils.h&quot;</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="vs">#include &lt;math.h&gt;</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="vs">scalar f1[], f2[];</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="vs">int main (int argc, char const *argv[]) {</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (argc &lt; 2) {</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf (stderr, &quot;Usage: </span><span class="sc">%s</span><span class="vs"> snapshot\n&quot;, argv[0]);</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 1;</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (!restore (file = argv[1])) {</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="vs">    fprintf (stderr, &quot;Failed to restore snapshot: </span><span class="sc">%s</span><span class="vs">\n&quot;, argv[1]);</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 2;</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="vs">  double wt = 0., xcm = 0., ycm = 0.;</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="vs">  foreach (reduction(+:wt) reduction(+:xcm) reduction(+:ycm)) {</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="vs">    double w = f1[]*dv();</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a><span class="vs">    wt += w;</span></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="vs">    xcm += x*w;</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a><span class="vs">    ycm += y*w;</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a><span class="vs">  if (wt &lt;= 0.) {</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a><span class="vs">    printf (&quot;nan nan\n&quot;);</span></span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a><span class="vs">    return 0;</span></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a><span class="vs">  }</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a><span class="vs">  xcm /= wt;</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a><span class="vs">  ycm /= wt;</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a><span class="vs">  printf (&quot;</span><span class="sc">%.16g</span><span class="vs"> </span><span class="sc">%.16g</span><span class="vs">\n&quot;, xcm, ycm);</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a><span class="vs">  return 0;</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a><span class="vs">}</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a><span class="vs">&quot;&quot;&quot;</span></span>
 <span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_args() <span class="op">-&gt;</span> argparse.Namespace:</span></code></pre></div></div>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> parse_args() <span class="op">-&gt;</span> argparse.Namespace:</span></code></pre></div></div>
                 <p>Parse command-line options for frame extraction and
                 video assembly.</p>
                 <h4 id="returns">Returns</h4>
@@ -696,14 +700,19 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(<span class="st">&quot;--left-cmap&quot;</span>, default<span class="op">=</span><span class="va">None</span>, <span class="bu">help</span><span class="op">=</span><span class="st">&quot;Left-field colormap (default: field-based auto).&quot;</span>)</span>
 <span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Requested defaults: x in 0 ± 2 and y in CoM ± 4.</span></span>
-<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(<span class="st">&quot;--x-center&quot;</span>, <span class="bu">type</span><span class="op">=</span><span class="bu">float</span>, default<span class="op">=</span><span class="fl">0.0</span>)</span>
-<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(<span class="st">&quot;--x-half-width&quot;</span>, <span class="bu">type</span><span class="op">=</span><span class="bu">float</span>, default<span class="op">=</span><span class="fl">2.0</span>)</span>
-<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(<span class="st">&quot;--y-half-width&quot;</span>, <span class="bu">type</span><span class="op">=</span><span class="bu">float</span>, default<span class="op">=</span><span class="fl">4.0</span>)</span>
-<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> parser.parse_args()</span>
-<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ensure_python_dependencies() <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div></div>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x-center is treated as an offset from the per-frame CoM along Basilisk x.</span></span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(</span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;--x-center&quot;</span>,</span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>    <span class="bu">type</span><span class="op">=</span><span class="bu">float</span>,</span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>    default<span class="op">=</span><span class="fl">0.0</span>,</span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>    <span class="bu">help</span><span class="op">=</span><span class="st">&quot;Offset from CoM for the vertical (z) window center.&quot;</span>,</span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(<span class="st">&quot;--x-half-width&quot;</span>, <span class="bu">type</span><span class="op">=</span><span class="bu">float</span>, default<span class="op">=</span><span class="fl">2.0</span>)</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a>  parser.add_argument(<span class="st">&quot;--y-half-width&quot;</span>, <span class="bu">type</span><span class="op">=</span><span class="bu">float</span>, default<span class="op">=</span><span class="fl">4.0</span>)</span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> parser.parse_args()</span>
+<span id="cb4-139"><a href="#cb4-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-140"><a href="#cb4-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ensure_python_dependencies() <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div></div>
                 <p>Import <code>numpy</code>/<code>matplotlib</code>
                 lazily and configure plotting defaults.</p>
                 <h4 id="raises">Raises</h4>
@@ -739,21 +748,22 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;Install them (e.g. `pip install numpy matplotlib`).&quot;</span></span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Publication-style defaults with LaTeX typography.</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">assert</span> _matplotlib <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;font.family&quot;</span>] <span class="op">=</span> <span class="st">&quot;serif&quot;</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;font.serif&quot;</span>] <span class="op">=</span> [<span class="st">&quot;Computer Modern Roman&quot;</span>, <span class="st">&quot;DejaVu Serif&quot;</span>]</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;mathtext.fontset&quot;</span>] <span class="op">=</span> <span class="st">&quot;cm&quot;</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;text.usetex&quot;</span>] <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;text.latex.preamble&quot;</span>] <span class="op">=</span> <span class="vs">r&quot;\usepackage</span><span class="sc">{amsmath}</span><span class="vs">&quot;</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;axes.linewidth&quot;</span>] <span class="op">=</span> <span class="fl">2.5</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  np <span class="op">=</span> _np</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  plt <span class="op">=</span> _plt</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  LineCollection <span class="op">=</span> _LineCollection</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Process-safe publication typography. External LaTeX can deadlock when</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># several frame workers render concurrently, so batch frames use Computer</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Modern mathtext instead.</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">assert</span> _matplotlib <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;font.family&quot;</span>] <span class="op">=</span> <span class="st">&quot;serif&quot;</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;font.serif&quot;</span>] <span class="op">=</span> [<span class="st">&quot;Computer Modern Roman&quot;</span>, <span class="st">&quot;DejaVu Serif&quot;</span>]</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;mathtext.fontset&quot;</span>] <span class="op">=</span> <span class="st">&quot;cm&quot;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;text.usetex&quot;</span>] <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>  _matplotlib.rcParams[<span class="st">&quot;axes.linewidth&quot;</span>] <span class="op">=</span> <span class="fl">2.5</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>  np <span class="op">=</span> _np</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>  plt <span class="op">=</span> _plt</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  LineCollection <span class="op">=</span> _LineCollection</span>
 <span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ensure_plotting_runtime() <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div></div>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> ensure_plotting_runtime() <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div></div>
                 <p>Ensure plotting globals are available in the current
                 process.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
@@ -1144,68 +1154,67 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Requested: hardcode r_CoM to zero.</span></span>
 <span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>    ax.plot(<span class="fl">0.0</span>, xcm, <span class="st">&quot;o&quot;</span>, ms<span class="op">=</span><span class="fl">7.0</span>, mfc<span class="op">=</span><span class="st">&quot;gold&quot;</span>, mec<span class="op">=</span><span class="st">&quot;black&quot;</span>, mew<span class="op">=</span><span class="fl">1.2</span>)</span>
 <span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Window is defined in Basilisk coordinates and then mapped:</span></span>
-<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x in [x_center ± x_half_width] -&gt; z-axis</span></span>
-<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>  <span class="co"># r is centered at 0 and shown as [-y_half_width, +y_half_width].</span></span>
-<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>  xmin <span class="op">=</span> args.x_center <span class="op">-</span> args.x_half_width</span>
-<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>  xmax <span class="op">=</span> args.x_center <span class="op">+</span> args.x_half_width</span>
-<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>  ax.set_xlim(<span class="op">-</span>args.y_half_width, args.y_half_width)</span>
-<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>  ax.set_ylim(xmin, xmax)</span>
-<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a>  ax.set_aspect(<span class="st">&quot;equal&quot;</span>)</span>
-<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Requested: no ticks/labels on the coordinate axes.</span></span>
-<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>  ax.set_xlabel(<span class="st">&quot;&quot;</span>)</span>
-<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a>  ax.set_ylabel(<span class="st">&quot;&quot;</span>)</span>
-<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>  ax.set_xticks([])</span>
-<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a>  ax.set_yticks([])</span>
-<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>  ax.tick_params(</span>
-<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a>    axis<span class="op">=</span><span class="st">&quot;both&quot;</span>,</span>
-<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a>    which<span class="op">=</span><span class="st">&quot;both&quot;</span>,</span>
-<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a>    bottom<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a>    top<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a>    left<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a>    right<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a>    labelbottom<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a>    labelleft<span class="op">=</span><span class="va">False</span>,</span>
-<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> spine <span class="kw">in</span> ax.spines.values():</span>
-<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a>    spine.set_linewidth(<span class="fl">2.5</span>)</span>
-<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>  ax.set_title(</span>
-<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a>    <span class="vs">rf&quot;$t=</span><span class="sc">{</span>t<span class="sc">:0.4f}</span><span class="vs">,\ \mathrm</span><span class="ch">{{</span><span class="vs">CoM</span><span class="ch">}}</span><span class="vs">(f_1):\ z=</span><span class="sc">{</span>xcm<span class="sc">:0.4f}</span><span class="vs">$&quot;</span>,</span>
-<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>    fontsize<span class="op">=</span><span class="dv">32</span>,</span>
-<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a>    pad<span class="op">=</span><span class="dv">16</span>,</span>
-<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a>  fig.tight_layout()</span>
-<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Slim vertical colorbars on both sides of the main axes.</span></span>
-<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a>  l, b, w, h <span class="op">=</span> ax.get_position().bounds</span>
-<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a>  cbar_w <span class="op">=</span> <span class="fl">0.018</span></span>
-<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a>  cbar_gap <span class="op">=</span> <span class="fl">0.012</span></span>
-<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Right colorbar for the right-half field.</span></span>
-<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a>  cax_right <span class="op">=</span> fig.add_axes([l <span class="op">+</span> w <span class="op">+</span> cbar_gap, b, cbar_w, h])</span>
-<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a>  cbar <span class="op">=</span> fig.colorbar(image, cax<span class="op">=</span>cax_right, orientation<span class="op">=</span><span class="st">&quot;vertical&quot;</span>)</span>
-<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a>  cbar.set_label(FIELD_LABEL[args.field], fontsize<span class="op">=</span><span class="dv">20</span>, labelpad<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a>  cbar.ax.tick_params(labelsize<span class="op">=</span><span class="dv">16</span>, width<span class="op">=</span><span class="fl">1.4</span>, length<span class="op">=</span><span class="dv">5</span>, direction<span class="op">=</span><span class="st">&quot;out&quot;</span>)</span>
-<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a>  cbar.outline.set_linewidth(<span class="fl">1.4</span>)</span>
-<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Left colorbar for the left-half field (if enabled).</span></span>
-<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> left_image <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> left_field_key <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a>    cax_left <span class="op">=</span> fig.add_axes([l <span class="op">-</span> cbar_gap <span class="op">-</span> cbar_w, b, cbar_w, h])</span>
-<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a>    cbar_left <span class="op">=</span> fig.colorbar(left_image, cax<span class="op">=</span>cax_left, orientation<span class="op">=</span><span class="st">&quot;vertical&quot;</span>)</span>
-<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a>    cbar_left.set_label(FIELD_LABEL[left_field_key], fontsize<span class="op">=</span><span class="dv">20</span>, labelpad<span class="op">=</span><span class="dv">8</span>)</span>
-<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>    cbar_left.ax.tick_params(labelsize<span class="op">=</span><span class="dv">16</span>, width<span class="op">=</span><span class="fl">1.4</span>, length<span class="op">=</span><span class="dv">5</span>, direction<span class="op">=</span><span class="st">&quot;out&quot;</span>)</span>
-<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>    cbar_left.outline.set_linewidth(<span class="fl">1.4</span>)</span>
-<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a>    cbar_left.ax.yaxis.set_ticks_position(<span class="st">&quot;left&quot;</span>)</span>
-<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a>    cbar_left.ax.yaxis.set_label_position(<span class="st">&quot;left&quot;</span>)</span>
-<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a>  fig.savefig(frame_path, bbox_inches<span class="op">=</span><span class="st">&quot;tight&quot;</span>)</span>
-<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a>  plt.close(fig)</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Co-moving window in Basilisk x (plotted as z): center at frame CoM plus optional offset.</span></span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>  z_center <span class="op">=</span> (xcm <span class="op">+</span> args.x_center) <span class="cf">if</span> math.isfinite(xcm) <span class="cf">else</span> args.x_center</span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>  xmin <span class="op">=</span> z_center <span class="op">-</span> args.x_half_width</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>  xmax <span class="op">=</span> z_center <span class="op">+</span> args.x_half_width</span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>  ax.set_xlim(<span class="op">-</span>args.y_half_width, args.y_half_width)</span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>  ax.set_ylim(xmin, xmax)</span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a>  ax.set_aspect(<span class="st">&quot;equal&quot;</span>)</span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Requested: no ticks/labels on the coordinate axes.</span></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a>  ax.set_xlabel(<span class="st">&quot;&quot;</span>)</span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>  ax.set_ylabel(<span class="st">&quot;&quot;</span>)</span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a>  ax.set_xticks([])</span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a>  ax.set_yticks([])</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a>  ax.tick_params(</span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a>    axis<span class="op">=</span><span class="st">&quot;both&quot;</span>,</span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a>    which<span class="op">=</span><span class="st">&quot;both&quot;</span>,</span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a>    bottom<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a>    top<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-74"><a href="#cb22-74" aria-hidden="true" tabindex="-1"></a>    left<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-75"><a href="#cb22-75" aria-hidden="true" tabindex="-1"></a>    right<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a>    labelbottom<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a>    labelleft<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> spine <span class="kw">in</span> ax.spines.values():</span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>    spine.set_linewidth(<span class="fl">2.5</span>)</span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a>  ax.set_title(</span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>    <span class="vs">rf&quot;$t=</span><span class="sc">{</span>t<span class="sc">:0.4f}</span><span class="vs">,\ \mathrm</span><span class="ch">{{</span><span class="vs">CoM</span><span class="ch">}}</span><span class="vs">(f_1):\ z=</span><span class="sc">{</span>xcm<span class="sc">:0.4f}</span><span class="vs">$&quot;</span>,</span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a>    fontsize<span class="op">=</span><span class="dv">32</span>,</span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>    pad<span class="op">=</span><span class="dv">16</span>,</span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a>  fig.tight_layout()</span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Slim vertical colorbars on both sides of the main axes.</span></span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a>  l, b, w, h <span class="op">=</span> ax.get_position().bounds</span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a>  cbar_w <span class="op">=</span> <span class="fl">0.018</span></span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a>  cbar_gap <span class="op">=</span> <span class="fl">0.012</span></span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Right colorbar for the right-half field.</span></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a>  cax_right <span class="op">=</span> fig.add_axes([l <span class="op">+</span> w <span class="op">+</span> cbar_gap, b, cbar_w, h])</span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a>  cbar <span class="op">=</span> fig.colorbar(image, cax<span class="op">=</span>cax_right, orientation<span class="op">=</span><span class="st">&quot;vertical&quot;</span>)</span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a>  cbar.set_label(FIELD_LABEL[args.field], fontsize<span class="op">=</span><span class="dv">20</span>, labelpad<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a>  cbar.ax.tick_params(labelsize<span class="op">=</span><span class="dv">16</span>, width<span class="op">=</span><span class="fl">1.4</span>, length<span class="op">=</span><span class="dv">5</span>, direction<span class="op">=</span><span class="st">&quot;out&quot;</span>)</span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a>  cbar.outline.set_linewidth(<span class="fl">1.4</span>)</span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Left colorbar for the left-half field (if enabled).</span></span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> left_image <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="kw">and</span> left_field_key <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a>    cax_left <span class="op">=</span> fig.add_axes([l <span class="op">-</span> cbar_gap <span class="op">-</span> cbar_w, b, cbar_w, h])</span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a>    cbar_left <span class="op">=</span> fig.colorbar(left_image, cax<span class="op">=</span>cax_left, orientation<span class="op">=</span><span class="st">&quot;vertical&quot;</span>)</span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a>    cbar_left.set_label(FIELD_LABEL[left_field_key], fontsize<span class="op">=</span><span class="dv">20</span>, labelpad<span class="op">=</span><span class="dv">8</span>)</span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a>    cbar_left.ax.tick_params(labelsize<span class="op">=</span><span class="dv">16</span>, width<span class="op">=</span><span class="fl">1.4</span>, length<span class="op">=</span><span class="dv">5</span>, direction<span class="op">=</span><span class="st">&quot;out&quot;</span>)</span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>    cbar_left.outline.set_linewidth(<span class="fl">1.4</span>)</span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>    cbar_left.ax.yaxis.set_ticks_position(<span class="st">&quot;left&quot;</span>)</span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a>    cbar_left.ax.yaxis.set_label_position(<span class="st">&quot;left&quot;</span>)</span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a>  fig.savefig(frame_path, bbox_inches<span class="op">=</span><span class="st">&quot;tight&quot;</span>)</span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a>  plt.close(fig)</span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_fps(fps: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span></code></pre></div></div>
+<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> format_fps(fps: <span class="bu">float</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span></code></pre></div></div>
                 <p>Format FPS for ffmpeg CLI arguments.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
                 class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="ss">f&quot;</span><span class="sc">{</span>fps<span class="sc">:.6f}</span><span class="ss">&quot;</span>.rstrip(<span class="st">&quot;0&quot;</span>).rstrip(<span class="st">&quot;.&quot;</span>)</span>
@@ -1263,59 +1272,60 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  t <span class="op">=</span> snapshot_time(snapshot)</span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  xcm, ycm <span class="op">=</span> get_drop_com(snapshot, com_bin, case_dir)</span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  xmin <span class="op">=</span> args.x_center <span class="op">-</span> args.x_half_width</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  xmax <span class="op">=</span> args.x_center <span class="op">+</span> args.x_half_width</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  ymin <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  ymax <span class="op">=</span> args.y_half_width</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  x, y, field <span class="op">=</span> get_field_grid(snapshot, data_bin, case_dir, args.field, xmin, ymin, xmax, ymax, args.ny)</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  left_field <span class="op">=</span> <span class="va">None</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> args.left_field <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    x_left, y_left, left_field <span class="op">=</span> get_field_grid(</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>      snapshot, data_bin, case_dir, args.left_field, xmin, ymin, xmax, ymax, args.ny</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(x_left) <span class="op">!=</span> <span class="bu">len</span>(x) <span class="kw">or</span> <span class="bu">len</span>(y_left) <span class="op">!=</span> <span class="bu">len</span>(y):</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>      <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">&quot;Left/right field grids are inconsistent.&quot;</span>)</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  f1_segments <span class="op">=</span> get_facets(snapshot, facet_bin, case_dir, include_f1<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  f2_segments <span class="op">=</span> get_facets(snapshot, facet_bin, case_dir, include_f1<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>  frame_path <span class="op">=</span> frames_dir <span class="op">/</span> <span class="ss">f&quot;frame_</span><span class="sc">{</span>idx<span class="sc">:06d}</span><span class="ss">.png&quot;</span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  render_frame(</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>    frame_path<span class="op">=</span>frame_path,</span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    t<span class="op">=</span>t,</span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    xcm<span class="op">=</span>xcm,</span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    ycm<span class="op">=</span>ycm,</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>x,</span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>y,</span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    field<span class="op">=</span>field,</span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    left_field<span class="op">=</span>left_field,</span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>    left_field_key<span class="op">=</span>args.left_field,</span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>    f1_segments<span class="op">=</span>f1_segments,</span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>    f2_segments<span class="op">=</span>f2_segments,</span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>args,</span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    vmin<span class="op">=</span>use_vmin,</span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    vmax<span class="op">=</span>use_vmax,</span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    left_vmin<span class="op">=</span>use_left_vmin,</span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    left_vmax<span class="op">=</span>use_left_vmax,</span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> idx, frame_path</span>
-<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  z_center <span class="op">=</span> (xcm <span class="op">+</span> args.x_center) <span class="cf">if</span> math.isfinite(xcm) <span class="cf">else</span> args.x_center</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  xmin <span class="op">=</span> z_center <span class="op">-</span> args.x_half_width</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  xmax <span class="op">=</span> z_center <span class="op">+</span> args.x_half_width</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  ymin <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  ymax <span class="op">=</span> args.y_half_width</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  x, y, field <span class="op">=</span> get_field_grid(snapshot, data_bin, case_dir, args.field, xmin, ymin, xmax, ymax, args.ny)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  left_field <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> args.left_field <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    x_left, y_left, left_field <span class="op">=</span> get_field_grid(</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>      snapshot, data_bin, case_dir, args.left_field, xmin, ymin, xmax, ymax, args.ny</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="bu">len</span>(x_left) <span class="op">!=</span> <span class="bu">len</span>(x) <span class="kw">or</span> <span class="bu">len</span>(y_left) <span class="op">!=</span> <span class="bu">len</span>(y):</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>      <span class="cf">raise</span> <span class="pp">RuntimeError</span>(<span class="st">&quot;Left/right field grids are inconsistent.&quot;</span>)</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  f1_segments <span class="op">=</span> get_facets(snapshot, facet_bin, case_dir, include_f1<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>  f2_segments <span class="op">=</span> get_facets(snapshot, facet_bin, case_dir, include_f1<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  frame_path <span class="op">=</span> frames_dir <span class="op">/</span> <span class="ss">f&quot;frame_</span><span class="sc">{</span>idx<span class="sc">:06d}</span><span class="ss">.png&quot;</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  render_frame(</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    frame_path<span class="op">=</span>frame_path,</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    t<span class="op">=</span>t,</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    xcm<span class="op">=</span>xcm,</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    ycm<span class="op">=</span>ycm,</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span>x,</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span>y,</span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    field<span class="op">=</span>field,</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>    left_field<span class="op">=</span>left_field,</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>    left_field_key<span class="op">=</span>args.left_field,</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>    f1_segments<span class="op">=</span>f1_segments,</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    f2_segments<span class="op">=</span>f2_segments,</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>args,</span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    vmin<span class="op">=</span>use_vmin,</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    vmax<span class="op">=</span>use_vmax,</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    left_vmin<span class="op">=</span>use_left_vmin,</span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    left_vmax<span class="op">=</span>use_left_vmax,</span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> idx, frame_path</span>
 <span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> render_snapshots(</span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>  snapshots: <span class="bu">list</span>[Path],</span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>  case_dir: Path,</span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>  frames_dir: Path,</span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>  facet_bin: Path,</span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>  data_bin: Path,</span>
-<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>  com_bin: Path,</span>
-<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>  args: argparse.Namespace,</span>
-<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>  use_vmin: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
-<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>  use_vmax: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
-<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>  use_left_vmin: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
-<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>  use_left_vmax: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
-<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>  worker_cache_root: Path <span class="op">|</span> <span class="va">None</span>,</span>
-<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div></div>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> render_snapshots(</span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>  snapshots: <span class="bu">list</span>[Path],</span>
+<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>  case_dir: Path,</span>
+<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>  frames_dir: Path,</span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>  facet_bin: Path,</span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a>  data_bin: Path,</span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>  com_bin: Path,</span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>  args: argparse.Namespace,</span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>  use_vmin: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>  use_vmax: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>  use_left_vmin: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
+<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a>  use_left_vmax: <span class="bu">float</span> <span class="op">|</span> <span class="va">None</span>,</span>
+<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a>  worker_cache_root: Path <span class="op">|</span> <span class="va">None</span>,</span>
+<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a>) <span class="op">-&gt;</span> <span class="va">None</span>:</span></code></pre></div></div>
                 <p>Render all snapshots, batching work in chunks of
                 <code>args.cpus</code>.</p>
                 <div class="code-block-container"><div class="code-block-container"><pre
@@ -1458,123 +1468,125 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb28-78"><a href="#cb28-78" aria-hidden="true" tabindex="-1"></a>    facet_bin, data_bin, com_bin <span class="op">=</span> precompile_get_helpers(script_dir, build_dir)</span>
 <span id="cb28-79"><a href="#cb28-79" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-80"><a href="#cb28-80" aria-hidden="true" tabindex="-1"></a>    first <span class="op">=</span> snapshots[<span class="dv">0</span>]</span>
-<span id="cb28-81"><a href="#cb28-81" aria-hidden="true" tabindex="-1"></a>    xmin0 <span class="op">=</span> args.x_center <span class="op">-</span> args.x_half_width</span>
-<span id="cb28-82"><a href="#cb28-82" aria-hidden="true" tabindex="-1"></a>    xmax0 <span class="op">=</span> args.x_center <span class="op">+</span> args.x_half_width</span>
-<span id="cb28-83"><a href="#cb28-83" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Physical extraction in Basilisk y is only non-negative for this setup.</span></span>
-<span id="cb28-84"><a href="#cb28-84" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We mirror about r=0 at plotting stage.</span></span>
-<span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a>    ymin0 <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a>    ymax0 <span class="op">=</span> args.y_half_width</span>
-<span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a>    _, _, field0 <span class="op">=</span> get_field_grid(first, data_bin, case_dir, args.field, xmin0, ymin0, xmax0, ymax0, args.ny)</span>
-<span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a>    fixed_vmin, fixed_vmax <span class="op">=</span> default_limits_for_field(args.field)</span>
-<span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a>    need_auto_right <span class="op">=</span> (</span>
-<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>      (args.vmin <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_vmin <span class="kw">is</span> <span class="va">None</span>) <span class="kw">or</span></span>
-<span id="cb28-92"><a href="#cb28-92" aria-hidden="true" tabindex="-1"></a>      (args.vmax <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_vmax <span class="kw">is</span> <span class="va">None</span>)</span>
-<span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb28-94"><a href="#cb28-94" aria-hidden="true" tabindex="-1"></a>    auto_vmin, auto_vmax <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span></span>
-<span id="cb28-95"><a href="#cb28-95" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> need_auto_right:</span>
-<span id="cb28-96"><a href="#cb28-96" aria-hidden="true" tabindex="-1"></a>      valid0 <span class="op">=</span> field0.compressed()</span>
-<span id="cb28-97"><a href="#cb28-97" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> valid0.size:</span>
-<span id="cb28-98"><a href="#cb28-98" aria-hidden="true" tabindex="-1"></a>        auto_vmin <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0, <span class="fl">2.0</span>))</span>
-<span id="cb28-99"><a href="#cb28-99" aria-hidden="true" tabindex="-1"></a>        auto_vmax <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0, <span class="fl">98.0</span>))</span>
-<span id="cb28-100"><a href="#cb28-100" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> np.isfinite(auto_vmin) <span class="kw">or</span> <span class="kw">not</span> np.isfinite(auto_vmax) <span class="kw">or</span> auto_vmin <span class="op">==</span> auto_vmax:</span>
-<span id="cb28-101"><a href="#cb28-101" aria-hidden="true" tabindex="-1"></a>          auto_vmin <span class="op">=</span> <span class="bu">float</span>(np.nanmin(valid0))</span>
-<span id="cb28-102"><a href="#cb28-102" aria-hidden="true" tabindex="-1"></a>          auto_vmax <span class="op">=</span> <span class="bu">float</span>(np.nanmax(valid0))</span>
-<span id="cb28-103"><a href="#cb28-103" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-104"><a href="#cb28-104" aria-hidden="true" tabindex="-1"></a>    use_vmin <span class="op">=</span> args.vmin <span class="cf">if</span> args.vmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> (fixed_vmin <span class="cf">if</span> fixed_vmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_vmin)</span>
-<span id="cb28-105"><a href="#cb28-105" aria-hidden="true" tabindex="-1"></a>    use_vmax <span class="op">=</span> args.vmax <span class="cf">if</span> args.vmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> (fixed_vmax <span class="cf">if</span> fixed_vmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_vmax)</span>
-<span id="cb28-106"><a href="#cb28-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-107"><a href="#cb28-107" aria-hidden="true" tabindex="-1"></a>    use_left_vmin, use_left_vmax <span class="op">=</span> args.left_vmin, args.left_vmax</span>
-<span id="cb28-108"><a href="#cb28-108" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> args.left_field <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
-<span id="cb28-109"><a href="#cb28-109" aria-hidden="true" tabindex="-1"></a>      fixed_left_vmin, fixed_left_vmax <span class="op">=</span> default_limits_for_field(args.left_field)</span>
-<span id="cb28-110"><a href="#cb28-110" aria-hidden="true" tabindex="-1"></a>      need_auto_left <span class="op">=</span> (</span>
-<span id="cb28-111"><a href="#cb28-111" aria-hidden="true" tabindex="-1"></a>        (use_left_vmin <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_left_vmin <span class="kw">is</span> <span class="va">None</span>) <span class="kw">or</span></span>
-<span id="cb28-112"><a href="#cb28-112" aria-hidden="true" tabindex="-1"></a>        (use_left_vmax <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_left_vmax <span class="kw">is</span> <span class="va">None</span>)</span>
-<span id="cb28-113"><a href="#cb28-113" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb28-114"><a href="#cb28-114" aria-hidden="true" tabindex="-1"></a>      auto_left_vmin, auto_left_vmax <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span></span>
-<span id="cb28-115"><a href="#cb28-115" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> need_auto_left:</span>
-<span id="cb28-116"><a href="#cb28-116" aria-hidden="true" tabindex="-1"></a>        _, _, field0_left <span class="op">=</span> get_field_grid(</span>
-<span id="cb28-117"><a href="#cb28-117" aria-hidden="true" tabindex="-1"></a>          first, data_bin, case_dir, args.left_field, xmin0, ymin0, xmax0, ymax0, args.ny</span>
-<span id="cb28-118"><a href="#cb28-118" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb28-119"><a href="#cb28-119" aria-hidden="true" tabindex="-1"></a>        valid0_left <span class="op">=</span> field0_left.compressed()</span>
-<span id="cb28-120"><a href="#cb28-120" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> valid0_left.size:</span>
-<span id="cb28-121"><a href="#cb28-121" aria-hidden="true" tabindex="-1"></a>          auto_left_vmin <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0_left, <span class="fl">2.0</span>))</span>
-<span id="cb28-122"><a href="#cb28-122" aria-hidden="true" tabindex="-1"></a>          auto_left_vmax <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0_left, <span class="fl">98.0</span>))</span>
-<span id="cb28-123"><a href="#cb28-123" aria-hidden="true" tabindex="-1"></a>          <span class="cf">if</span> (<span class="kw">not</span> np.isfinite(auto_left_vmin) <span class="kw">or</span> <span class="kw">not</span> np.isfinite(auto_left_vmax)</span>
-<span id="cb28-124"><a href="#cb28-124" aria-hidden="true" tabindex="-1"></a>              <span class="kw">or</span> auto_left_vmin <span class="op">==</span> auto_left_vmax):</span>
-<span id="cb28-125"><a href="#cb28-125" aria-hidden="true" tabindex="-1"></a>            auto_left_vmin <span class="op">=</span> <span class="bu">float</span>(np.nanmin(valid0_left))</span>
-<span id="cb28-126"><a href="#cb28-126" aria-hidden="true" tabindex="-1"></a>            auto_left_vmax <span class="op">=</span> <span class="bu">float</span>(np.nanmax(valid0_left))</span>
-<span id="cb28-127"><a href="#cb28-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-128"><a href="#cb28-128" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> use_left_vmin <span class="kw">is</span> <span class="va">None</span>:</span>
-<span id="cb28-129"><a href="#cb28-129" aria-hidden="true" tabindex="-1"></a>        use_left_vmin <span class="op">=</span> fixed_left_vmin <span class="cf">if</span> fixed_left_vmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_left_vmin</span>
-<span id="cb28-130"><a href="#cb28-130" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> use_left_vmax <span class="kw">is</span> <span class="va">None</span>:</span>
-<span id="cb28-131"><a href="#cb28-131" aria-hidden="true" tabindex="-1"></a>        use_left_vmax <span class="op">=</span> fixed_left_vmax <span class="cf">if</span> fixed_left_vmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_left_vmax</span>
-<span id="cb28-132"><a href="#cb28-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-133"><a href="#cb28-133" aria-hidden="true" tabindex="-1"></a>    render_snapshots(</span>
-<span id="cb28-134"><a href="#cb28-134" aria-hidden="true" tabindex="-1"></a>      snapshots<span class="op">=</span>snapshots,</span>
-<span id="cb28-135"><a href="#cb28-135" aria-hidden="true" tabindex="-1"></a>      case_dir<span class="op">=</span>case_dir,</span>
-<span id="cb28-136"><a href="#cb28-136" aria-hidden="true" tabindex="-1"></a>      frames_dir<span class="op">=</span>frames_dir,</span>
-<span id="cb28-137"><a href="#cb28-137" aria-hidden="true" tabindex="-1"></a>      facet_bin<span class="op">=</span>facet_bin,</span>
-<span id="cb28-138"><a href="#cb28-138" aria-hidden="true" tabindex="-1"></a>      data_bin<span class="op">=</span>data_bin,</span>
-<span id="cb28-139"><a href="#cb28-139" aria-hidden="true" tabindex="-1"></a>      com_bin<span class="op">=</span>com_bin,</span>
-<span id="cb28-140"><a href="#cb28-140" aria-hidden="true" tabindex="-1"></a>      args<span class="op">=</span>args,</span>
-<span id="cb28-141"><a href="#cb28-141" aria-hidden="true" tabindex="-1"></a>      use_vmin<span class="op">=</span>use_vmin,</span>
-<span id="cb28-142"><a href="#cb28-142" aria-hidden="true" tabindex="-1"></a>      use_vmax<span class="op">=</span>use_vmax,</span>
-<span id="cb28-143"><a href="#cb28-143" aria-hidden="true" tabindex="-1"></a>      use_left_vmin<span class="op">=</span>use_left_vmin,</span>
-<span id="cb28-144"><a href="#cb28-144" aria-hidden="true" tabindex="-1"></a>      use_left_vmax<span class="op">=</span>use_left_vmax,</span>
-<span id="cb28-145"><a href="#cb28-145" aria-hidden="true" tabindex="-1"></a>      worker_cache_root<span class="op">=</span>worker_cache_root,</span>
-<span id="cb28-146"><a href="#cb28-146" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb28-147"><a href="#cb28-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-148"><a href="#cb28-148" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> args.skip_video:</span>
-<span id="cb28-149"><a href="#cb28-149" aria-hidden="true" tabindex="-1"></a>      <span class="bu">print</span>(<span class="ss">f&quot;Frames written to: </span><span class="sc">{</span>frames_dir<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
-<span id="cb28-150"><a href="#cb28-150" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="dv">0</span></span>
-<span id="cb28-151"><a href="#cb28-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-152"><a href="#cb28-152" aria-hidden="true" tabindex="-1"></a>    fps <span class="op">=</span> <span class="bu">float</span>(args.fps) <span class="cf">if</span> args.fps <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> (<span class="bu">len</span>(snapshots) <span class="op">/</span> args.duration)</span>
-<span id="cb28-153"><a href="#cb28-153" aria-hidden="true" tabindex="-1"></a>    fps <span class="op">=</span> <span class="bu">max</span>(<span class="fl">1e-6</span>, fps)</span>
-<span id="cb28-154"><a href="#cb28-154" aria-hidden="true" tabindex="-1"></a>    fps_str <span class="op">=</span> format_fps(fps)</span>
-<span id="cb28-155"><a href="#cb28-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-156"><a href="#cb28-156" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Matches requested ffmpeg style:</span></span>
-<span id="cb28-157"><a href="#cb28-157" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ffmpeg -framerate &lt;fps&gt; -pattern_type glob -i &#39;Video/*.png&#39;</span></span>
-<span id="cb28-158"><a href="#cb28-158" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   -vf &quot;pad=ceil(iw/2)*2:ceil(ih/2)*2&quot; -c:v libx264 -r &lt;fps&gt; -pix_fmt yuv420p out.mp4</span></span>
-<span id="cb28-159"><a href="#cb28-159" aria-hidden="true" tabindex="-1"></a>    cmd <span class="op">=</span> [</span>
-<span id="cb28-160"><a href="#cb28-160" aria-hidden="true" tabindex="-1"></a>      args.ffmpeg,</span>
-<span id="cb28-161"><a href="#cb28-161" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-y&quot;</span>,</span>
-<span id="cb28-162"><a href="#cb28-162" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-framerate&quot;</span>,</span>
-<span id="cb28-163"><a href="#cb28-163" aria-hidden="true" tabindex="-1"></a>      fps_str,</span>
-<span id="cb28-164"><a href="#cb28-164" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-pattern_type&quot;</span>,</span>
-<span id="cb28-165"><a href="#cb28-165" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;glob&quot;</span>,</span>
-<span id="cb28-166"><a href="#cb28-166" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-i&quot;</span>,</span>
-<span id="cb28-167"><a href="#cb28-167" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(frames_dir <span class="op">/</span> <span class="st">&quot;*.png&quot;</span>),</span>
-<span id="cb28-168"><a href="#cb28-168" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-vf&quot;</span>,</span>
-<span id="cb28-169"><a href="#cb28-169" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;pad=ceil(iw/2)*2:ceil(ih/2)*2&quot;</span>,</span>
-<span id="cb28-170"><a href="#cb28-170" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-c:v&quot;</span>,</span>
-<span id="cb28-171"><a href="#cb28-171" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;libx264&quot;</span>,</span>
-<span id="cb28-172"><a href="#cb28-172" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-r&quot;</span>,</span>
-<span id="cb28-173"><a href="#cb28-173" aria-hidden="true" tabindex="-1"></a>      fps_str,</span>
-<span id="cb28-174"><a href="#cb28-174" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-pix_fmt&quot;</span>,</span>
-<span id="cb28-175"><a href="#cb28-175" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;yuv420p&quot;</span>,</span>
-<span id="cb28-176"><a href="#cb28-176" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(out_path),</span>
-<span id="cb28-177"><a href="#cb28-177" aria-hidden="true" tabindex="-1"></a>    ]</span>
-<span id="cb28-178"><a href="#cb28-178" aria-hidden="true" tabindex="-1"></a>    subprocess.run(cmd, check<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb28-179"><a href="#cb28-179" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(</span>
-<span id="cb28-180"><a href="#cb28-180" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f&quot;Wrote video: </span><span class="sc">{</span>out_path<span class="sc">}</span><span class="ss"> | fps=</span><span class="sc">{</span>fps_str<span class="sc">}</span><span class="ss"> | frames=</span><span class="sc">{</span><span class="bu">len</span>(snapshots)<span class="sc">}</span><span class="ss"> | duration~</span><span class="sc">{</span>args<span class="sc">.</span>duration<span class="sc">}</span><span class="ss">s&quot;</span>,</span>
-<span id="cb28-181"><a href="#cb28-181" aria-hidden="true" tabindex="-1"></a>      <span class="bu">file</span><span class="op">=</span>sys.stderr,</span>
-<span id="cb28-182"><a href="#cb28-182" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb28-183"><a href="#cb28-183" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span></span>
-<span id="cb28-184"><a href="#cb28-184" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-185"><a href="#cb28-185" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> subprocess.CalledProcessError <span class="im">as</span> exc:</span>
-<span id="cb28-186"><a href="#cb28-186" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Command failed with exit code </span><span class="sc">{</span>exc<span class="sc">.</span>returncode<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>exc<span class="sc">.</span>cmd<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
-<span id="cb28-187"><a href="#cb28-187" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span></span>
-<span id="cb28-188"><a href="#cb28-188" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> exc:  <span class="co"># noqa: BLE001</span></span>
-<span id="cb28-189"><a href="#cb28-189" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Error: </span><span class="sc">{</span>exc<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
-<span id="cb28-190"><a href="#cb28-190" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span></span>
-<span id="cb28-191"><a href="#cb28-191" aria-hidden="true" tabindex="-1"></a>  <span class="cf">finally</span>:</span>
-<span id="cb28-192"><a href="#cb28-192" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> obj <span class="kw">in</span> temp_objects:</span>
-<span id="cb28-193"><a href="#cb28-193" aria-hidden="true" tabindex="-1"></a>      obj.cleanup()</span>
-<span id="cb28-194"><a href="#cb28-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-195"><a href="#cb28-195" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-196"><a href="#cb28-196" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
-<span id="cb28-197"><a href="#cb28-197" aria-hidden="true" tabindex="-1"></a>  <span class="cf">raise</span> <span class="pp">SystemExit</span>(main())</span></code></pre></div></div>
+<span id="cb28-81"><a href="#cb28-81" aria-hidden="true" tabindex="-1"></a>    xcm0, _ <span class="op">=</span> get_drop_com(first, com_bin, case_dir)</span>
+<span id="cb28-82"><a href="#cb28-82" aria-hidden="true" tabindex="-1"></a>    z_center0 <span class="op">=</span> (xcm0 <span class="op">+</span> args.x_center) <span class="cf">if</span> math.isfinite(xcm0) <span class="cf">else</span> args.x_center</span>
+<span id="cb28-83"><a href="#cb28-83" aria-hidden="true" tabindex="-1"></a>    xmin0 <span class="op">=</span> z_center0 <span class="op">-</span> args.x_half_width</span>
+<span id="cb28-84"><a href="#cb28-84" aria-hidden="true" tabindex="-1"></a>    xmax0 <span class="op">=</span> z_center0 <span class="op">+</span> args.x_half_width</span>
+<span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Physical extraction in Basilisk y is only non-negative for this setup.</span></span>
+<span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a>    <span class="co"># We mirror about r=0 at plotting stage.</span></span>
+<span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a>    ymin0 <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a>    ymax0 <span class="op">=</span> args.y_half_width</span>
+<span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a>    _, _, field0 <span class="op">=</span> get_field_grid(first, data_bin, case_dir, args.field, xmin0, ymin0, xmax0, ymax0, args.ny)</span>
+<span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>    fixed_vmin, fixed_vmax <span class="op">=</span> default_limits_for_field(args.field)</span>
+<span id="cb28-92"><a href="#cb28-92" aria-hidden="true" tabindex="-1"></a>    need_auto_right <span class="op">=</span> (</span>
+<span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a>      (args.vmin <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_vmin <span class="kw">is</span> <span class="va">None</span>) <span class="kw">or</span></span>
+<span id="cb28-94"><a href="#cb28-94" aria-hidden="true" tabindex="-1"></a>      (args.vmax <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_vmax <span class="kw">is</span> <span class="va">None</span>)</span>
+<span id="cb28-95"><a href="#cb28-95" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-96"><a href="#cb28-96" aria-hidden="true" tabindex="-1"></a>    auto_vmin, auto_vmax <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span></span>
+<span id="cb28-97"><a href="#cb28-97" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> need_auto_right:</span>
+<span id="cb28-98"><a href="#cb28-98" aria-hidden="true" tabindex="-1"></a>      valid0 <span class="op">=</span> field0.compressed()</span>
+<span id="cb28-99"><a href="#cb28-99" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> valid0.size:</span>
+<span id="cb28-100"><a href="#cb28-100" aria-hidden="true" tabindex="-1"></a>        auto_vmin <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0, <span class="fl">2.0</span>))</span>
+<span id="cb28-101"><a href="#cb28-101" aria-hidden="true" tabindex="-1"></a>        auto_vmax <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0, <span class="fl">98.0</span>))</span>
+<span id="cb28-102"><a href="#cb28-102" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> np.isfinite(auto_vmin) <span class="kw">or</span> <span class="kw">not</span> np.isfinite(auto_vmax) <span class="kw">or</span> auto_vmin <span class="op">==</span> auto_vmax:</span>
+<span id="cb28-103"><a href="#cb28-103" aria-hidden="true" tabindex="-1"></a>          auto_vmin <span class="op">=</span> <span class="bu">float</span>(np.nanmin(valid0))</span>
+<span id="cb28-104"><a href="#cb28-104" aria-hidden="true" tabindex="-1"></a>          auto_vmax <span class="op">=</span> <span class="bu">float</span>(np.nanmax(valid0))</span>
+<span id="cb28-105"><a href="#cb28-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-106"><a href="#cb28-106" aria-hidden="true" tabindex="-1"></a>    use_vmin <span class="op">=</span> args.vmin <span class="cf">if</span> args.vmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> (fixed_vmin <span class="cf">if</span> fixed_vmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_vmin)</span>
+<span id="cb28-107"><a href="#cb28-107" aria-hidden="true" tabindex="-1"></a>    use_vmax <span class="op">=</span> args.vmax <span class="cf">if</span> args.vmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> (fixed_vmax <span class="cf">if</span> fixed_vmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_vmax)</span>
+<span id="cb28-108"><a href="#cb28-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-109"><a href="#cb28-109" aria-hidden="true" tabindex="-1"></a>    use_left_vmin, use_left_vmax <span class="op">=</span> args.left_vmin, args.left_vmax</span>
+<span id="cb28-110"><a href="#cb28-110" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> args.left_field <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb28-111"><a href="#cb28-111" aria-hidden="true" tabindex="-1"></a>      fixed_left_vmin, fixed_left_vmax <span class="op">=</span> default_limits_for_field(args.left_field)</span>
+<span id="cb28-112"><a href="#cb28-112" aria-hidden="true" tabindex="-1"></a>      need_auto_left <span class="op">=</span> (</span>
+<span id="cb28-113"><a href="#cb28-113" aria-hidden="true" tabindex="-1"></a>        (use_left_vmin <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_left_vmin <span class="kw">is</span> <span class="va">None</span>) <span class="kw">or</span></span>
+<span id="cb28-114"><a href="#cb28-114" aria-hidden="true" tabindex="-1"></a>        (use_left_vmax <span class="kw">is</span> <span class="va">None</span> <span class="kw">and</span> fixed_left_vmax <span class="kw">is</span> <span class="va">None</span>)</span>
+<span id="cb28-115"><a href="#cb28-115" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb28-116"><a href="#cb28-116" aria-hidden="true" tabindex="-1"></a>      auto_left_vmin, auto_left_vmax <span class="op">=</span> <span class="va">None</span>, <span class="va">None</span></span>
+<span id="cb28-117"><a href="#cb28-117" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> need_auto_left:</span>
+<span id="cb28-118"><a href="#cb28-118" aria-hidden="true" tabindex="-1"></a>        _, _, field0_left <span class="op">=</span> get_field_grid(</span>
+<span id="cb28-119"><a href="#cb28-119" aria-hidden="true" tabindex="-1"></a>          first, data_bin, case_dir, args.left_field, xmin0, ymin0, xmax0, ymax0, args.ny</span>
+<span id="cb28-120"><a href="#cb28-120" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb28-121"><a href="#cb28-121" aria-hidden="true" tabindex="-1"></a>        valid0_left <span class="op">=</span> field0_left.compressed()</span>
+<span id="cb28-122"><a href="#cb28-122" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> valid0_left.size:</span>
+<span id="cb28-123"><a href="#cb28-123" aria-hidden="true" tabindex="-1"></a>          auto_left_vmin <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0_left, <span class="fl">2.0</span>))</span>
+<span id="cb28-124"><a href="#cb28-124" aria-hidden="true" tabindex="-1"></a>          auto_left_vmax <span class="op">=</span> <span class="bu">float</span>(np.percentile(valid0_left, <span class="fl">98.0</span>))</span>
+<span id="cb28-125"><a href="#cb28-125" aria-hidden="true" tabindex="-1"></a>          <span class="cf">if</span> (<span class="kw">not</span> np.isfinite(auto_left_vmin) <span class="kw">or</span> <span class="kw">not</span> np.isfinite(auto_left_vmax)</span>
+<span id="cb28-126"><a href="#cb28-126" aria-hidden="true" tabindex="-1"></a>              <span class="kw">or</span> auto_left_vmin <span class="op">==</span> auto_left_vmax):</span>
+<span id="cb28-127"><a href="#cb28-127" aria-hidden="true" tabindex="-1"></a>            auto_left_vmin <span class="op">=</span> <span class="bu">float</span>(np.nanmin(valid0_left))</span>
+<span id="cb28-128"><a href="#cb28-128" aria-hidden="true" tabindex="-1"></a>            auto_left_vmax <span class="op">=</span> <span class="bu">float</span>(np.nanmax(valid0_left))</span>
+<span id="cb28-129"><a href="#cb28-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-130"><a href="#cb28-130" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> use_left_vmin <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb28-131"><a href="#cb28-131" aria-hidden="true" tabindex="-1"></a>        use_left_vmin <span class="op">=</span> fixed_left_vmin <span class="cf">if</span> fixed_left_vmin <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_left_vmin</span>
+<span id="cb28-132"><a href="#cb28-132" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> use_left_vmax <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb28-133"><a href="#cb28-133" aria-hidden="true" tabindex="-1"></a>        use_left_vmax <span class="op">=</span> fixed_left_vmax <span class="cf">if</span> fixed_left_vmax <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> auto_left_vmax</span>
+<span id="cb28-134"><a href="#cb28-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-135"><a href="#cb28-135" aria-hidden="true" tabindex="-1"></a>    render_snapshots(</span>
+<span id="cb28-136"><a href="#cb28-136" aria-hidden="true" tabindex="-1"></a>      snapshots<span class="op">=</span>snapshots,</span>
+<span id="cb28-137"><a href="#cb28-137" aria-hidden="true" tabindex="-1"></a>      case_dir<span class="op">=</span>case_dir,</span>
+<span id="cb28-138"><a href="#cb28-138" aria-hidden="true" tabindex="-1"></a>      frames_dir<span class="op">=</span>frames_dir,</span>
+<span id="cb28-139"><a href="#cb28-139" aria-hidden="true" tabindex="-1"></a>      facet_bin<span class="op">=</span>facet_bin,</span>
+<span id="cb28-140"><a href="#cb28-140" aria-hidden="true" tabindex="-1"></a>      data_bin<span class="op">=</span>data_bin,</span>
+<span id="cb28-141"><a href="#cb28-141" aria-hidden="true" tabindex="-1"></a>      com_bin<span class="op">=</span>com_bin,</span>
+<span id="cb28-142"><a href="#cb28-142" aria-hidden="true" tabindex="-1"></a>      args<span class="op">=</span>args,</span>
+<span id="cb28-143"><a href="#cb28-143" aria-hidden="true" tabindex="-1"></a>      use_vmin<span class="op">=</span>use_vmin,</span>
+<span id="cb28-144"><a href="#cb28-144" aria-hidden="true" tabindex="-1"></a>      use_vmax<span class="op">=</span>use_vmax,</span>
+<span id="cb28-145"><a href="#cb28-145" aria-hidden="true" tabindex="-1"></a>      use_left_vmin<span class="op">=</span>use_left_vmin,</span>
+<span id="cb28-146"><a href="#cb28-146" aria-hidden="true" tabindex="-1"></a>      use_left_vmax<span class="op">=</span>use_left_vmax,</span>
+<span id="cb28-147"><a href="#cb28-147" aria-hidden="true" tabindex="-1"></a>      worker_cache_root<span class="op">=</span>worker_cache_root,</span>
+<span id="cb28-148"><a href="#cb28-148" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-149"><a href="#cb28-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-150"><a href="#cb28-150" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> args.skip_video:</span>
+<span id="cb28-151"><a href="#cb28-151" aria-hidden="true" tabindex="-1"></a>      <span class="bu">print</span>(<span class="ss">f&quot;Frames written to: </span><span class="sc">{</span>frames_dir<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
+<span id="cb28-152"><a href="#cb28-152" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb28-153"><a href="#cb28-153" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-154"><a href="#cb28-154" aria-hidden="true" tabindex="-1"></a>    fps <span class="op">=</span> <span class="bu">float</span>(args.fps) <span class="cf">if</span> args.fps <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span> <span class="cf">else</span> (<span class="bu">len</span>(snapshots) <span class="op">/</span> args.duration)</span>
+<span id="cb28-155"><a href="#cb28-155" aria-hidden="true" tabindex="-1"></a>    fps <span class="op">=</span> <span class="bu">max</span>(<span class="fl">1e-6</span>, fps)</span>
+<span id="cb28-156"><a href="#cb28-156" aria-hidden="true" tabindex="-1"></a>    fps_str <span class="op">=</span> format_fps(fps)</span>
+<span id="cb28-157"><a href="#cb28-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-158"><a href="#cb28-158" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Matches requested ffmpeg style:</span></span>
+<span id="cb28-159"><a href="#cb28-159" aria-hidden="true" tabindex="-1"></a>    <span class="co"># ffmpeg -framerate &lt;fps&gt; -pattern_type glob -i &#39;Video/*.png&#39;</span></span>
+<span id="cb28-160"><a href="#cb28-160" aria-hidden="true" tabindex="-1"></a>    <span class="co">#   -vf &quot;pad=ceil(iw/2)*2:ceil(ih/2)*2&quot; -c:v libx264 -r &lt;fps&gt; -pix_fmt yuv420p out.mp4</span></span>
+<span id="cb28-161"><a href="#cb28-161" aria-hidden="true" tabindex="-1"></a>    cmd <span class="op">=</span> [</span>
+<span id="cb28-162"><a href="#cb28-162" aria-hidden="true" tabindex="-1"></a>      args.ffmpeg,</span>
+<span id="cb28-163"><a href="#cb28-163" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-y&quot;</span>,</span>
+<span id="cb28-164"><a href="#cb28-164" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-framerate&quot;</span>,</span>
+<span id="cb28-165"><a href="#cb28-165" aria-hidden="true" tabindex="-1"></a>      fps_str,</span>
+<span id="cb28-166"><a href="#cb28-166" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-pattern_type&quot;</span>,</span>
+<span id="cb28-167"><a href="#cb28-167" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;glob&quot;</span>,</span>
+<span id="cb28-168"><a href="#cb28-168" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-i&quot;</span>,</span>
+<span id="cb28-169"><a href="#cb28-169" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(frames_dir <span class="op">/</span> <span class="st">&quot;*.png&quot;</span>),</span>
+<span id="cb28-170"><a href="#cb28-170" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-vf&quot;</span>,</span>
+<span id="cb28-171"><a href="#cb28-171" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;pad=ceil(iw/2)*2:ceil(ih/2)*2&quot;</span>,</span>
+<span id="cb28-172"><a href="#cb28-172" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-c:v&quot;</span>,</span>
+<span id="cb28-173"><a href="#cb28-173" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;libx264&quot;</span>,</span>
+<span id="cb28-174"><a href="#cb28-174" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-r&quot;</span>,</span>
+<span id="cb28-175"><a href="#cb28-175" aria-hidden="true" tabindex="-1"></a>      fps_str,</span>
+<span id="cb28-176"><a href="#cb28-176" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;-pix_fmt&quot;</span>,</span>
+<span id="cb28-177"><a href="#cb28-177" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;yuv420p&quot;</span>,</span>
+<span id="cb28-178"><a href="#cb28-178" aria-hidden="true" tabindex="-1"></a>      <span class="bu">str</span>(out_path),</span>
+<span id="cb28-179"><a href="#cb28-179" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb28-180"><a href="#cb28-180" aria-hidden="true" tabindex="-1"></a>    subprocess.run(cmd, check<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb28-181"><a href="#cb28-181" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(</span>
+<span id="cb28-182"><a href="#cb28-182" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f&quot;Wrote video: </span><span class="sc">{</span>out_path<span class="sc">}</span><span class="ss"> | fps=</span><span class="sc">{</span>fps_str<span class="sc">}</span><span class="ss"> | frames=</span><span class="sc">{</span><span class="bu">len</span>(snapshots)<span class="sc">}</span><span class="ss"> | duration~</span><span class="sc">{</span>args<span class="sc">.</span>duration<span class="sc">}</span><span class="ss">s&quot;</span>,</span>
+<span id="cb28-183"><a href="#cb28-183" aria-hidden="true" tabindex="-1"></a>      <span class="bu">file</span><span class="op">=</span>sys.stderr,</span>
+<span id="cb28-184"><a href="#cb28-184" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-185"><a href="#cb28-185" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">0</span></span>
+<span id="cb28-186"><a href="#cb28-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-187"><a href="#cb28-187" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> subprocess.CalledProcessError <span class="im">as</span> exc:</span>
+<span id="cb28-188"><a href="#cb28-188" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Command failed with exit code </span><span class="sc">{</span>exc<span class="sc">.</span>returncode<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>exc<span class="sc">.</span>cmd<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
+<span id="cb28-189"><a href="#cb28-189" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span></span>
+<span id="cb28-190"><a href="#cb28-190" aria-hidden="true" tabindex="-1"></a>  <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> exc:  <span class="co"># noqa: BLE001</span></span>
+<span id="cb28-191"><a href="#cb28-191" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f&quot;Error: </span><span class="sc">{</span>exc<span class="sc">}</span><span class="ss">&quot;</span>, <span class="bu">file</span><span class="op">=</span>sys.stderr)</span>
+<span id="cb28-192"><a href="#cb28-192" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="dv">2</span></span>
+<span id="cb28-193"><a href="#cb28-193" aria-hidden="true" tabindex="-1"></a>  <span class="cf">finally</span>:</span>
+<span id="cb28-194"><a href="#cb28-194" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> obj <span class="kw">in</span> temp_objects:</span>
+<span id="cb28-195"><a href="#cb28-195" aria-hidden="true" tabindex="-1"></a>      obj.cleanup()</span>
+<span id="cb28-196"><a href="#cb28-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-197"><a href="#cb28-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-198"><a href="#cb28-198" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">&quot;__main__&quot;</span>:</span>
+<span id="cb28-199"><a href="#cb28-199" aria-hidden="true" tabindex="-1"></a>  <span class="cf">raise</span> <span class="pp">SystemExit</span>(main())</span></code></pre></div></div>
             </div>
         </main>
 
@@ -1621,7 +1633,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               </a>
             </div>
           </footer>
-    </div>  
+    </div>
 
     <!-- Command Palette -->
     <div id="simple-command-palette" class="simple-command-palette" style="display: none;">
@@ -1649,17 +1661,17 @@ document.addEventListener('DOMContentLoaded', function() {
         button.textContent = 'Copy';
         button.setAttribute('aria-label', 'Copy code to clipboard');
         button.setAttribute('data-copy-state', 'copy');
-        
+
         // Get the code block container (parent of the pre)
         const container = codeBlock.parentNode;
-        
+
         // Add the button to the container
         container.appendChild(button);
-        
+
         // Set up click event
         button.addEventListener('click', async function() {
             const codeText = codeBlock.textContent;
-            
+
             try {
                 // Try to use the modern clipboard API first
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1672,10 +1684,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     textarea.style.position = 'fixed';  // Prevent scrolling to the bottom
                     document.body.appendChild(textarea);
                     textarea.select();
-                    
+
                     const successful = document.execCommand('copy');
                     document.body.removeChild(textarea);
-                    
+
                     if (successful) {
                         updateButtonState(button, 'success');
                     } else {
@@ -1688,7 +1700,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Function to update button state
     function updateButtonState(button, state) {
         if (state === 'success') {
@@ -1698,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', function() {
             button.textContent = 'Error!';
             button.classList.add('error');
         }
-        
+
         // Reset button state after 2 seconds
         setTimeout(function() {
             button.textContent = 'Copy';

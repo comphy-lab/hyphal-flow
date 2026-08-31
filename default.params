@@ -1,29 +1,34 @@
-# default.params
-# Base parameter file for hypha simulations.
+# Reference configuration for the requested three-rheology model.
+# These nondimensional values exercise the model; they are not a biological
+# calibration or a validation dataset.
 
 CaseNo=1000
 
 # Numerical controls
 MAXlevel=13
 tmax=200.0
+snapshot_interval=0.1
+log_interval=0.01
 
-# Drop phase
-Ohd=1.0
-RhoR_dc=1.2
-Ec_d=0.0
-De_d=0.0
+# Viscoelastic drop: Oh is solvent viscosity; mu_p = Ec_drop * De_drop
+Oh_drop=1.0
+rho_drop=1.2
+Ec_drop=0.2
+De_drop=0.25
 
-# Hypha phase
-Ohf=1.0
-hr=0.90
-Ec_h=0.00
-De_h=1e30
+# Soft finite-strain Kelvin--Voigt-type outer solid
+Oh_solid=1.0
+rho_solid=1.0
+Ec_solid=0.1
+De_solid=1e30
 
-# Cytoplasm phase
-Oh_c=0.01
-Ec_c=0.0
-De_c=0.0
+# Viscoelastic carrier liquid: Oh is solvent viscosity
+Oh_liquid=0.01
+rho_liquid=1.0
+Ec_liquid=0.05
+De_liquid=0.5
 
-# Forcing and geometry
+# Geometry and driving
+channel_radius=0.90
 Bond=1.0
 Ldomain=80.0

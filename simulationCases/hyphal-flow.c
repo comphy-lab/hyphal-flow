@@ -266,7 +266,7 @@ event stop_when_drop_exits (i++) {
         xmax, x_end, t);
     }
     dump (file = "final");
-    exit(0);
+    return 1;
   }
 }
 
@@ -419,11 +419,12 @@ event log_hypha_deformation (i++) {
     static FILE *fh = NULL;
     static int fh_open_failed = 0;
     if (!fh && !fh_open_failed) {
-      fh = fopen("hypha-def-log","w");
+      const bool fresh_run = t <= 1e-12;
+      fh = fopen("hypha-def-log", fresh_run ? "w" : "a");
       if (!fh) {
         perror("hypha-def-log");
         fh_open_failed = 1;
-      } else
+      } else if (fresh_run)
         fprintf(fh, "t y_if_max\n");
     }
 

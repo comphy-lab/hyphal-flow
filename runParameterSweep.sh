@@ -25,6 +25,13 @@ Options:
 EOF
 }
 
+require_value() {
+  if [[ $# -lt 2 || -z "${2:-}" ]]; then
+    printf 'ERROR: %s requires a value\n' "$1" >&2
+    exit 2
+  fi
+}
+
 EXEC_CODE="hyphal-flow.c"
 SWEEP_FILE="sweep.params"
 SWEEP_FILE_SET=0
@@ -37,14 +44,14 @@ MPI_CPUS=4
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help) usage; exit 0 ;;
-    --exec) EXEC_CODE="${2:-}"; shift 2 ;;
+    --exec) require_value "$1" "${2:-}"; EXEC_CODE="$2"; shift 2 ;;
     --exec=*) EXEC_CODE="${1#*=}"; shift ;;
-    --output-root) OUTPUT_ROOT="${2:-}"; shift 2 ;;
+    --output-root) require_value "$1" "${2:-}"; OUTPUT_ROOT="$2"; shift 2 ;;
     --output-root=*) OUTPUT_ROOT="${1#*=}"; shift ;;
     -n|--dry-run) DRY_RUN=1; shift ;;
     -v|--verbose) VERBOSE=1; shift ;;
     --mpi) USE_MPI=1; shift ;;
-    --cpus|--CPUs) MPI_CPUS="${2:-}"; shift 2 ;;
+    --cpus|--CPUs) require_value "$1" "${2:-}"; MPI_CPUS="$2"; shift 2 ;;
     --cpus=*|--CPUs=*) MPI_CPUS="${1#*=}"; shift ;;
     --) shift; break ;;
     -*) printf 'ERROR: unknown option: %s\n' "$1" >&2; usage; exit 2 ;;

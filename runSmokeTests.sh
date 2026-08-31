@@ -7,6 +7,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=src-local/parse_params.sh
+source "${SCRIPT_DIR}/src-local/parse_params.sh"
 
 usage() {
   command cat <<'EOF'
@@ -62,8 +64,14 @@ bash "${SCRIPT_DIR}/runParameterSweep.sh" \
   "${SCRIPT_DIR}/smoke/sweep.params" \
   --output-root "${OUTPUT_ROOT}/sweep"
 
+FULL_CASE_NO="$(get_param_value CaseNo "${SCRIPT_DIR}/smoke/full.params")"
+if [[ ! "$FULL_CASE_NO" =~ ^[0-9]{4}$ ]]; then
+  printf 'ERROR: smoke/full.params must define a four-digit CaseNo\n' >&2
+  exit 2
+fi
+
 if [[ $SKIP_MPI -eq 0 ]]; then
-  MPI_CASE="${OUTPUT_ROOT}/mpi/9103"
+  MPI_CASE="${OUTPUT_ROOT}/mpi/${FULL_CASE_NO}"
   bash "${SCRIPT_DIR}/runSimulation.sh" "${SCRIPT_DIR}/smoke/full.params" \
     --output-root "${OUTPUT_ROOT}/mpi" --mpi --cpus 2
 
@@ -79,11 +87,16 @@ if [[ $SKIP_MPI -eq 0 ]]; then
     --output-root "${OUTPUT_ROOT}/mpi" --mpi --cpus 2 --resume
 fi
 
-FULL_LOG="${OUTPUT_ROOT}/serial/9103/log"
+FULL_LOG="${OUTPUT_ROOT}/serial/${FULL_CASE_NO}/log"
 awk '
   NR == 1 { next }
   {
     seen = 1
+    for (column = 3; column <= 12; column++) {
+      value = tolower($column)
+      if (value ~ /nan|inf/)
+        nonfinite = 1
+    }
     if ($3 > 0) positive_time = 1
     if ($6 > max_overlap) max_overlap = $6
     if ($10 > 0) drop_stress = 1
@@ -91,7 +104,7 @@ awk '
     if ($12 > 0) liquid_stress = 1
   }
   END {
-    if (!seen || !positive_time || !drop_stress || !solid_stress ||
+    if (!seen || nonfinite || !positive_time || !drop_stress || !solid_stress ||
         !liquid_stress || max_overlap > 1e-6)
       exit 1
   }

@@ -153,6 +153,27 @@ else
   MANIFEST_CPUS=1
 fi
 
+manifest_matches() {
+  [[ -f "$MANIFEST" && -f "${CASE_DIR}/${EXEC_CODE}" &&
+     -f "${CASE_DIR}/case.params" ]] || return 1
+  grep -Fxq "source_sha256=${SOURCE_HASH}" "$MANIFEST" &&
+    grep -Fxq "source_file_sha256=${SOURCE_FILE_HASH}" "$MANIFEST" &&
+    grep -Fxq "params_sha256=${PARAM_HASH}" "$MANIFEST" &&
+    grep -Fxq "mode=${RUN_MODE}" "$MANIFEST" &&
+    grep -Fxq "cpus=${MANIFEST_CPUS}" "$MANIFEST" &&
+    grep -Fxq "basilisk_api=${BASILISK_API}" "$MANIFEST" &&
+    [[ "$(shasum -a 256 "${CASE_DIR}/${EXEC_CODE}" | awk '{print $1}')" == "$SOURCE_FILE_HASH" ]] &&
+    [[ "$(shasum -a 256 "${CASE_DIR}/case.params" | awk '{print $1}')" == "$PARAM_HASH" ]]
+}
+
+compile_only_case() {
+  [[ ! -e "${CASE_DIR}/restart" && ! -e "${CASE_DIR}/final" &&
+     ! -e "${CASE_DIR}/log" && ! -d "${CASE_DIR}/intermediate" ]] || return 1
+  [[ -z "$(find "$CASE_DIR" -mindepth 1 -maxdepth 1 \
+    ! -name case.params ! -name "$EXEC_CODE" ! -name run-manifest.txt \
+    ! -name hyphal-flow -print -quit)" ]]
+}
+
 printf 'Case %s: %s\n' "$CASE_NO" "$CASE_DIR"
 printf 'Source: %s\n' "$SOURCE_FILE"
 printf 'Parameters: %s\n' "$PARAM_FILE"
@@ -164,25 +185,21 @@ if [[ $DRY_RUN -eq 1 ]]; then
 fi
 
 if [[ -d "$CASE_DIR" && -n "$(find "$CASE_DIR" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
-  if [[ $RESUME -ne 1 ]]; then
-    printf 'ERROR: case directory is non-empty; use a new CaseNo or an input-matched --resume: %s\n' "$CASE_DIR" >&2
-    exit 2
-  fi
-  [[ -f "$MANIFEST" && -f "${CASE_DIR}/restart" ]] || {
-    printf 'ERROR: --resume requires run-manifest.txt and restart\n' >&2
-    exit 2
-  }
-  grep -Fxq "source_sha256=${SOURCE_HASH}" "$MANIFEST" &&
-    grep -Fxq "source_file_sha256=${SOURCE_FILE_HASH}" "$MANIFEST" &&
-    grep -Fxq "params_sha256=${PARAM_HASH}" "$MANIFEST" &&
-    grep -Fxq "mode=${RUN_MODE}" "$MANIFEST" &&
-    grep -Fxq "cpus=${MANIFEST_CPUS}" "$MANIFEST" &&
-    grep -Fxq "basilisk_api=${BASILISK_API}" "$MANIFEST" &&
-    [[ "$(shasum -a 256 "${CASE_DIR}/${EXEC_CODE}" | awk '{print $1}')" == "$SOURCE_FILE_HASH" ]] &&
-    [[ "$(shasum -a 256 "${CASE_DIR}/case.params" | awk '{print $1}')" == "$PARAM_HASH" ]] || {
+  if [[ $RESUME -eq 1 ]]; then
+    [[ -f "${CASE_DIR}/restart" ]] || {
+      printf 'ERROR: --resume requires run-manifest.txt and restart\n' >&2
+      exit 2
+    }
+    manifest_matches || {
       printf 'ERROR: --resume inputs differ from the recorded case manifest\n' >&2
       exit 2
     }
+  elif manifest_matches && compile_only_case; then
+    printf 'Reusing exact compile-only case inputs: %s\n' "$CASE_DIR"
+  else
+    printf 'ERROR: case directory is non-empty; use a new CaseNo or an input-matched --resume: %s\n' "$CASE_DIR" >&2
+    exit 2
+  fi
 else
   mkdir -p "$CASE_DIR"
   cp "$PARAM_FILE" "${CASE_DIR}/case.params"

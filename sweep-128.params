@@ -1,6 +1,7 @@
 # sweep-128.params
 # Parameter sweep configuration for batch simulations.
-# Used by runSweepHamilton-serial-128.sbatch by default.
+# Submit with: sbatch runSweepHamilton.sbatch sweep-128.params
+# scripts/legacy/runSweepHamilton-serial-128.sbatch is provenance only.
 # Sweep: Ec_solid only (128 cases), logarithmically spaced from 0.01 to 10 (inclusive)
 
 # ============================================================

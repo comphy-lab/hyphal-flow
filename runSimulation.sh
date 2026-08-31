@@ -122,7 +122,8 @@ command -v shasum >/dev/null 2>&1 || { printf 'ERROR: shasum is required for inp
 
 CASE_DIR="${OUTPUT_ROOT}/${CASE_NO}"
 EXECUTABLE="${CASE_DIR}/hyphal-flow"
-SOURCE_HASH="$(shasum -a 256 "$SOURCE_FILE" "${SCRIPT_DIR}"/src-local/*.h | awk '{print $1}' | shasum -a 256 | awk '{print $1}')"
+SOURCE_HASH="$(shasum -a 256 "$SOURCE_FILE" "${SCRIPT_DIR}"/src-local/*.h \
+  "${SCRIPT_DIR}/runSimulation.sh" | awk '{print $1}' | shasum -a 256 | awk '{print $1}')"
 SOURCE_FILE_HASH="$(shasum -a 256 "$SOURCE_FILE" | awk '{print $1}')"
 PARAM_HASH="$(shasum -a 256 "$PARAM_FILE" | awk '{print $1}')"
 MANIFEST="${CASE_DIR}/run-manifest.txt"
@@ -195,7 +196,11 @@ fi
 compile+=( "$EXEC_CODE" -o hyphal-flow -lm )
 printf 'Compiling %s\n' "$EXEC_CODE"
 if [[ $USE_MPI -eq 1 ]]; then
-  CC99='mpicc -std=c99 -D_GNU_SOURCE=1' "${compile[@]:0:3}" -D_MPI=1 "${compile[@]:3}"
+  MPI_CC99='mpicc -std=c99'
+  if [[ "$(uname -s)" != Darwin ]]; then
+    MPI_CC99+=' -D_GNU_SOURCE=1'
+  fi
+  CC99="$MPI_CC99" "${compile[@]:0:3}" -D_MPI=1 "${compile[@]:3}"
 else
   "${compile[@]}"
 fi

@@ -254,7 +254,7 @@ awk 'NR > 1 && $3 > 0 { found=1 } END { exit(found ? 0 : 1) }' log || {
   printf 'ERROR: log contains no positive simulation time\n' >&2
   exit 1
 }
-if grep -Ein 'nan|inf|ERROR: non-' log >/dev/null 2>&1; then
+if grep -Ein '(^|[^[:alnum:]_])(nan|[-+]?inf(inity)?)([^[:alnum:]_]|$)|ERROR: non-' log >/dev/null 2>&1; then
   printf 'ERROR: numerical failure signature found in log\n' >&2
   exit 1
 fi

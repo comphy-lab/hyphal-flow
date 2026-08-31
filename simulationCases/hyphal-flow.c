@@ -59,6 +59,15 @@ double channel_radius;
 double Bond;
 double Ldomain;
 
+static void simulation_abort (int status)
+{
+#if _MPI
+  MPI_Abort (MPI_COMM_WORLD, status);
+#else
+  exit (status);
+#endif
+}
+
 static int validate_phase (const char * name, double viscosity,
                            double modulus, double relaxation_time)
 {
@@ -330,9 +339,17 @@ event logWriting (i++) {
     if (i == 0) {
       fprintf (ferr, "i dt t ke vcm overlap Vd Vs Vl Td Ts Tl\n");
       fp = fopen ("log", "w");
+      if (!fp) {
+        perror ("log");
+        simulation_abort (4);
+      }
       fprintf (fp, "i dt t ke vcm overlap Vd Vs Vl Td Ts Tl\n");
     } else {
       fp = fopen ("log", "a");
+      if (!fp) {
+        perror ("log");
+        simulation_abort (4);
+      }
     }
     fprintf (fp, "%d %g %g %g %5.4e %g %g %g %g %g %g %g\n",
              i, dt, t, ke, vcm, overlap,

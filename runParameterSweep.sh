@@ -106,6 +106,10 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   key="$(trim_string "${line%%=*}")"
   value="$(trim_string "${line#*=}")"
   if [[ "$key" =~ ^SWEEP_([A-Za-z_][A-Za-z0-9_]*)$ ]]; then
+    if [[ "${BASH_REMATCH[1]}" == CaseNo ]]; then
+      printf 'ERROR: SWEEP_CaseNo is reserved for deterministic case numbering\n' >&2
+      exit 2
+    fi
     [[ -n "$value" ]] || { printf 'ERROR: %s has no values\n' "$key" >&2; exit 2; }
     SWEEP_VARS+=("${BASH_REMATCH[1]}")
     SWEEP_VALUES+=("$value")

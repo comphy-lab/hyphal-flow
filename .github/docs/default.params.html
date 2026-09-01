@@ -442,33 +442,36 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">CaseNo</span><span class="ot">=</span><span class="dv">1000</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Numerical controls</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">MAXlevel</span><span class="ot">=</span><span class="dv">13</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">tmax</span><span class="ot">=</span><span class="fl">200.0</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">snapshot_interval</span><span class="ot">=</span><span class="fl">0.1</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dt">log_interval</span><span class="ot">=</span><span class="fl">0.01</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Viscoelastic drop: Oh is solvent viscosity; mu_p = Ec_drop * De_drop</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_drop</span><span class="ot">=</span><span class="fl">1.0</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_drop</span><span class="ot">=</span><span class="fl">1.2</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_drop</span><span class="ot">=</span><span class="fl">0.2</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="dt">De_drop</span><span class="ot">=</span><span class="fl">0.25</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Soft finite-strain Kelvin--Voigt-type outer solid</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_solid</span><span class="ot">=</span><span class="fl">1.0</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_solid</span><span class="ot">=</span><span class="fl">1.0</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_solid</span><span class="ot">=</span><span class="fl">0.1</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">De_solid</span><span class="ot">=</span><span class="fl">1e30</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Viscoelastic carrier liquid: Oh is solvent viscosity</span></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_liquid</span><span class="ot">=</span><span class="fl">0.01</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_liquid</span><span class="ot">=</span><span class="fl">1.0</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_liquid</span><span class="ot">=</span><span class="fl">0.05</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="dt">De_liquid</span><span class="ot">=</span><span class="fl">0.5</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Geometry and driving</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="dt">channel_radius</span><span class="ot">=</span><span class="fl">0.90</span></span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="dt">Bond</span><span class="ot">=</span><span class="fl">1.0</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="dt">Ldomain</span><span class="ot">=</span><span class="fl">80.0</span></span></code></pre></div></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">MAXlevel</span><span class="ot">=</span><span class="dv">12</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_refine_level</span><span class="ot">=</span><span class="dv">12</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_refine_band</span><span class="ot">=</span><span class="fl">1.25</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_volume_tolerance</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="dt">tmax</span><span class="ot">=</span><span class="fl">200.0</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">snapshot_interval</span><span class="ot">=</span><span class="fl">0.1</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dt">log_interval</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Viscoelastic drop: Oh is solvent viscosity; mu_p = Ec_drop * De_drop</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_drop</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_drop</span><span class="ot">=</span><span class="fl">1.2</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_drop</span><span class="ot">=</span><span class="fl">0.2</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="dt">De_drop</span><span class="ot">=</span><span class="fl">0.25</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Soft finite-strain Kelvin--Voigt-type outer solid</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_solid</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_solid</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_solid</span><span class="ot">=</span><span class="fl">0.1</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="dt">De_solid</span><span class="ot">=</span><span class="fl">1e30</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Viscoelastic carrier liquid: Oh is solvent viscosity</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_liquid</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_liquid</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_liquid</span><span class="ot">=</span><span class="fl">0.05</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="dt">De_liquid</span><span class="ot">=</span><span class="fl">0.5</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Geometry and driving</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="dt">channel_radius</span><span class="ot">=</span><span class="fl">0.90</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="dt">Bond</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="dt">Ldomain</span><span class="ot">=</span><span class="fl">16.0</span></span></code></pre></div></div>
             </div>
         </main>
 

@@ -1,0 +1,36 @@
+# Resolved short-domain reproduction of the failed case-2000 path probe.
+# This is a numerical debugging run, not a scientific trend or validation case.
+
+CaseNo=2000
+
+# Numerical controls
+MAXlevel=12
+initial_refine_level=12
+initial_refine_band=1.25
+initial_volume_tolerance=0.01
+tmax=5.0
+snapshot_interval=0.5
+log_interval=0.01
+
+# Viscoelastic drop
+Oh_drop=1.0
+rho_drop=1.2
+Ec_drop=0.2
+De_drop=0.25
+
+# Finite-strain outer solid
+Oh_solid=1.0
+rho_solid=1.0
+Ec_solid=0.1
+De_solid=1e30
+
+# Viscoelastic carrier liquid
+Oh_liquid=0.01
+rho_liquid=1.0
+Ec_liquid=0.05
+De_liquid=0.5
+
+# Short debug geometry
+channel_radius=0.90
+Bond=1.0
+Ldomain=16.0

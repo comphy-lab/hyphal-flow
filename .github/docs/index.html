@@ -560,6 +560,9 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 href="default.params.html">default.params</a></strong> -
                 base runtime parameters</li>
                 <li><strong><a
+                href="case-2000-debug.params.html">case-2000-debug.params</a></strong>
+                - resolved short-domain diagnostic case</li>
+                <li><strong><a
                 href="sweep.params.html">sweep.params</a></strong> -
                 default parameter sweep</li>
                 <li><strong><a
@@ -587,8 +590,9 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params <span class="at">--dry-run</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh default.params <span class="at">--mpi</span> <span class="at">--CPUs</span> 8</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params</span></code></pre></div></div>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runSimulation.sh case-2000-debug.params <span class="at">--mpi</span> <span class="at">--CPUs</span> 7</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params <span class="at">--dry-run</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> runParameterSweep.sh sweep.params</span></code></pre></div></div>
                 <p>Each case runs in
                 <code>simulationCases/&lt;CaseNo&gt;/</code> unless
                 <code>--output-root</code> is set. The binary is invoked
@@ -639,6 +643,8 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
                 <h3 id="root-directory">Root Directory</h3>
                 <ul>
                 <li><a href="Makefile.html">Makefile</a></li>
+                <li><a
+                href="case-2000-debug.params.html">case-2000-debug.params</a></li>
                 <li><a
                 href="default.params.html">default.params</a></li>
                 <li><a

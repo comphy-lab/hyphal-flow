@@ -171,7 +171,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="base-url" content="..">
-  <title>sweep.params | Hyphal Flow</title>
+  <title>case-2000-debug.params | Hyphal Flow</title>
   
   <!-- Critical CSS for fastest paint -->
   <style>
@@ -202,10 +202,10 @@
   </style>
 
   <!-- Critical Meta Tags -->
-  <meta name="description" content="BASECONFIG=default.params">
+  <meta name="description" content="CaseNo=2000">
   <meta name="author" content="CoMPhy Lab">
   <meta name="robots" content="index, follow">
-  <meta name="keywords" content="sweep">
+  <meta name="keywords" content="2000, case, debug">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-title" content="CoMPhy Lab">
@@ -424,49 +424,54 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
             
             <div class="page-content">
                 
-                                <h1 class="page-title">sweep.params</h1>
+                                <h1 class="page-title">case-2000-debug.params</h1>
                 
                                 
                                 <div class="raw-file-button-container">
-                    <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/sweep.params" class="raw-file-button" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/comphy-lab/hyphal-flow/raw/main/case-2000-debug.params" class="raw-file-button" target="_blank" rel="noopener noreferrer">
                         <i class="fa-brands fa-github"></i> See raw file
                     </a>
                 </div>
                 
-                <h1 id="sweep.params">sweep.params</h1>
+                <h1
+                id="case-2000-debug.params">case-2000-debug.params</h1>
                 <div class="code-block-container"><div class="code-block-container"><pre
-                class="sourceCode ini"><code class="sourceCode ini"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sweep.params</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># First-pass scientific sweep: transport versus outer-solid modulus.</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Seven logarithmically spaced Ec_solid values from 0.01 to 10, including</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the default.params reference 0.1. This is a parametric exploration, not</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># a verification or validation matrix.</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Base Configuration</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">BASE_CONFIG</span><span class="ot">=</span><span class="st">default.params</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Case Number Range</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_START</span><span class="ot">=</span><span class="dv">2001</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="dt">CASE_END</span><span class="ot">=</span><span class="dv">2007</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Sweep Variables</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Format: SWEEP_&lt;variable&gt;=value1,value2,value3,...</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Cartesian product of SWEEP_* keys. Keep CASE_START/CASE_END equal to</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># the generated combination count.</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Ec and De must both be zero (Newtonian) or both be positive (Oldroyd-B).</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="dt">SWEEP_Ec_solid</span><span class="ot">=</span><span class="st">0.01,0.0316228,0.1,0.316228,1,3.16228,10</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Output Configuration</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co"># ============================================================</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Output folders are created in simulationCases/&lt;CaseNo&gt;/ unless the</span></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># runner is given an external --output-root.</span></span></code></pre></div></div>
+                class="sourceCode ini"><code class="sourceCode ini"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Resolved short-domain reproduction of the failed case-2000 path probe.</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a numerical debugging run, not a scientific trend or validation case.</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">CaseNo</span><span class="ot">=</span><span class="dv">2000</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Numerical controls</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MAXlevel</span><span class="ot">=</span><span class="dv">12</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_refine_level</span><span class="ot">=</span><span class="dv">12</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_refine_band</span><span class="ot">=</span><span class="fl">1.25</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dt">initial_volume_tolerance</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dt">tmax</span><span class="ot">=</span><span class="fl">5.0</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="dt">snapshot_interval</span><span class="ot">=</span><span class="fl">0.5</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dt">log_interval</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Viscoelastic drop</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_drop</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_drop</span><span class="ot">=</span><span class="fl">1.2</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_drop</span><span class="ot">=</span><span class="fl">0.2</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="dt">De_drop</span><span class="ot">=</span><span class="fl">0.25</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Finite-strain outer solid</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_solid</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_solid</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_solid</span><span class="ot">=</span><span class="fl">0.1</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="dt">De_solid</span><span class="ot">=</span><span class="fl">1e30</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Viscoelastic carrier liquid</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="dt">Oh_liquid</span><span class="ot">=</span><span class="fl">0.01</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="dt">rho_liquid</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="dt">Ec_liquid</span><span class="ot">=</span><span class="fl">0.05</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="dt">De_liquid</span><span class="ot">=</span><span class="fl">0.5</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Short debug geometry</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="dt">channel_radius</span><span class="ot">=</span><span class="fl">0.90</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="dt">Bond</span><span class="ot">=</span><span class="fl">1.0</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="dt">Ldomain</span><span class="ot">=</span><span class="fl">16.0</span></span></code></pre></div></div>
             </div>
         </main>
 
@@ -508,7 +513,7 @@ window.baseDomain = "https://comphy-lab.org/hyphal-flow";
               <a href="https://bsky.app/profile/comphy-lab.org" target="_blank" rel="noopener noreferrer" aria-label="Bluesky Profile">
                 <i class="fa-brands fa-bluesky" style="font-size: 2.5em; color: white;"></i>
               </a>
-              <a href="https://github.com/comphy-lab/hyphal-flow/edit/main/sweep.params" class="edit-link" aria-label="Edit this page on GitHub">
+              <a href="https://github.com/comphy-lab/hyphal-flow/edit/main/case-2000-debug.params" class="edit-link" aria-label="Edit this page on GitHub">
                 <i class="fa-brands fa-github"></i> Edit this page
               </a>
             </div>

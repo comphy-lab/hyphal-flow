@@ -80,6 +80,7 @@ API.
 ├── runSimulation.sh - single-case compile and run
 ├── runParameterSweep.sh - Cartesian product of SWEEP_* keys
 ├── default.params - base runtime parameters
+├── case-2000-debug.params - resolved short-domain diagnostic case
 ├── sweep.params - default parameter sweep
 ├── runSingleCaseHamilton.sbatch - site batch wrapper for one MPI case
 ├── runSweepHamilton.sbatch - site batch wrapper for an MPI sweep
@@ -100,6 +101,7 @@ submission only.
 bash runSimulation.sh default.params --dry-run
 bash runSimulation.sh default.params
 bash runSimulation.sh default.params --mpi --CPUs 8
+bash runSimulation.sh case-2000-debug.params --mpi --CPUs 7
 bash runParameterSweep.sh sweep.params --dry-run
 bash runParameterSweep.sh sweep.params
 ```

@@ -11,6 +11,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://comphy-lab.org/hyphal-flow/case-2000-debug.params.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://comphy-lab.org/hyphal-flow/default.params.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

@@ -33,9 +33,12 @@ Vatsal Sanjay
 #define AErr (1e-3) // error tolerance in Conformation tensor
 #define MINlevel 4 // minimum level
 int MAXlevel;
+int initial_refine_level;
 double tmax;
 double snapshot_interval;
 double log_interval;
+double initial_refine_band;
+double initial_volume_tolerance;
 
 /**
 ## Material Parameters
@@ -99,6 +102,76 @@ static bool output_due (double current_time, double * next_time,
 }
 
 /**
+## validate_initial_geometry()
+
+Fail before the first timestep when the freshly constructed VoF geometry is
+not the intended resolved axisymmetric state. The direct drop metric volume
+has the analytic value
+
+$$
+\int_{-1.5}^{1.5}\int_0^{\sqrt{1-(x/1.5)^2}} y\,dy\,dx = 1.
+$$
+
+This deliberately uses `f1*dv()` rather than normalised phase weights, so
+drop--solid overlap cannot hide a bad initial condition.
+*/
+static void validate_initial_geometry (void)
+{
+  const double f_eps = 1e-6;
+  double drop_volume = 0., overlap = 0.;
+  double drop_xmin = HUGE, drop_xmax = -HUGE, drop_ymax = -HUGE;
+  long drop_mixed = 0, solid_mixed = 0;
+  int drop_min_level = initial_refine_level + 1;
+  int solid_min_level = initial_refine_level + 1;
+
+  foreach (reduction(+:drop_volume) reduction(max:overlap)
+           reduction(min:drop_xmin) reduction(max:drop_xmax)
+           reduction(max:drop_ymax) reduction(+:drop_mixed)
+           reduction(+:solid_mixed) reduction(min:drop_min_level)
+           reduction(min:solid_min_level)) {
+    drop_volume += f1[]*dv();
+    overlap = max (overlap, min (f1[], f2[]));
+    if (f1[] > f_eps && f1[] < 1. - f_eps) {
+      drop_mixed++;
+      drop_min_level = min (drop_min_level, level);
+      drop_xmin = min (drop_xmin, x);
+      drop_xmax = max (drop_xmax, x);
+      drop_ymax = max (drop_ymax, y);
+    }
+    if (f2[] > f_eps && f2[] < 1. - f_eps) {
+      solid_mixed++;
+      solid_min_level = min (solid_min_level, level);
+    }
+  }
+
+  const double geometry_tolerance = 2.*L0/(1 << initial_refine_level);
+  const bool valid =
+    fabs (drop_volume - 1.) <= initial_volume_tolerance &&
+    overlap <= 1e-6 &&
+    drop_mixed > 0 && solid_mixed > 0 &&
+    drop_min_level == initial_refine_level &&
+    solid_min_level == initial_refine_level &&
+    fabs (drop_xmin + 1.5) <= geometry_tolerance &&
+    fabs (drop_xmax - 1.5) <= geometry_tolerance &&
+    fabs (drop_ymax - 1.) <= geometry_tolerance;
+
+  if (pid() == 0)
+    fprintf (ferr,
+             "INIT_GEOMETRY valid=%d Vd=%.16g overlap=%.16g "
+             "drop_mixed=%ld solid_mixed=%ld drop_min_level=%d "
+             "solid_min_level=%d xmin=%.16g xmax=%.16g ymax=%.16g\n",
+             valid, drop_volume, overlap, drop_mixed, solid_mixed,
+             drop_min_level, solid_min_level,
+             drop_xmin, drop_xmax, drop_ymax);
+  if (!valid) {
+    if (pid() == 0)
+      fprintf (ferr,
+               "ERROR: unresolved or inconsistent initial VoF geometry\n");
+    simulation_abort (3);
+  }
+}
+
+/**
 ## main()
 
 Initialize properties and forcing, then enter the Basilisk event loop.
@@ -112,9 +185,12 @@ int main (int argc, char const * argv[])
   params_init_from_argv (argc, argv);
 
   MAXlevel = param_int ("MAXlevel", 12);
+  initial_refine_level = param_int ("initial_refine_level", MAXlevel);
   tmax = param_double ("tmax", 200.);
   snapshot_interval = param_double ("snapshot_interval", 0.1);
   log_interval = param_double ("log_interval", 0.01);
+  initial_refine_band = param_double ("initial_refine_band", 1.25);
+  initial_volume_tolerance = param_double ("initial_volume_tolerance", 0.01);
 
   Oh_drop = param_double ("Oh_drop", param_double ("Ohd", 1.));
   rho_drop = param_double ("rho_drop", param_double ("RhoR_dc", 1.2));
@@ -135,11 +211,16 @@ int main (int argc, char const * argv[])
   channel_radius = param_double ("channel_radius",
                                  param_double ("hr", param_double ("hf", 0.9)));
   Bond = param_double ("Bond", 1.);
-  Ldomain = param_double ("Ldomain", 80.);
+  Ldomain = param_double ("Ldomain", 16.);
 
-  if (MAXlevel < MINlevel || MAXlevel > 20 || !isfinite (tmax) || tmax <= 0. ||
+  if (MAXlevel < MINlevel || MAXlevel > 20 ||
+      initial_refine_level < MINlevel || initial_refine_level > MAXlevel ||
+      !isfinite (tmax) || tmax <= 0. ||
       !isfinite (snapshot_interval) || snapshot_interval <= 0. ||
       !isfinite (log_interval) || log_interval <= 0. ||
+      !isfinite (initial_refine_band) || initial_refine_band <= 1. ||
+      !isfinite (initial_volume_tolerance) ||
+      initial_volume_tolerance <= 0. || initial_volume_tolerance >= 0.1 ||
       !isfinite (rho_drop) || !isfinite (rho_solid) ||
       !isfinite (rho_liquid) || rho_drop <= 0. || rho_solid <= 0. ||
       rho_liquid <= 0. || !isfinite (channel_radius) ||
@@ -158,11 +239,13 @@ int main (int argc, char const * argv[])
   fprintf (ferr,
            "level=%d tmax=%g | drop: Oh=%g Ec=%g De=%g mu_p=%g | "
            "liquid: Oh=%g Ec=%g De=%g mu_p=%g | solid: Oh=%g Ec=%g "
-           "De=%g | radius=%g Bond=%g\n",
+           "De=%g | radius=%g Bond=%g | Ldomain=%g initial_level=%d "
+           "initial_band=%g\n",
            MAXlevel, tmax,
            Oh_drop, Ec_drop, De_drop, Ec_drop*De_drop,
            Oh_liquid, Ec_liquid, De_liquid, Ec_liquid*De_liquid,
-           Oh_solid, Ec_solid, De_solid, channel_radius, Bond);
+           Oh_solid, Ec_solid, De_solid, channel_radius, Bond,
+           Ldomain, initial_refine_level, initial_refine_band);
 
   L0 = Ldomain;
   X0 = -4.;
@@ -197,14 +280,16 @@ Initialize interfaces unless a restart snapshot is available.
 event init(t = 0){
   if (!restore (file = "restart")) {
     double width = 2e0; // width of the tanh function
-    double clearance = 0.20; // clearance from the drop inside the cytoplasm at t = 0
+    // Historical wall parameter; the current formula gives a 0.05 minimum gap.
+    double clearance = 0.20;
     double x0tanh = 0.0; // midpoint of the tanh function
 
-    refine (sq(y) + sq(x/1.5) > 0.81 && sq(y) + sq(x/1.5) < 1.21 && level < MAXlevel);
+    // Resolve both interfaces before sampling either implicit geometry.
+    refine (y < initial_refine_band && level < initial_refine_level);
 
     fraction(f1, sq(1e0) - sq(y) - sq(x/1.5));
     fraction(f2, gap(x,y,channel_radius,width,x0tanh,clearance));
-
+    validate_initial_geometry();
   }
 }
 
@@ -327,7 +412,7 @@ event logWriting (i++) {
     volume_drop += wd*volume;
     volume_solid += ws*volume;
     volume_liquid += wl*volume;
-    overlap = max (overlap, max (f1[] + f2[] - 1., 0.));
+    overlap = max (overlap, min (f1[], f2[]));
     stress_drop = max (stress_drop, wd*stress_norm);
     stress_solid = max (stress_solid, ws*stress_norm);
     stress_liquid = max (stress_liquid, wl*stress_norm);

@@ -1,13 +1,14 @@
 # sweep.params
 # First-pass scientific sweep: transport versus outer-solid modulus.
 # Seven logarithmically spaced Ec_solid values from 0.01 to 10, including
-# the default.params reference 0.1. This is a parametric exploration, not
+# the reference value 0.1. Drop parameters are fixed at Ec=0.01, De=1e30;
+# the carrier remains at Ec=0.05, De=0.5. This is parametric exploration, not
 # a verification or validation matrix.
 
 # ============================================================
 # Base Configuration
 # ============================================================
-BASE_CONFIG=default.params
+BASE_CONFIG=sweep-base.params
 
 # ============================================================
 # Case Number Range

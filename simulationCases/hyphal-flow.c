@@ -311,7 +311,6 @@ event adapt(i++){
   (double[]){fErr, fErr, KErr, KErr, VelErr, VelErr, AErr},
   MAXlevel, MINlevel);
 
-  unrefine(x > X0 + L0 - 1.);
   unrefine(y > 1e1);
 }
 /**

@@ -81,6 +81,7 @@ API.
 ├── runParameterSweep.sh - Cartesian product of SWEEP_* keys
 ├── default.params - base runtime parameters
 ├── case-2000-debug.params - resolved short-domain diagnostic case
+├── sweep-base.params - fixed rheology and numerics for the first sweep
 ├── sweep.params - default parameter sweep
 ├── runSingleCaseHamilton.sbatch - site batch wrapper for one MPI case
 ├── runSweepHamilton.sbatch - site batch wrapper for an MPI sweep
@@ -103,6 +104,7 @@ bash runSimulation.sh default.params
 bash runSimulation.sh default.params --mpi --CPUs 8
 bash runSimulation.sh case-2000-debug.params --mpi --CPUs 7
 bash runParameterSweep.sh sweep.params --dry-run
+bash runParameterSweep.sh sweep.params --emit-params generated-sweep
 bash runParameterSweep.sh sweep.params
 ```
 
@@ -111,6 +113,11 @@ The binary is invoked with `case.params` as `argv[1]`.
 
 `SWEEP_*` keys form a Cartesian product. `CASE_START` and `CASE_END` must
 match the generated count exactly.
+
+Production Hamilton sweeps use independent `runSingleCaseHamilton.sbatch`
+jobs. Each job writes dumps to its scheduler-allocated node-local filesystem,
+restore-validates both interfaces, records checksums and then stages the case
+to `RUN_ROOT`. The sequential sweep wrapper is not the production route.
 
 ### Manual compilation
 

@@ -17,6 +17,7 @@ Usage: bash runParameterSweep.sh [sweep_file] [OPTIONS]
 Options:
   --exec FILE       Simulation source (only hyphal-flow.c is supported)
   --output-root DIR Case-output root passed to runSimulation.sh
+  --emit-params DIR Generate case parameter files without compiling or running
   --dry-run         Print generated cases without compiling or executing
   --verbose         Print all expanded parameter values
   --mpi             Compile and execute every case with MPI
@@ -36,6 +37,7 @@ EXEC_CODE="hyphal-flow.c"
 SWEEP_FILE="sweep.params"
 SWEEP_FILE_SET=0
 OUTPUT_ROOT="${SCRIPT_DIR}/simulationCases"
+EMIT_PARAMS=""
 DRY_RUN=0
 VERBOSE=0
 USE_MPI=0
@@ -48,6 +50,8 @@ while [[ $# -gt 0 ]]; do
     --exec=*) EXEC_CODE="${1#*=}"; shift ;;
     --output-root) require_value "$1" "${2:-}"; OUTPUT_ROOT="$2"; shift 2 ;;
     --output-root=*) OUTPUT_ROOT="${1#*=}"; shift ;;
+    --emit-params) require_value "$1" "${2:-}"; EMIT_PARAMS="$2"; shift 2 ;;
+    --emit-params=*) require_value "--emit-params" "${1#*=}"; EMIT_PARAMS="${1#*=}"; shift ;;
     -n|--dry-run) DRY_RUN=1; shift ;;
     -v|--verbose) VERBOSE=1; shift ;;
     --mpi) USE_MPI=1; shift ;;
@@ -78,6 +82,13 @@ fi
 if [[ -z "$OUTPUT_ROOT" ]]; then
   printf 'ERROR: --output-root may not be empty\n' >&2
   exit 2
+fi
+if [[ -n "$EMIT_PARAMS" ]]; then
+  [[ "$EMIT_PARAMS" = /* ]] || EMIT_PARAMS="${SCRIPT_DIR}/${EMIT_PARAMS}"
+  [[ ! -e "$EMIT_PARAMS" ]] || {
+    printf 'ERROR: --emit-params target already exists: %s\n' "$EMIT_PARAMS" >&2
+    exit 2
+  }
 fi
 if [[ ! "$MPI_CPUS" =~ ^[1-9][0-9]*$ ]]; then
   printf 'ERROR: --cpus must be a positive integer; got %s\n' "$MPI_CPUS" >&2
@@ -184,6 +195,17 @@ fi
 
 printf 'Sweep: %d case(s), %04d..%04d, source=%s\n' \
   "$COMBINATION_COUNT" "$((10#$CASE_START))" "$GENERATED_END" "$EXEC_CODE"
+if [[ -n "$EMIT_PARAMS" ]]; then
+  mkdir "$EMIT_PARAMS"
+  for param_file in "${PARAM_FILES[@]}"; do
+    case_number="${param_file##*case_}"
+    case_number="${case_number%.params}"
+    cp "$param_file" "${EMIT_PARAMS}/case-${case_number}.params"
+  done
+  printf 'Wrote %d case parameter files to %s\n' \
+    "$COMBINATION_COUNT" "$EMIT_PARAMS"
+  exit 0
+fi
 if [[ $DRY_RUN -eq 1 ]]; then
   printf 'Dry run complete; no simulations executed.\n'
   exit 0

@@ -1,0 +1,38 @@
+# Fixed base for the first resolved wall-stiffness sweep.
+# The drop and wall are non-relaxing elastic phases; the carrier remains a
+# finite-relaxation viscoelastic liquid. This is parametric exploration, not
+# verification or validation.
+
+CaseNo=2001
+
+# Numerical controls inherited by cases 2001-2007
+MAXlevel=12
+initial_refine_level=12
+initial_refine_band=1.25
+initial_volume_tolerance=0.01
+tmax=200.0
+snapshot_interval=0.5
+log_interval=0.01
+
+# Soft non-relaxing elastic drop
+Oh_drop=1.0
+rho_drop=1.2
+Ec_drop=0.01
+De_drop=1e30
+
+# Non-relaxing wall; Ec_solid is replaced by sweep.params
+Oh_solid=1.0
+rho_solid=1.0
+Ec_solid=0.01
+De_solid=1e30
+
+# Finite-relaxation viscoelastic carrier liquid
+Oh_liquid=0.01
+rho_liquid=1.0
+Ec_liquid=0.05
+De_liquid=0.5
+
+# Resolved short domain established by case 2000
+channel_radius=0.90
+Bond=1.0
+Ldomain=16.0

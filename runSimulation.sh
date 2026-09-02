@@ -100,26 +100,31 @@ if [[ ! "$CASE_NO" =~ ^[0-9]{4}$ ]] || ((10#$CASE_NO < 1000 || 10#$CASE_NO > 999
   exit 2
 fi
 
-# A local configuration may add qcc to PATH, but a clean clone does not need it.
+# A local configuration may name a Basilisk source tree or add qcc to PATH.
 if [[ -f "${SCRIPT_DIR}/.project_config" ]]; then
   # shellcheck disable=SC1091
   source "${SCRIPT_DIR}/.project_config"
 fi
-if command -v qcc >/dev/null 2>&1; then
-  QCC="$(command -v qcc)"
-elif [[ -n "${BASILISK:-}" && -x "${BASILISK}/qcc" ]]; then
-  QCC="${BASILISK}/qcc"
+if [[ -n "${BASILISK:-}" ]]; then
+  QCC_CANDIDATE="${BASILISK}/qcc"
+elif command -v qcc >/dev/null 2>&1; then
+  QCC_CANDIDATE="$(command -v qcc)"
 else
-  printf 'ERROR: qcc is not available in PATH or BASILISK/qcc\n' >&2
+  printf 'ERROR: qcc is not available; set BASILISK or add qcc to PATH\n' >&2
   exit 2
 fi
+[[ -f "$QCC_CANDIDATE" && -x "$QCC_CANDIDATE" ]] || {
+  printf 'ERROR: qcc is not an executable regular file: %s\n' "$QCC_CANDIDATE" >&2
+  exit 2
+}
+QCC_DIR="$(cd "$(dirname "$QCC_CANDIDATE")" && pwd -P)"
+QCC="${QCC_DIR}/$(basename "$QCC_CANDIDATE")"
 
 if [[ -n "${BASILISK:-}" && -f "${BASILISK}/grid/multigrid-common.h" ]]; then
   BASILISK_API_HEADER="${BASILISK}/grid/multigrid-common.h"
 elif [[ -n "${BASILISK:-}" && -f "${BASILISK}/src/grid/multigrid-common.h" ]]; then
   BASILISK_API_HEADER="${BASILISK}/src/grid/multigrid-common.h"
 else
-  QCC_DIR="$(dirname "$QCC")"
   BASILISK_API_HEADER="${QCC_DIR}/grid/multigrid-common.h"
 fi
 [[ -f "$BASILISK_API_HEADER" ]] || {

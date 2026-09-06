@@ -41,6 +41,36 @@ RUN_REAL="$(cd "$RUN_ROOT" && pwd -P)"
 case "${RUN_REAL}/" in
   "${SCRIPT_REAL}/"*) printf 'ERROR: RUN_ROOT must be outside the source checkout\n' >&2; exit 2 ;;
 esac
+RESUME_ARGS=()
+RESUME_REAL=""
+if [[ -n "${RESUME_FROM:-}" ]]; then
+  [[ "${RESUME_FROM}" = /* && -d "${RESUME_FROM}" ]] || {
+    printf 'ERROR: RESUME_FROM must be an existing absolute directory\n' >&2
+    exit 2
+  }
+  RESUME_REAL="$(cd "${RESUME_FROM}" && pwd -P)"
+  case "${RESUME_REAL}/" in
+    "${RUN_REAL}/"*) ;;
+    *)
+      printf 'ERROR: RESUME_FROM must resolve inside RUN_ROOT: %s\n' \
+        "${RESUME_FROM}" >&2
+      exit 2
+      ;;
+  esac
+  [[ "${RESUME_REAL}" != "${RUN_REAL}" ]] || {
+    printf 'ERROR: RESUME_FROM must name a case directory, not RUN_ROOT\n' >&2
+    exit 2
+  }
+  for required in restart run-manifest.txt case.params; do
+    [[ -f "${RESUME_REAL}/${required}" &&
+       ! -L "${RESUME_REAL}/${required}" ]] || {
+      printf 'ERROR: RESUME_FROM lacks regular non-symlink file: %s\n' \
+        "${required}" >&2
+      exit 2
+    }
+  done
+  RESUME_ARGS=(--resume)
+fi
 [[ "${TMPDIR}" = /* && -d "${TMPDIR}" && -w "${TMPDIR}" ]] || {
   printf 'ERROR: TMPDIR must be an allocated writable absolute directory\n' >&2
   exit 2
@@ -57,6 +87,19 @@ CASE_NO="$(get_param_value CaseNo "${PARAM_FILE}")"
   printf 'ERROR: invalid CaseNo in %s\n' "${PARAM_FILE}" >&2
   exit 2
 }
+if [[ -n "${RESUME_REAL}" ]]; then
+  RESUME_CASE_NO="$(get_param_value CaseNo "${RESUME_REAL}/case.params")"
+  [[ "${RESUME_CASE_NO}" == "${CASE_NO}" ]] || {
+    printf 'ERROR: RESUME_FROM CaseNo %s does not match requested CaseNo %s\n' \
+      "${RESUME_CASE_NO:-<missing>}" "${CASE_NO}" >&2
+    exit 2
+  }
+  grep -Fxq "case=${CASE_NO}" "${RESUME_REAL}/run-manifest.txt" || {
+    printf 'ERROR: RESUME_FROM manifest does not record case=%s\n' \
+      "${CASE_NO}" >&2
+    exit 2
+  }
+fi
 
 LOCAL_OUTPUT_ROOT="${TMPDIR}/hyphal-flow-${SLURM_JOB_ID}"
 LOCAL_CASE_DIR="${LOCAL_OUTPUT_ROOT}/${CASE_NO}"
@@ -66,6 +109,10 @@ DURABLE_CASE_DIR="${RUN_REAL}/${CASE_NO}"
   exit 2
 }
 mkdir -p "${LOCAL_OUTPUT_ROOT}"
+if [[ -n "${RESUME_REAL}" ]]; then
+  mkdir "${LOCAL_CASE_DIR}"
+  rsync -a -- "${RESUME_REAL}/" "${LOCAL_CASE_DIR}/"
+fi
 
 stage_out () {
   status=$?
@@ -98,7 +145,8 @@ module load openmpi
 
 cd "$SCRIPT_DIR"
 bash runSimulation.sh "$PARAM_FILE" \
-  --output-root "$LOCAL_OUTPUT_ROOT" --mpi --cpus "${SLURM_NTASKS:-128}"
+  --output-root "$LOCAL_OUTPUT_ROOT" "${RESUME_ARGS[@]}" \
+  --mpi --cpus "${SLURM_NTASKS:-128}"
 
 if command -v qcc >/dev/null 2>&1; then
   QCC="$(command -v qcc)"

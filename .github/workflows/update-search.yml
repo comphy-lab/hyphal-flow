@@ -2,7 +2,7 @@ name: Refresh search and deploy Pages
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '23 5 1,15 * *'
   workflow_dispatch:
 
 permissions:

@@ -22,16 +22,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - name: Fetch current CoMPhy search database
+      - name: Fetch and validate the reviewed search index
+        env:
+          SEARCH_REVISION: ${{ vars.COMPHY_SEARCH_REVISION }}
+          INDEX_DESTINATION: .github/docs/assets/js/search_db.json
+        shell: bash
         run: |
-          search_root="$(mktemp -d)"
-          trap 'rm -rf "$search_root"' EXIT
-          git clone --depth=1 \
-            "https://github.com/${GITHUB_REPOSITORY_OWNER}/comphy-search.git" \
-            "$search_root/repository"
-          install -m 0644 "$search_root/repository/search_db.json" \
-            .github/docs/assets/js/search_db.json
+          set -euo pipefail
+          if [[ -z "$SEARCH_REVISION" ]]; then
+            printf '%s\n' 'No reviewed COMPHY_SEARCH_REVISION is configured; deploying the committed index.'
+            exit 0
+          fi
+          [[ "$SEARCH_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          tmp="$(mktemp -d)"
+          trap 'rm -rf -- "$tmp"' EXIT
+          git -C "$tmp" init -q
+          git -C "$tmp" fetch --depth=1 --no-tags https://github.com/comphy-lab/comphy-search.git "$SEARCH_REVISION"
+          [[ "$(git -C "$tmp" rev-parse FETCH_HEAD)" == "$SEARCH_REVISION" ]]
+          read -r mode kind object path <<< "$(git -C "$tmp" ls-tree "$SEARCH_REVISION" -- search_db.json)"
+          [[ "$mode" == 100644 && "$kind" == blob && "$path" == search_db.json ]]
+          # Read the blob, not a checked-out path that may be a symlink.
+          git -C "$tmp" cat-file blob "$object" > "$tmp/search_db.json"
+          python3 .github/scripts/validate-search-index.py "$tmp/search_db.json"
+          install -m 0644 "$tmp/search_db.json" "$INDEX_DESTINATION"
 
       - uses: actions/configure-pages@v4
 

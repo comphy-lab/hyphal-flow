@@ -19,9 +19,6 @@
 # Options:
 #   --force-rebuild  Rebuild all HTML files even if source unchanged
 #
-# Environment:
-#   SEARCH_REPO  Override search database repository name (default: comphy-search)
-#
 # Author: Vatsal Sanjay
 # Organization: CoMPhy Lab, Durham University
 
@@ -54,43 +51,14 @@ cd "$PROJECT_ROOT"
 # Documentation output directory
 DOCS_DIR="$PROJECT_ROOT/.github/docs"
 
-# Auto-detect GitHub organization, preferring the canonical CoMPhy remote.
-if [ -n "${GITHUB_REPOSITORY:-}" ]; then
-    GITHUB_ORG="${GITHUB_REPOSITORY%%/*}"
-else
-    GITHUB_ORG=$(git remote -v 2>/dev/null | sed -n \
-      's|.*github\.com[:/]\(comphy-lab\)/.*|\1|p' | head -n 1)
-    if [ -z "$GITHUB_ORG" ]; then
-        GITHUB_ORG=$(git remote -v 2>/dev/null | sed -n \
-          's|.*github\.com[:/]\([^/]*\)/.*|\1|p' | head -n 1)
+# The search index is the committed, reviewed copy. It is updated only by
+# .github/workflows/update-search.yml, which imports a pinned comphy-search
+# revision through a reviewed pull request. Never fetch it at build time.
+for SEARCH_INDEX in "$PROJECT_ROOT/.github/docs/assets/js/search_db.json"; do
+    if [ -f "$SEARCH_INDEX" ]; then
+        python3 "$PROJECT_ROOT/.github/scripts/validate-search-index.py" "$SEARCH_INDEX"
     fi
-fi
-if [ -z "$GITHUB_ORG" ]; then
-    echo "Warning: Could not detect GitHub organization from git remote. Using fallback: comphy-lab"
-    GITHUB_ORG="comphy-lab"
-fi
-echo "Detected GitHub organization: $GITHUB_ORG"
-
-# Try to clone search database (optional - may not exist for all orgs)
-# Allow override via SEARCH_REPO environment variable
-SEARCH_REPO="${SEARCH_REPO:-comphy-search}"
-echo "Attempting to clone search database from ${GITHUB_ORG}/${SEARCH_REPO}..."
-
-SEARCH_TMP="$(mktemp -d "${TMPDIR:-/tmp}/hyphal-docs-search.XXXXXX")"
-trap 'rm -rf "$SEARCH_TMP"' EXIT
-if git clone --depth=1 "https://github.com/${GITHUB_ORG}/${SEARCH_REPO}.git" \
-    "$SEARCH_TMP/repository" 2>/dev/null; then
-    mkdir -p "$DOCS_DIR/assets/js"
-    if [ -f "$SEARCH_TMP/repository/search_db.json" ]; then
-        cp "$SEARCH_TMP/repository/search_db.json" "$DOCS_DIR/assets/js/search_db.json"
-        echo "Search database copied successfully"
-    else
-        echo "Warning: search_db.json not found in ${SEARCH_REPO} repository"
-    fi
-else
-    echo "Warning: Could not clone ${GITHUB_ORG}/${SEARCH_REPO}. Search functionality may be limited."
-    echo "This is expected if the search repository doesn't exist for your organization."
-fi
+done
 PYTHON_SCRIPT="$PROJECT_ROOT/.github/scripts/generate_docs.py"
 
 # Function to display messages
